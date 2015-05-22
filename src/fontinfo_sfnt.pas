@@ -14,6 +14,7 @@ uses
   streamex,
   sysutils;
 
+
 procedure GetSFNTInfo(const FileName: string; var info: TFontInfo);
 
 implementation

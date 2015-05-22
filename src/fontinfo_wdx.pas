@@ -31,6 +31,7 @@ library fontinfo_wdx;
 uses
   fontinfo_common,
   fontinfo_sfnt,
+  fontinfo_sfd,
   wdxplugin,
   classes,
   sysutils;
@@ -58,7 +59,8 @@ begin
   StrPLCopy(DetectString,
             '(EXT="TTF")|(EXT="TTC")|' +
             '(EXT="OTF")|(EXT="OTC")|' +
-            '(EXT="WOFF")|(EXT="EOT")',
+            '(EXT="WOFF")|(EXT="EOT")|' +
+            '(EXT="SFD")',
             MaxLen);
 end;
 
@@ -101,6 +103,8 @@ begin
           '.woff',
           '.eot':
             GetSFNTInfo(FileName_s, info);
+          '.sfd':
+            GetSFDInfo(FileName_s, info);
         end;
       except
         on Exception do

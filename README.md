@@ -10,6 +10,7 @@ and [Double][Double Commander] Commanders.
   * OpenType and OpenType Collections
   * Web Open Font Format (WOFF)
   * Embedded OpenType (EOT)
+  * FontForge’s Spline Font Database (SFD)
 
 PostScript fonts (and probably some other formats) will be supported in
 future versions.
@@ -40,6 +41,7 @@ future versions.
     * "OT PS" — PostSript flavored OpenType
     * "OT TT" — TrueType flavored OpenType
     * "EOT" — Embedded OpenType (because currently plugin can't decompress EOT)
+    * "SFD {version}"
   * Number of Fonts — number of fonts in TTC or OTC. Always 1 for all
     other formats.
 
@@ -56,6 +58,7 @@ and then run `compile` script.
   * [WOFF Specification](http://www.w3.org/TR/WOFF/)
   * [EOT Specification](http://www.w3.org/Submission/EOT/)
   * [Apple TrueType Reference Manual](https://developer.apple.com/fonts/TrueType-Reference-Manual/)
+  * [FontForge’s SDF Specification](http://fontforge.github.io/en-US/documentation/developers/sfdformat/)
 
 
 [Total Commander]: http://www.ghisler.com/
