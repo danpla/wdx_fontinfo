@@ -12,7 +12,6 @@ uses
   classes,
   zstream,
   streamex,
-  strutils,
   sysutils;
 
 procedure GetSFNTInfo(const FileName: string; var info: TFontInfo);
