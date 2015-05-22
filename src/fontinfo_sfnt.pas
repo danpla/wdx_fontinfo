@@ -177,6 +177,12 @@ const
   ENCODING_ID_WIN_UCS2 = 1;
 
 type
+  TNamingTable = packed record
+    format,
+    count,
+    stringOffset: word;
+  end;
+
   TNameRecord = packed record
     platformID,
     encodingID,
@@ -189,7 +195,7 @@ type
 procedure NameReader(stream: TStream; var info: TFontInfo);
 var
   start: int64;
-  nrecords: word;
+  naming_table: TNamingTable;
   storage_offset,
   offset: int64;
   i: longint;
@@ -197,13 +203,20 @@ var
   name: string;
 begin
   start := stream.Position;
+  stream.ReadBuffer(naming_table, SizeOf(naming_table));
 
-  // Read SFNT 'name' table.
-  stream.Seek(SizeOf(word), soFromCurrent); // Skip format.
-  nrecords := stream.ReadWordBE;
-  storage_offset := start + stream.ReadWordBE;
+  {$IFDEF ENDIAN_LITTLE}
+  with naming_table do
+    begin
+      format       := SwapEndian(format);
+      count        := SwapEndian(count);
+      stringOffset := SwapEndian(stringOffset);
+    end;
+  {$ENDIF}
 
-  for i := 0 to nrecords - 1 do
+  storage_offset := start + naming_table.stringOffset;
+
+  for i := 0 to naming_table.count - 1 do
     begin
         stream.ReadBuffer(name_rec, SizeOf(name_rec));
 
@@ -381,7 +394,7 @@ begin
   {$IFDEF ENDIAN_LITTLE}
   with header do
     begin
-      flavor   := SwapEndian(flavor);
+      flavor    := SwapEndian(flavor);
       length    := SwapEndian(length);
       numTables := SwapEndian(numTables);
       reserved  := SwapEndian(reserved);
