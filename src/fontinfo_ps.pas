@@ -144,8 +144,7 @@ var
   p,
   val_start: SizeInt;
   s,
-  key,
-  val: string;
+  key: string;
 begin
   Assign(t, FileName);
   {I-}
