@@ -1,3 +1,7 @@
+{
+  SFNT-based fonts
+}
+
 {$MODE OBJFPC}
 {$H+}
 {$INLINE ON}

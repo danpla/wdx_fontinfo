@@ -130,8 +130,7 @@ begin
   FileRead(h, magick, SizeOf(magick));
 
   if LEtoN(magick) = BIN_MAGICK then
-    // Skip the rest (size of ASII data).
-    FileSeek(h, SizeOf(longword), fsFromCurrent)
+    FileSeek(h, SizeOf(TBinHeader.ascii_length), fsFromCurrent)
   else
     FileSeek(h, 0, fsFromBeginning);
 end;
