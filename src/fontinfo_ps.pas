@@ -28,7 +28,8 @@ const
   PS_MAGICK2 = '%!FontType';
   PS_MAGICK3 = '%!PS-TrueTypeFont';
 
-  MAX_LINES = 26;
+  // Characters we need to skip to reach certain value.
+  SKIP_CHARS = [' ', '(', '/'];
 
 type
   TBinHeader = packed record
@@ -100,21 +101,18 @@ begin
 end;
 
 
-function ExtractPSNumber(const s: string; const start: longword): string; inline;
+{
+  Extract literal or number.
+}
+function ExtractPSValue(const s: string; const start: longword): string; inline;
 begin
   result := Copy(s, start, PosEx(' ', s, start) - start);
 end;
 
 
-function ExtractPSSLiteral(const s: string; const start: longword): string; inline;
-begin
-  result := Copy(s, start + 1, PosEx(' ', s, start) - (start + 1));
-end;
-
-
 function ExtractPSString(const s: string; const start: longword): string; inline;
 begin
-  result := UnEscape(Copy(s, start + 1, RPos(')', s) - (start + 1)))
+  result := UnEscape(Copy(s, start, RPos(')', s) - start))
 end;
 
 
@@ -139,7 +137,6 @@ end;
 procedure GetPSInfo(const FileName: string; var info: TFontInfo);
 var
   t: text;
-  i: longint;
   p,
   val_start: SizeInt;
   s,
@@ -161,33 +158,38 @@ begin
      (Pos(PS_MAGICK3, s) <> 1) then
     exit;
 
-  i := 1;
-  while (i < MAX_LINES) and (not EOF(t)) do
+  while not EOF(t) do
     begin
       ReadLn(t, s);
-      s := TrimLeft(s);
+      s := Trim(s);
 
       // Skip empty lines and comments.
       if (s = '') or (s[1] = '%') then
         continue;
-      inc(i);
 
-      p := Pos(' ', s);
-      if p = 0 then
+      if s = 'currentdict end' then
         break;
 
+      p := PosSetEx(SKIP_CHARS, s, 2);
+      if p = 0 then
+        continue;
+
       key := Copy(s, 1, p - 1);
-      val_start := p + 1;
+      val_start := p;
+
+      // Skip spaces.
+      repeat
+        inc(val_start);
+      until not (s[val_start] in SKIP_CHARS);
 
       case key of
-        '/FontType': info[IDX_FORMAT] := 'PS T ' + ExtractPSNumber(s, val_start);
-        '/FontName': info[IDX_PS_NAME] := ExtractPSSLiteral(s, val_start);
+        '/FontType': info[IDX_FORMAT] := 'PS T ' + ExtractPSValue(s, val_start);
+        '/FontName': info[IDX_PS_NAME] := ExtractPSValue(s, val_start);
         '/version': info[IDX_VERSION] := ExtractPSString(s, val_start);
         '/Notice': info[IDX_COPYRIGHT] := ExtractPSString(s, val_start);
         '/FullName': info[IDX_FULL_NAME] := ExtractPSString(s, val_start);
         '/FamilyName': info[IDX_FAMILY] := ExtractPSString(s, val_start);
         '/Weight': info[IDX_STYLE] := ExtractPSString(s, val_start);
-        '/Encoding': break;
       end;
     end;
 
