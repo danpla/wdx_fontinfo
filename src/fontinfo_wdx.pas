@@ -31,6 +31,7 @@ library fontinfo_wdx;
 uses
   fontinfo_common,
   fontinfo_sfnt,
+  fontinfo_ps,
   fontinfo_sfd,
   wdxplugin,
   classes,
@@ -57,9 +58,9 @@ end;
 procedure ContentGetDetectString(DetectString: PAnsiChar; MaxLen: Integer); dcpcall;
 begin
   StrPLCopy(DetectString,
-            '(EXT="TTF")|(EXT="TTC")|' +
-            '(EXT="OTF")|(EXT="OTC")|' +
+            '(EXT="TTF")|(EXT="TTC")|(EXT="OTF")|(EXT="OTC")|' +
             '(EXT="WOFF")|(EXT="EOT")|' +
+            '(EXT="PS")|(EXT="PFA")|(EXT="PFB")|(EXT="PT3")|(EXT="T42")|' +
             '(EXT="SFD")',
             MaxLen);
 end;
@@ -103,6 +104,12 @@ begin
           '.woff',
           '.eot':
             GetSFNTInfo(FileName_s, info);
+          '.ps',
+          '.pfa',
+          '.pfb',
+          '.pt3',
+          '.t42,':
+            GetPSInfo(FileName_s, info);
           '.sfd':
             GetSFDInfo(FileName_s, info);
         end;

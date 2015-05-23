@@ -2,7 +2,7 @@
   FontForge's Spline Font Database
 
   Currently we don't parse whole file (for speed) — just few first lines,
-  which is should be enough for most of SFD files.
+  which is should be enough to get basic info from most of SFD files.
 }
 
 {$MODE OBJFPC}
