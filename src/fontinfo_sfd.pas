@@ -14,7 +14,8 @@ unit fontinfo_sfd;
 interface
 
 uses
-  fontinfo_common;
+  fontinfo_common,
+  sysutils;
 
 
 procedure GetSFDInfo(const FileName: string; var info: TFontInfo);
@@ -23,62 +24,67 @@ procedure GetSFDInfo(const FileName: string; var info: TFontInfo);
 implementation
 
 const
-  DELIM = ': ';
-  MAX_LINES = 10;
+  SFD_SIGN = 'SplineFontDB:';
+  NFIELDS = 6; // Number of fields we need to find.
+  MAX_LINES = 30;
 
 
 procedure GetSFDInfo(const FileName: string; var info: TFontInfo);
 var
   t: text;
+  sign: string[Length(SFD_SIGN)];
+  version: string;
   i: longint;
-  key,
-  val: string;
-
-  function ReadLnAndSplit: boolean;
-  var
-    s: string;
-    p,
-    val_start: SizeInt;
-  begin
-    ReadLn(t, s);
-    if s = '' then
-      exit(FALSE);
-
-    p := Pos(DELIM, s);
-    if p = 0 then
-      exit(FALSE);
-
-    key := Copy(s, 1, p - 1);
-    val_start := p + Length(DELIM);
-    val := Copy(s, val_start, Length(s) - (val_start - 1));
-
-    result := True;
-  end;
-
+  s,
+  key: string;
+  p,
+  idx,
+  nfound: longint;
 begin
   Assign(t, FileName);
   {I-}
   Reset(t);
   {I+}
-  if (IOResult <> 0) or
-     (not ReadLnAndSplit) or
-     (key <> 'SplineFontDB') then
+  if IOResult <> 0 then
     exit;
 
-  info[IDX_FORMAT] := 'SFD ' + val;
+  ReadLn(t, sign, version);
+  if sign = SFD_SIGN then
+    begin
+      info[IDX_FORMAT] := 'SFD ' + TrimLeft(version);
 
-  for i := 1 to MAX_LINES do
-    if ReadlnAndSplit then
-      case key of
-        'FontName': info[IDX_PS_NAME] := val;
-        'FullName': info[IDX_FULL_NAME] := val;
-        'FamilyName': info[IDX_FAMILY] := val;
-        'Weight': info[IDX_STYLE] := val;
-        'Copyright': info[IDX_COPYRIGHT] := val;
-        'Version': info[IDX_VERSION] := val;
-      end
-    else
-      break;
+      i := 1;
+      idx := -1;
+      nfound := 0;
+      while (nfound < NFIELDS) and (i <= MAX_LINES) and not EOF(t) do
+        begin
+          ReadLn(t, s);
+          if s = '' then
+            break;
+
+          p := Pos(' ', s);
+          if p = 0 then
+            continue;
+
+          inc(i);
+
+          key := Copy(s, 1, p - 1);
+          case key of
+            'FontName:': idx := longint(IDX_PS_NAME);
+            'FullName:': idx := longint(IDX_FULL_NAME);
+            'FamilyName:': idx := longint(IDX_FAMILY);
+            'Weight:': idx := longint(IDX_STYLE);
+            'Copyright:': idx := longint(IDX_COPYRIGHT);
+            'Version:': idx := longint(IDX_VERSION);
+          else
+            continue;
+          end;
+
+          info[TFieldIndex(idx)] := RightStr(s, Length(s) - p);
+          inc(nfound);
+          idx := -1;
+        end;
+    end;
 
   Close(t);
 end;
