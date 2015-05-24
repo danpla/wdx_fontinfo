@@ -38,8 +38,8 @@ var
   s,
   key: string;
   p,
-  idx,
   nfound: longint;
+  idx: TFieldIndex;
 begin
   Assign(t, FileName);
   {I-}
@@ -54,7 +54,6 @@ begin
       info[IDX_FORMAT] := 'SFD ' + TrimLeft(version);
 
       i := 1;
-      idx := -1;
       nfound := 0;
       while (nfound < NFIELDS) and (i <= MAX_LINES) and not EOF(t) do
         begin
@@ -70,19 +69,18 @@ begin
 
           key := Copy(s, 1, p - 1);
           case key of
-            'FontName:': idx := longint(IDX_PS_NAME);
-            'FullName:': idx := longint(IDX_FULL_NAME);
-            'FamilyName:': idx := longint(IDX_FAMILY);
-            'Weight:': idx := longint(IDX_STYLE);
-            'Copyright:': idx := longint(IDX_COPYRIGHT);
-            'Version:': idx := longint(IDX_VERSION);
+            'FontName:': idx := IDX_PS_NAME;
+            'FullName:': idx := IDX_FULL_NAME;
+            'FamilyName:': idx := IDX_FAMILY;
+            'Weight:': idx := IDX_STYLE;
+            'Copyright:': idx := IDX_COPYRIGHT;
+            'Version:': idx := IDX_VERSION;
           else
             continue;
           end;
 
-          info[TFieldIndex(idx)] := RightStr(s, Length(s) - p);
+          info[idx] := RightStr(s, Length(s) - p);
           inc(nfound);
-          idx := -1;
         end;
     end;
 
