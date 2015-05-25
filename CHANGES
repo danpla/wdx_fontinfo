@@ -1,3 +1,8 @@
 
+0.5.0 (24.05.15)
+  • Support for PostScript fonts
+  • FontForge’s Spline Font Database support
+
+
 0.4.0 (22.05.15)
   Initial release.
