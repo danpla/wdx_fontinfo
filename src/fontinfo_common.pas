@@ -49,6 +49,26 @@ const
     'Number of Fonts'
     );
 
+
+function GetWeightName(const weight: word): string;
+
 implementation
+
+
+function GetWeightName(const weight: word): string;
+begin
+  case weight of
+    100: result := 'Thin';
+    200: result := 'Extra-light';
+    300: result := 'Light';
+    500: result := 'Medium';
+    600: result := 'Semi-bold';
+    700: result := 'Bold';
+    800: result := 'Extra-bold';
+    900: result := 'Black';
+  else
+    result := 'Normal';
+  end;
+end;
 
 end.

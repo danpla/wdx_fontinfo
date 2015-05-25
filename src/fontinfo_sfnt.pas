@@ -15,7 +15,6 @@ uses
   fontinfo_utils,
   classes,
   zstream,
-  streamex,
   sysutils;
 
 
