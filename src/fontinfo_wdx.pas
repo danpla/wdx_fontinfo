@@ -95,28 +95,22 @@ begin
 
   if CurrentFileName <> FileName_s then
     begin
-      try
-        case LowerCase(ExtractFileExt(FileName_s)) of
-          '.ttf',
-          '.ttc',
-          '.otf',
-          '.otc',
-          '.woff',
-          '.eot':
-            GetSFNTInfo(FileName_s, info);
-          '.ps',
-          '.pfa',
-          '.pfb',
-          '.pt3',
-          '.t42,':
-            GetPSInfo(FileName_s, info);
-          '.sfd':
-            GetSFDInfo(FileName_s, info);
-        end;
-      except
-        on Exception do
-          begin
-          end;
+      case LowerCase(ExtractFileExt(FileName_s)) of
+        '.ttf',
+        '.ttc',
+        '.otf',
+        '.otc',
+        '.woff',
+        '.eot':
+          GetSFNTInfo(FileName_s, info);
+        '.ps',
+        '.pfa',
+        '.pfb',
+        '.pt3',
+        '.t42,':
+          GetPSInfo(FileName_s, info);
+        '.sfd':
+          GetSFDInfo(FileName_s, info);
       end;
 
       info_cache := info;

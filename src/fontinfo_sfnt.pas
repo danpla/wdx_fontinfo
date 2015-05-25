@@ -515,28 +515,34 @@ var
   f: TFileStream;
   sign: longword;
 begin
-  f := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
   try
-    sign := f.ReadDWordBE;
-    case sign of
-      TTF_MAGICK1,
-      TTF_MAGICK2,
-      TTF_MAGICK3,
-      TTF_MAGICK4:
-        CheckTTF(f, info);
-      OTF_MAGICK:
-        CheckOTF(f, info);
-      WOFF_MAGICK:
-        CheckWOFF(f, info);
-      TTC_OTC_MAGICK:
-        CheckCollection(f, info);
-    else
-      // Probably EOT.
-      if SwapEndian(sign) = f.Size then
-        CheckEOT(f, info);
+    f := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
+    try
+      sign := f.ReadDWordBE;
+      case sign of
+        TTF_MAGICK1,
+        TTF_MAGICK2,
+        TTF_MAGICK3,
+        TTF_MAGICK4:
+          CheckTTF(f, info);
+        OTF_MAGICK:
+          CheckOTF(f, info);
+        WOFF_MAGICK:
+          CheckWOFF(f, info);
+        TTC_OTC_MAGICK:
+          CheckCollection(f, info);
+      else
+        // Probably EOT.
+        if SwapEndian(sign) = f.Size then
+          CheckEOT(f, info);
+      end;
+    finally
+      f.Free;
     end;
-  finally
-    f.Free;
+  except
+    on Exception do
+      begin
+      end;
   end;
 end;
 
