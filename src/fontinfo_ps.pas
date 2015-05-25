@@ -30,6 +30,8 @@ const
 
   // Characters we need to skip to reach certain value.
   SKIP_CHARS = [' ', '(', '/'];
+  // Number of fields we need to find.
+  NFIELDS = 7;
 
 type
   TBinHeader = packed record
@@ -141,6 +143,8 @@ var
   val_start: SizeInt;
   s,
   key: string;
+  idx: TFieldIndex;
+  nfound: longint = 0;
 begin
   Assign(t, FileName);
   {I-}
@@ -158,7 +162,7 @@ begin
      (Pos(PS_MAGICK3, s) <> 1) then
     exit;
 
-  while not EOF(t) do
+  while (nfound < NFIELDS) and not EOF(t) do
     begin
       ReadLn(t, s);
       s := Trim(s);
@@ -175,22 +179,33 @@ begin
         continue;
 
       key := Copy(s, 1, p - 1);
-      val_start := p;
 
+      case key of
+        '/FontType': idx := IDX_FORMAT;
+        '/FontName': idx := IDX_PS_NAME;
+        '/version': idx := IDX_VERSION;
+        '/Notice': idx := IDX_COPYRIGHT;
+        '/FullName': idx := IDX_FULL_NAME;
+        '/FamilyName': idx := IDX_FAMILY;
+        '/Weight': idx := IDX_STYLE;
+      else
+        continue;
+      end;
+
+      val_start := p;
       // Skip spaces.
       repeat
         inc(val_start);
       until not (s[val_start] in SKIP_CHARS);
 
-      case key of
-        '/FontType': info[IDX_FORMAT] := 'PS T ' + ExtractPSValue(s, val_start);
-        '/FontName': info[IDX_PS_NAME] := ExtractPSValue(s, val_start);
-        '/version': info[IDX_VERSION] := ExtractPSString(s, val_start);
-        '/Notice': info[IDX_COPYRIGHT] := ExtractPSString(s, val_start);
-        '/FullName': info[IDX_FULL_NAME] := ExtractPSString(s, val_start);
-        '/FamilyName': info[IDX_FAMILY] := ExtractPSString(s, val_start);
-        '/Weight': info[IDX_STYLE] := ExtractPSString(s, val_start);
+      case idx of
+        IDX_FORMAT: info[idx] := 'PS T ' + ExtractPSValue(s, val_start);
+        IDX_PS_NAME: info[idx] := ExtractPSValue(s, val_start);
+      else
+        info[idx] := ExtractPSString(s, val_start);
       end;
+
+      inc(nfound);
     end;
 
   Close(t);
