@@ -32,6 +32,7 @@ uses
   fontinfo_common,
   fontinfo_sfnt,
   fontinfo_ps,
+  fontinfo_pfm,
   fontinfo_sfd,
   wdxplugin,
   classes,
@@ -61,6 +62,7 @@ begin
             '(EXT="TTF")|(EXT="TTC")|(EXT="OTF")|(EXT="OTC")|' +
             '(EXT="WOFF")|(EXT="EOT")|' +
             '(EXT="PS")|(EXT="PFA")|(EXT="PFB")|(EXT="PT3")|(EXT="T42")|' +
+            '(EXT="PFM")|' +
             '(EXT="SFD")',
             MaxLen);
 end;
@@ -109,6 +111,8 @@ begin
         '.pt3',
         '.t42,':
           GetPSInfo(FileName_s, info);
+        '.pfm':
+          GetPFMInfo(FileName_s, info);
         '.sfd':
           GetSFDInfo(FileName_s, info);
       end;

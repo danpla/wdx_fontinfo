@@ -11,7 +11,14 @@ unit fontinfo_utils;
 interface
 
 uses
+  classes,
+  streamex,
   sysutils;
+
+type
+  TStreamHeplerEx = class helper (TStreamHelper) for TStream
+    function ReadPChar: string;
+  end;
 
 
 function MacintoshToUTF8(const s: string): string;
@@ -19,6 +26,22 @@ function UCS2LEToUTF8(const s: string): string;
 function UCS2BEToUTF8(const s: string): string;
 
 implementation
+
+
+function TStreamHeplerEx.ReadPChar: string;
+var
+  b: byte;
+begin
+  result := '';
+  b := ReadByte;
+  while b <> 0 do
+    begin
+      result := result + char(b);
+      b := ReadByte;
+    end;
+end;
+
+
 
 type
   TCharToUTF8Table = array[char] of PChar;
