@@ -62,7 +62,7 @@ begin
          (header.size <> f.Size) then
         exit;
 
-      f.ReadBuffer(copyright[1], MAX_COPYRIGHT_LEN);
+      SetLength(copyright, f.Read(copyright[1], MAX_COPYRIGHT_LEN));
       info[IDX_COPYRIGHT] := TrimRight(copyright);
 
       f.Seek(WEIGHT_POS, soFromBeginning);
