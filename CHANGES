@@ -1,4 +1,9 @@
 
+0.6.0 (27.015.15)
+  • Support for AFM and PFB
+  • Small performance improvements
+
+
 0.5.0 (24.05.15)
   • Support for PostScript fonts
   • FontForge’s Spline Font Database support
