@@ -33,7 +33,7 @@ uses
   fontinfo_sfnt,
   fontinfo_ps,
   fontinfo_pfm,
-  fontinfo_sfd,
+  fontinfo_afm_sfd,
   wdxplugin,
   classes,
   sysutils;
