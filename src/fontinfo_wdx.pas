@@ -62,7 +62,7 @@ begin
             '(EXT="TTF")|(EXT="TTC")|(EXT="OTF")|(EXT="OTC")|' +
             '(EXT="WOFF")|(EXT="EOT")|' +
             '(EXT="PS")|(EXT="PFA")|(EXT="PFB")|(EXT="PT3")|(EXT="T42")|' +
-            '(EXT="PFM")|' +
+            '(EXT="AFM")|(EXT="PFM")|' +
             '(EXT="SFD")',
             MaxLen);
 end;
@@ -113,8 +113,9 @@ begin
           GetPSInfo(FileName_s, info);
         '.pfm':
           GetPFMInfo(FileName_s, info);
+        '.afm',
         '.sfd':
-          GetSFDInfo(FileName_s, info);
+          GetSFDorAFMInfo(FileName_s, info);
       end;
 
       info_cache := info;
