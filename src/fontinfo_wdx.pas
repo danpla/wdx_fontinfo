@@ -109,7 +109,7 @@ begin
         '.pfa',
         '.pfb',
         '.pt3',
-        '.t42,':
+        '.t42':
           GetPSInfo(FileName_s, info);
         '.pfm':
           GetPFMInfo(FileName_s, info);
