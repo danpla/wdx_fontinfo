@@ -114,7 +114,7 @@ end;
 
 function ExtractPSString(const s: string; const start: longword): string; inline;
 begin
-  result := UnEscape(Copy(s, start, RPos(')', s) - start))
+  result := UnEscape(Copy(s, start, RPos(')', s) - start));
 end;
 
 
@@ -193,7 +193,7 @@ begin
       end;
 
       val_start := p;
-      // Skip spaces.
+
       repeat
         inc(val_start);
       until not (s[val_start] in SKIP_CHARS);
