@@ -11,6 +11,8 @@ and [Double][Double Commander] Commanders.
   * Web Open Font Format (WOFF)
   * Embedded OpenType (EOT)
   * PostScript Type 0, 1, 3, 11, 42 etc., possibly with AFM and PFM
+  * Bitmap Distribution Format (BDF)
+  * X11 Portable Compiled Format (PCF), possibly GZip compressed (.pcf.gz)
   * FontForge’s Spline Font Database (SFD)
 
 
@@ -42,6 +44,8 @@ and [Double][Double Commander] Commanders.
     * "PS T {type}" — PostScript Type {type}
     * "AFM {version}"
     * "PFM" — Printer Font Metrics
+    * "BDF {version}""
+    * "PCF"
     * "SFD {version}"
   * Number of Fonts — number of fonts in TTC or OTC. Always 1 for all
     other formats.
@@ -63,6 +67,8 @@ and then run `compile` script.
   * [PostScript Specifications](http://partners.adobe.com/public/developer/ps/index_specs.html)
   * [AFM Specification (PDF)](https://partners.adobe.com/public/developer/en/font/5004.AFM_Spec.pdf)
   * [PFM Specification (PDF)](https://partners.adobe.com/public/developer/en/font/5178.PFM.pdf)
+  * [BDF Specification (PDF)](https://partners.adobe.com/public/developer/en/font/5005.BDF_Spec.pdf)
+  * [PCF Specification](http://fontforge.github.io/pcf-format.html)
   * [FontForge’s SDF Specification](http://fontforge.github.io/en-US/documentation/developers/sfdformat/)
 
 

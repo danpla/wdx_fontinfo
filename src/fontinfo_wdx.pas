@@ -34,6 +34,7 @@ uses
   fontinfo_ps,
   fontinfo_pfm,
   fontinfo_bdf,
+  fontinfo_pcf,
   fontinfo_afm_sfd,
   wdxplugin,
   classes,
@@ -64,8 +65,9 @@ begin
             '(EXT="WOFF")|(EXT="EOT")|' +
             '(EXT="PS")|(EXT="PFA")|(EXT="PFB")|(EXT="PT3")|(EXT="T42")|' +
             '(EXT="AFM")|(EXT="PFM")|' +
-            '(EXT="BDF")|' +
-            '(EXT="SFD")',
+            '(EXT="BDF")|(EXT="PCF")|' +
+            '(EXT="SFD")|' +
+            '(EXT="GZ")',
             MaxLen);
 end;
 
@@ -86,7 +88,8 @@ end;
 function ContentGetValue(FileName: PAnsiChar; FieldIndex, UnitIndex: Integer;
                          FieldValue: PByte; MaxLen, Flags: Integer): Integer; dcpcall;
 var
-  FileName_s: string;
+  FileName_s,
+  ext: string;
   info: TFontInfo;
 begin
   FileName_s := string(FileName);
@@ -99,7 +102,8 @@ begin
 
   if CurrentFileName <> FileName_s then
     begin
-      case LowerCase(ExtractFileExt(FileName_s)) of
+      ext := LowerCase(ExtractFileExt(FileName_s));
+      case ext of
         '.ttf',
         '.ttc',
         '.otf',
@@ -117,9 +121,20 @@ begin
           GetPFMInfo(FileName_s, info);
         '.bdf':
           GetBDFInfo(FileName_s, info);
+        '.pcf':
+          GetPCFInfo(FileName_s, info, FALSE);
         '.afm',
         '.sfd':
           GetSFDorAFMInfo(FileName_s, info);
+        '.gz':
+          begin
+            ext := LowerCase(ExtractFileExt(
+              Copy(FileName_s, 1, Length(FileName_s) - Length(ext))));
+            case ext of
+              '.pcf':
+                GetPCFInfo(FileName_s, info, TRUE);
+            end;
+          end;
       end;
 
       info_cache := info;
