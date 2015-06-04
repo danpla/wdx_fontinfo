@@ -1,8 +1,5 @@
 {
   Adobe Font Metricks and FontForge's Spline Font Database
-
-  Currently we don't parse whole file (for speed) — just few first lines,
-  which is should be enough to get basic info from most of SFD files.
 }
 
 {$MODE OBJFPC}
@@ -126,6 +123,8 @@ begin
       info[idx] := Copy(s, p + 1, s_len - p);
       inc(nfound);
     end;
+
+  info[IDX_NFONTS] := '1';
 
   Close(t);
 end;

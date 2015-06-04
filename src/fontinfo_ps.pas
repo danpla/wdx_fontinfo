@@ -208,6 +208,8 @@ begin
       inc(nfound);
     end;
 
+  info[IDX_NFONTS] := '1';
+
   Close(t);
 end;
 

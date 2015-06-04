@@ -86,6 +86,7 @@ begin
       info[IDX_PS_NAME] := f.ReadPChar;
 
       info[IDX_FORMAT] := 'PFM';
+      info[IDX_NFONTS] := '1';
     finally
       f.Free;
     end;
