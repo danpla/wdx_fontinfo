@@ -77,7 +77,6 @@ begin
     exit;
 
   nproperties := stream.ReadDWordFormat(format);
-  writeln(nproperties);
   SetLength(properties, nproperties);
   for i := 0 to nproperties - 1 do
     with properties[i] do
@@ -128,7 +127,6 @@ begin
     exit;
 
   ntables := stream.ReadDWordLE;
-  writeln(ntables);
   for i := 0 to ntables - 1 do
     begin
       stream.ReadBuffer(table_rec, SizeOf(table_rec));
@@ -179,9 +177,8 @@ begin
       f.Free;
     end;
   except
-    on E: Exception do
+    on Exception do
       begin
-        writeln(E.Message);
       end;
   end;
 end;
