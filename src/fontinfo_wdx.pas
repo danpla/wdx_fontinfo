@@ -33,6 +33,7 @@ uses
   fontinfo_sfnt,
   fontinfo_ps,
   fontinfo_pfm,
+  fontinfo_bdf,
   fontinfo_afm_sfd,
   wdxplugin,
   classes,
@@ -63,6 +64,7 @@ begin
             '(EXT="WOFF")|(EXT="EOT")|' +
             '(EXT="PS")|(EXT="PFA")|(EXT="PFB")|(EXT="PT3")|(EXT="T42")|' +
             '(EXT="AFM")|(EXT="PFM")|' +
+            '(EXT="BDF")|' +
             '(EXT="SFD")',
             MaxLen);
 end;
@@ -113,6 +115,8 @@ begin
           GetPSInfo(FileName_s, info);
         '.pfm':
           GetPFMInfo(FileName_s, info);
+        '.bdf':
+          GetBDFInfo(FileName_s, info);
         '.afm',
         '.sfd':
           GetSFDorAFMInfo(FileName_s, info);
