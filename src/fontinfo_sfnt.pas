@@ -321,7 +321,7 @@ begin
         TAG_GPOS,
         TAG_GSUB,
         TAG_JSTF:
-          opentype_tables := True;
+          opentype_tables := TRUE;
         TAG_NAME:
           ReadTable(stream, info, @NameReader, dir.offset);
       end;
@@ -438,7 +438,7 @@ begin
         TAG_GPOS,
         TAG_GSUB,
         TAG_JSTF:
-          opentype_tables := True;
+          opentype_tables := TRUE;
         TAG_NAME:
           ReadTable(stream, info, @NameReader, dir.offset, origLength);
       end;
