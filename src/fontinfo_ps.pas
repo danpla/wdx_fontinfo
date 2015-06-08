@@ -174,20 +174,20 @@ begin
       if s = 'currentdict end' then
         break;
 
-      p := PosSetEx(SKIP_CHARS, s, 2);
+      p := PosSetEx(SKIP_CHARS, s, 3);
       if p = 0 then
         continue;
 
-      key := Copy(s, 1, p - 1);
+      key := Copy(s, 2, p - 2);
 
       case key of
-        '/FontType': idx := IDX_FORMAT;
-        '/FontName': idx := IDX_PS_NAME;
-        '/version': idx := IDX_VERSION;
-        '/Notice': idx := IDX_COPYRIGHT;
-        '/FullName': idx := IDX_FULL_NAME;
-        '/FamilyName': idx := IDX_FAMILY;
-        '/Weight': idx := IDX_STYLE;
+        'FontType': idx := IDX_FORMAT;
+        'FontName': idx := IDX_PS_NAME;
+        'version': idx := IDX_VERSION;
+        'Notice': idx := IDX_COPYRIGHT;
+        'FullName': idx := IDX_FULL_NAME;
+        'FamilyName': idx := IDX_FAMILY;
+        'Weight': idx := IDX_STYLE;
       else
         continue;
       end;
