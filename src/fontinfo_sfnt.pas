@@ -152,7 +152,7 @@ begin
       try
         zs := TDecompressionStream.Create(stream);
         SetLength(uncomp_data, origLength);
-        zs.Read(uncomp_data[0], origLength);
+        zs.ReadBuffer(uncomp_data[0], origLength);
         bs := TBytesStream.Create(uncomp_data);
         reader(bs, info);
       except
@@ -252,7 +252,7 @@ begin
       stream.Seek(longint(storage_offset + name_rec.offset), soFromBeginning);
 
       SetLength(name, name_rec.length);
-      stream.Read(name[1], name_rec.length);
+      stream.ReadBuffer(name[1], name_rec.length);
       name := UCS2BEToUTF8(name);
 
       case name_rec.nameID of
