@@ -56,49 +56,52 @@ begin
     exit;
 
   ReadLn(t, sign, version);
-  if sign = BDF_SIGN then
+  if sign <> BDF_SIGN then
     begin
-      info[IDX_FORMAT] := 'BDF ' + TrimLeft(version);
+      Close(t);
+      exit;
+    end;
 
-      i := 1;
-      nfound := 0;
-      while (nfound < NFIELDS) and (i <= MAX_LINES) and not EOF(t) do
+  info[IDX_FORMAT] := 'BDF ' + TrimLeft(version);
+
+  i := 1;
+  nfound := 0;
+  while (nfound < NFIELDS) and (i <= MAX_LINES) and not EOF(t) do
+    begin
+      ReadLn(t, s);
+
+      case s of
+        '': continue;
+        'ENDPROPERTIES': break;
+      end;
+
+      s_len := Length(s);
+      p := Pos(' ', s);
+      if (p < 2) or not (p < s_len - 2) then
+        continue;
+
+      inc(i);
+
+      key := Copy(s, 1, p - 1);
+      case key of
+        BDF_COPYRIGHT: idx := IDX_COPYRIGHT;
+        BDF_FAMILY_NAME: idx := IDX_FAMILY;
+        BDF_FONT: idx := IDX_PS_NAME;
+        BDF_FOUNDRY: idx := IDX_MANUFACTURER;
+        BDF_FULL_NAME: idx := IDX_FULL_NAME;
+        BDF_WEIGHT_NAME: idx := IDX_STYLE;
+      else
+        continue;
+      end;
+
+      if (s[p + 1] = '"') and (s[s_len] = '"') then
         begin
-          ReadLn(t, s);
-
-          case s of
-            '': continue;
-            'ENDPROPERTIES': break;
-          end;
-
-          s_len := Length(s);
-          p := Pos(' ', s);
-          if (p < 2) or not (p < s_len - 2) then
-            continue;
-
-          inc(i);
-
-          key := Copy(s, 1, p - 1);
-          case key of
-            BDF_COPYRIGHT: idx := IDX_COPYRIGHT;
-            BDF_FAMILY_NAME: idx := IDX_FAMILY;
-            BDF_FONT: idx := IDX_PS_NAME;
-            BDF_FOUNDRY: idx := IDX_MANUFACTURER;
-            BDF_FULL_NAME: idx := IDX_FULL_NAME;
-            BDF_WEIGHT_NAME: idx := IDX_STYLE;
-          else
-            continue;
-          end;
-
-          if (s[p + 1] = '"') and (s[s_len] = '"') then
-            begin
-              inc(p);
-              dec(s_len);
-            end;
-
-          info[idx] := Copy(s, p + 1, s_len - p);
-          inc(nfound);
+          inc(p);
+          dec(s_len);
         end;
+
+      info[idx] := Copy(s, p + 1, s_len - p);
+      inc(nfound);
     end;
 
   if (info[IDX_FAMILY] = '') and (info[IDX_PS_NAME] <> '') then
