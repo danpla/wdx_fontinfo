@@ -43,7 +43,6 @@ var
   f: TFileStream;
   header: TPFMHeader;
   copyright: string[MAX_COPYRIGHT_LEN];
-  full_name: string;
   p: longint;
 begin
   try
@@ -70,14 +69,12 @@ begin
 
       f.Seek(FACE_OFFSET_POS, soFromBeginning);
       f.Seek(f.ReadDWordLE, soFromBeginning);
-      full_name := f.ReadPChar;
-
-      info[IDX_FULL_NAME] := full_name;
+      info[IDX_FULL_NAME] := f.ReadPChar;
 
       // Strip style if font uses PS name as a Full Name.
-      p := RPos('-', full_name);
+      p := RPos('-', info[IDX_FULL_NAME]);
       if p <> 0 then
-        info[IDX_FAMILY] := Copy(full_name, 1, p - 1)
+        info[IDX_FAMILY] := Copy(info[IDX_FULL_NAME], 1, p - 1)
       else
         info[IDX_FAMILY] := info[IDX_FULL_NAME];
 
