@@ -81,7 +81,7 @@ begin
     exit(FT_NOMOREFIELDS);
 
   StrPLCopy(FieldName, TFieldNames[TFieldIndex(FieldIndex)], MaxLen);
-  result := ft_string;
+  result := FT_STRING;
 end;
 
 
@@ -144,7 +144,7 @@ begin
   StrPLCopy(PAnsiChar(FieldValue),
             EnsureLength(info_cache[TFieldIndex(FieldIndex)], MaxLen),
             MaxLen);
-  result := ft_string;
+  result := FT_STRING;
 end;
 
 
