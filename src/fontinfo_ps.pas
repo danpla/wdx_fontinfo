@@ -160,7 +160,10 @@ begin
      (Pos(PS_MAGICK1, s) <> 1) and
      (Pos(PS_MAGICK2, s) <> 1) and
      (Pos(PS_MAGICK3, s) <> 1) then
-    exit;
+    begin
+      Close(t);
+      exit;
+    end;
 
   while (nfound < NFIELDS) and not EOF(t) do
     begin
