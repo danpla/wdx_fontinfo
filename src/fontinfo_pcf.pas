@@ -35,10 +35,6 @@ const
   PCF_DEFAULT_FORMAT = $00000000;
 
 type
-  TPCFHelper = class helper (TStreamHeplerEx) for TStream
-    function ReadDWordFormat(const format: longint): longword;
-  end;
-
   TPCF_TableRec = packed record
     type_,
     format,
@@ -53,20 +49,12 @@ type
   end;
 
 
-function TPCFHelper.ReadDWordFormat(const format: longint): longword;
-begin
-  if format and PCF_BYTE_MASK = PCF_BYTE_MASK then
-    result := ReadDWordBE
-  else
-    result := ReadDWordLE;
-end;
-
-
 procedure ReadProperties(stream: TStream; var info: TFontInfo);
 var
   format,
   nproperties,
   i: longint;
+  read_dw: function: longword of object;
   properties: array of TPCF_PropertyRec;
   strings_l: longint;
   strings: array of AnsiChar;
@@ -76,27 +64,32 @@ begin
   if format and PCF_FORMAT_MASK <> PCF_DEFAULT_FORMAT then
     exit;
 
-  nproperties := stream.ReadDWordFormat(format);
+  if format and PCF_BYTE_MASK = PCF_BYTE_MASK then
+    read_dw := @stream.ReadDWordBE
+  else
+    read_dw := @stream.ReadDWordLE;
+
+  nproperties := read_dw();
   SetLength(properties, nproperties);
   for i := 0 to nproperties - 1 do
     with properties[i] do
       begin
-        name_offset := stream.ReadDWordFormat(format);
+        name_offset := read_dw();
         is_string   := stream.ReadByte;
-        value       := stream.ReadDWordFormat(format);
+        value       := read_dw();
       end;
 
   if nproperties and 3 <> 0 then
     stream.Seek(4 - nproperties and 3, soFromCurrent);
 
-  strings_l := stream.ReadDWordFormat(format);
+  strings_l := read_dw();
   SetLength(strings, strings_l + 1);
   strings[strings_l] := #0;
   stream.ReadBuffer(strings[0], strings_l);
 
   for i := 0 to nproperties - 1 do
     begin
-      if not properties[i].is_string = 0 then
+      if properties[i].is_string = 0 then
         continue;
 
       case String(PAnsiChar(@strings[properties[i].name_offset])) of
