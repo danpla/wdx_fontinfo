@@ -149,22 +149,24 @@ begin
     reader(stream, info)
   else
     try
+      zs := TDecompressionStream.Create(stream);
       try
-        zs := TDecompressionStream.Create(stream);
         SetLength(uncomp_data, origLength);
         zs.ReadBuffer(uncomp_data[0], origLength);
+
         bs := TBytesStream.Create(uncomp_data);
-        reader(bs, info);
-      except
-        on EStreamError do
-          begin
-          end;
-      end;
-    finally
-      if Assigned(zs) then
+        try
+          reader(bs, info);
+        finally
+          bs.Free;
+        end;
+      finally
         zs.Free;
-      if Assigned(bs) then
-        bs.Free;
+      end;
+    except
+      on EStreamError do
+        begin
+        end;
     end;
 
   stream.Seek(start, soFromBeginning);
