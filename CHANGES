@@ -1,5 +1,5 @@
 
-0.7.0 (04.05.15)
+0.7.0 (04.06.15)
   • Support for BDF and PCX
   • Fixed empty "Number of Fonts" field
   • Fixed detection of .t42 fonts
