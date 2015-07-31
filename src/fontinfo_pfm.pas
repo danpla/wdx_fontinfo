@@ -38,52 +38,59 @@ type
   end;
 
 
-procedure GetPFMInfo(const FileName: string; var info: TFontInfo);
+procedure ParsePFM(stream: TStream; var info: TFontInfo);
 var
-  f: TFileStream;
   header: TPFMHeader;
   copyright: string[MAX_COPYRIGHT_LEN];
   p: longint;
 begin
+  stream.ReadBuffer(header, SizeOf(header));
+  {$IFDEF ENDIAN_BIG}
+  with header do
+    begin
+      version := SwapEndian(version);
+      size := SwapEndian(size);
+    end;
+  {$ENDIF}
+
+  if (header.version <> PFM_VERSION) or
+     (header.size <> stream.Size) then
+    exit;
+
+  SetLength(copyright, stream.Read(copyright[1], MAX_COPYRIGHT_LEN));
+  info[IDX_COPYRIGHT] := TrimRight(copyright);
+
+  stream.Seek(WEIGHT_POS, soFromBeginning);
+  info[IDX_STYLE] := GetWeightName(stream.ReadWordLE);
+
+  stream.Seek(FACE_OFFSET_POS, soFromBeginning);
+  stream.Seek(stream.ReadDWordLE, soFromBeginning);
+  info[IDX_FULL_NAME] := stream.ReadPChar;
+
+  // Strip style if font uses PS name as a Full Name.
+  p := RPos('-', info[IDX_FULL_NAME]);
+  if p <> 0 then
+    info[IDX_FAMILY] := Copy(info[IDX_FULL_NAME], 1, p - 1)
+  else
+    info[IDX_FAMILY] := info[IDX_FULL_NAME];
+
+  stream.Seek(DRIVER_INFO_OFFSET_POS, soFromBeginning);
+  stream.Seek(stream.ReadDWordLE, soFromBeginning);
+  info[IDX_PS_NAME] := stream.ReadPChar;
+
+  info[IDX_FORMAT] := 'PFM';
+  info[IDX_NFONTS] := '1';
+end;
+
+
+procedure GetPFMInfo(const FileName: string; var info: TFontInfo);
+var
+  f: TFileStream;
+begin
   try
     f := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
     try
-      f.ReadBuffer(header, SizeOf(header));
-      {$IFDEF ENDIAN_BIG}
-      with header do
-        begin
-          version := SwapEndian(version);
-          size := SwapEndian(size);
-        end;
-      {$ENDIF}
-
-      if (header.version <> PFM_VERSION) or
-         (header.size <> f.Size) then
-        exit;
-
-      SetLength(copyright, f.Read(copyright[1], MAX_COPYRIGHT_LEN));
-      info[IDX_COPYRIGHT] := TrimRight(copyright);
-
-      f.Seek(WEIGHT_POS, soFromBeginning);
-      info[IDX_STYLE] := GetWeightName(f.ReadWordLE);
-
-      f.Seek(FACE_OFFSET_POS, soFromBeginning);
-      f.Seek(f.ReadDWordLE, soFromBeginning);
-      info[IDX_FULL_NAME] := f.ReadPChar;
-
-      // Strip style if font uses PS name as a Full Name.
-      p := RPos('-', info[IDX_FULL_NAME]);
-      if p <> 0 then
-        info[IDX_FAMILY] := Copy(info[IDX_FULL_NAME], 1, p - 1)
-      else
-        info[IDX_FAMILY] := info[IDX_FULL_NAME];
-
-      f.Seek(DRIVER_INFO_OFFSET_POS, soFromBeginning);
-      f.Seek(f.ReadDWordLE, soFromBeginning);
-      info[IDX_PS_NAME] := f.ReadPChar;
-
-      info[IDX_FORMAT] := 'PFM';
-      info[IDX_NFONTS] := '1';
+      ParsePFM(f, info);
     finally
       f.Free;
     end;
