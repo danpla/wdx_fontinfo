@@ -170,7 +170,7 @@ begin
       f.Free;
     end;
   except
-    on Exception do
+    on EStreamError do
       begin
       end;
   end;
