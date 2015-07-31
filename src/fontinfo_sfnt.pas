@@ -181,6 +181,23 @@ const
   LANGUAGE_ID_WIN_ENGLISH_US = $0409;
   ENCODING_ID_WIN_UCS2 = 1;
 
+  NAME_MAP: array [0..14] of TFieldIndex = (
+    IDX_COPYRIGHT,
+    IDX_FAMILY,
+    IDX_STYLE,
+    IDX_UNIQUE_ID,
+    IDX_FULL_NAME,
+    IDX_VERSION,
+    IDX_PS_NAME,
+    IDX_TRADEMARK,
+    IDX_MANUFACTURER,
+    IDX_DESIGNER,
+    IDX_DESCRIPTION,
+    IDX_VENDOR_URL,
+    IDX_DESIGNER_URL,
+    IDX_LICENSE,
+    IDX_LICENSE_URL);
+
 type
   TNamingTable = packed record
     format,
@@ -247,7 +264,7 @@ begin
         if (name_rec.platformID > PLATFORM_ID_WIN) or
            (name_rec.encodingID > ENCODING_ID_WIN_UCS2) or
            (name_rec.languageID > LANGUAGE_ID_WIN_ENGLISH_US) or
-           (name_rec.nameID > 14) then
+           (name_rec.nameID > High(NAME_MAP)) then
           break;
 
       offset := stream.Position;
@@ -255,25 +272,7 @@ begin
 
       SetLength(name, name_rec.length);
       stream.ReadBuffer(name[1], name_rec.length);
-      name := UCS2BEToUTF8(name);
-
-      case name_rec.nameID of
-        0: info[IDX_COPYRIGHT] := name;
-        1: info[IDX_FAMILY] := name;
-        2: info[IDX_STYLE] := name;
-        3: info[IDX_UNIQUE_ID] := name;
-        4: info[IDX_FULL_NAME] := name;
-        5: info[IDX_VERSION] := name;
-        6: info[IDX_PS_NAME] := name;
-        7: info[IDX_TRADEMARK] := name;
-        8: info[IDX_MANUFACTURER] := name;
-        9: info[IDX_DESIGNER] := name;
-       10: info[IDX_DESCRIPTION] := name;
-       11: info[IDX_VENDOR_URL] := name;
-       12: info[IDX_DESIGNER_URL] := name;
-       13: info[IDX_LICENSE] := name;
-       14: info[IDX_LICENSE_URL] := name;
-      end;
+      info[NAME_MAP[name_rec.nameID]] := UCS2BEToUTF8(name);
 
       stream.Seek(offset, soFromBeginning);
     end;
