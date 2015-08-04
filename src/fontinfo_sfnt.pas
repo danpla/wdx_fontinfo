@@ -139,8 +139,8 @@ procedure ReadTable(stream: TStream; var info: TFontInfo;
 var
   start: int64;
   uncomp_data: TBytes;
-  zs: TDecompressionStream = NIL;
-  bs: TBytesStream = NIL;
+  zs: TDecompressionStream;
+  bs: TBytesStream;
 begin
   start := stream.Position;
   stream.Seek(offset, soFromBeginning);
@@ -458,7 +458,6 @@ var
   s: string;
   s_len: word;
 begin
-  // Skip unused.
   stream.Seek(
     SizeOf(TEOTHeader.FontDataSize) +
     SizeOf(TEOTHeader.Version) +
@@ -474,7 +473,6 @@ begin
   if magick <> EOT_MAGICK then
     exit;
 
-  // Skip unused.
   stream.Seek(
     SizeOf(TEOTHeader.UnicodeRange1) +
     SizeOf(TEOTHeader.UnicodeRange2) +
@@ -482,10 +480,10 @@ begin
     SizeOf(TEOTHeader.UnicodeRange4) +
     SizeOf(TEOTHeader.CodePageRange1) +
     SizeOf(TEOTHeader.CodePageRange2) +
-    SizeOf(TEOTHeader.CheckSumAdjustment)+
-    SizeOf(TEOTHeader.Reserved1)+
-    SizeOf(TEOTHeader.Reserved2)+
-    SizeOf(TEOTHeader.Reserved3)+
+    SizeOf(TEOTHeader.CheckSumAdjustment) +
+    SizeOf(TEOTHeader.Reserved1) +
+    SizeOf(TEOTHeader.Reserved2) +
+    SizeOf(TEOTHeader.Reserved3) +
     SizeOf(TEOTHeader.Reserved4),
     soFromCurrent);
 
@@ -505,7 +503,7 @@ begin
         exit;
     end;
 
-  // Currently we can't uncompress EOT to determine format.
+  // Currently we can't uncompress EOT to determine SFNT format.
   info[IDX_FORMAT] := 'EOT';
 end;
 
@@ -532,7 +530,6 @@ begin
         TTC_OTC_MAGICK:
           CheckCollection(f, info);
       else
-        // Probably EOT.
         if SwapEndian(sign) = f.Size then
           CheckEOT(f, info);
       end;
