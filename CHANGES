@@ -1,4 +1,9 @@
 
+0.7.1 (04.08.15)
+  • Fixed closing files when signature doesn't match (PS, BDF)
+  • Tiny performance improvements
+
+
 0.7.0 (04.06.15)
   • Support for BDF and PCX
   • Fixed empty "Number of Fonts" field
