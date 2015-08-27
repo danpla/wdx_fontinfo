@@ -108,12 +108,12 @@ type
 
 
 function GetFormatSting(const sign: longword;
-                        const opentype_tables: boolean): string; inline;
+                        const layout_tables: boolean): string; inline;
 begin
   if sign = OTF_MAGICK then
     result := FORMAT_OT_PS
   else
-    if opentype_tables then
+    if layout_tables then
       result := FORMAT_OT_TT
     else
       result := FORMAT_TT;
@@ -295,7 +295,7 @@ var
   ntables: word;
   i: longint;
   dir: TTableDirEntry;
-  opentype_tables: boolean = FALSE;
+  layout_tables: boolean = FALSE;
 begin
   // Read offset table.
   ntables := stream.ReadWordBE;
@@ -322,13 +322,13 @@ begin
         TAG_GPOS,
         TAG_GSUB,
         TAG_JSTF:
-          opentype_tables := TRUE;
+          layout_tables := TRUE;
         TAG_NAME:
           ReadTable(stream, info, @NameReader, dir.offset);
       end;
     end;
 
-  result := opentype_tables;
+  result := layout_tables;
 end;
 
 
@@ -340,7 +340,7 @@ var
   nfonts,
   offset,
   sign: longword;
-  opentype_tables: boolean;
+  layout_tables: boolean;
 begin
   // Read collection header.
   stream.Seek(SizeOf(longword), soFromCurrent); // Skip version.
@@ -354,20 +354,20 @@ begin
   stream.Seek(offset, soFromBeginning);
 
   sign := stream.ReadDWordBE;
-  opentype_tables := CheckCommon(stream, info);
+  layout_tables := CheckCommon(stream, info);
 
-  info[IDX_FORMAT] := GetFormatSting(sign, opentype_tables);
+  info[IDX_FORMAT] := GetFormatSting(sign, layout_tables);
   info[IDX_NFONTS] := IntToStr(nfonts);
 end;
 
 
 procedure CheckTTF(stream: TStream; var info: TFontInfo); inline;
 var
-  opentype_tables: boolean;
+  layout_tables: boolean;
 begin
-  opentype_tables := CheckCommon(stream, info);
+  layout_tables := CheckCommon(stream, info);
 
-  if opentype_tables then
+  if layout_tables then
     info[IDX_FORMAT] := FORMAT_OT_TT
   else
     info[IDX_FORMAT] := FORMAT_TT;
@@ -389,7 +389,7 @@ var
   i: longint;
   dir: TWOFFTableDirEntry;
   origLength: longword;
-  opentype_tables: boolean = FALSE;
+  layout_tables: boolean = FALSE;
 begin
   stream.ReadBuffer(header, SizeOf(header));
   // Skip unused.
@@ -439,13 +439,13 @@ begin
         TAG_GPOS,
         TAG_GSUB,
         TAG_JSTF:
-          opentype_tables := TRUE;
+          layout_tables := TRUE;
         TAG_NAME:
           ReadTable(stream, info, @NameReader, dir.offset, origLength);
       end;
     end;
 
-  info[IDX_FORMAT] := GetFormatSting(header.flavor, opentype_tables);
+  info[IDX_FORMAT] := GetFormatSting(header.flavor, layout_tables);
   info[IDX_NFONTS] := '1';
 end;
 
