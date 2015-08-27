@@ -28,7 +28,7 @@ const
   TTF_MAGICK3 = $74727565; // 'true'
   TTF_MAGICK4 = $74797031; // 'typ1'
 
-  TTC_OTC_MAGICK = $74746366; // 'ttcf'
+  COLLECTION_MAGICK = $74746366; // 'ttcf'
   OTF_MAGICK = $4f54544f; // 'OTTO'
   WOFF_MAGICK = $774f4646; // 'wOFF'
 
@@ -527,7 +527,7 @@ begin
           CheckOTF(f, info);
         WOFF_MAGICK:
           CheckWOFF(f, info);
-        TTC_OTC_MAGICK:
+        COLLECTION_MAGICK:
           CheckCollection(f, info);
       else
         if SwapEndian(sign) = f.Size then
