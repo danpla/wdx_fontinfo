@@ -32,12 +32,10 @@ var
   b: byte;
 begin
   result := '';
-  b := ReadByte;
-  while b <> 0 do
-    begin
-      result := result + char(b);
-      b := ReadByte;
-    end;
+  repeat
+    b := ReadByte;
+    result := result + char(b);
+  until b = 0;
 end;
 
 
