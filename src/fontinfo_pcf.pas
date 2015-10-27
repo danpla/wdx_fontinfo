@@ -157,10 +157,17 @@ procedure GetPCFInfo(const FileName: string; var info: TFontInfo;
                      const gz: boolean);
 var
   f: TStream;
+  default_mode: byte;
 begin
   try
     if gz then
-      f := TGZFileStream.Create(FileName, gzopenread)
+      begin
+        // TGZFileStream is wrapper for gzio from paszlib which is uses Reset.
+        default_mode := FileMode;
+        FileMode := fmOpenRead;
+        f := TGZFileStream.Create(FileName, gzopenread);
+        FileMode := default_mode;
+      end
     else
       f := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
 
