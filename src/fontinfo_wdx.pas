@@ -104,18 +104,9 @@ begin
     begin
       ext := LowerCase(ExtractFileExt(FileName_s));
       case ext of
-        '.ttf',
-        '.ttc',
-        '.otf',
-        '.otc',
-        '.woff',
-        '.eot':
+        '.ttf', '.ttc', '.otf', '.otc', '.woff', '.eot':
           GetSFNTInfo(FileName_s, info);
-        '.ps',
-        '.pfa',
-        '.pfb',
-        '.pt3',
-        '.t42':
+        '.ps','.pfa','.pfb','.pt3','.t42':
           GetPSInfo(FileName_s, info);
         '.pfm':
           GetPFMInfo(FileName_s, info);
@@ -123,8 +114,7 @@ begin
           GetBDFInfo(FileName_s, info);
         '.pcf':
           GetPCFInfo(FileName_s, info, FALSE);
-        '.afm',
-        '.sfd':
+        '.afm', '.sfd':
           GetSFDorAFMInfo(FileName_s, info);
         '.gz':
           begin

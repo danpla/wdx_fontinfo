@@ -52,11 +52,11 @@ type
 procedure ReadProperties(stream: TStream; var info: TFontInfo);
 var
   format,
-  nproperties,
+  num_properties,
   i: longint;
   read_dw: function: longword of object;
   properties: array of TPCF_PropertyRec;
-  strings_l: longint;
+  strings_len: longint;
   strings: array of AnsiChar;
   idx: TFieldIndex;
 begin
@@ -69,9 +69,9 @@ begin
   else
     read_dw := @stream.ReadDWordLE;
 
-  nproperties := read_dw();
-  SetLength(properties, nproperties);
-  for i := 0 to nproperties - 1 do
+  num_properties := read_dw();
+  SetLength(properties, num_properties);
+  for i := 0 to num_properties - 1 do
     with properties[i] do
       begin
         name_offset := read_dw();
@@ -79,15 +79,15 @@ begin
         value       := read_dw();
       end;
 
-  if nproperties and 3 <> 0 then
-    stream.Seek(4 - nproperties and 3, soFromCurrent);
+  if num_properties and 3 <> 0 then
+    stream.Seek(4 - num_properties and 3, soFromCurrent);
 
-  strings_l := read_dw();
-  SetLength(strings, strings_l + 1);
-  strings[strings_l] := #0;
-  stream.ReadBuffer(strings[0], strings_l);
+  strings_len := read_dw();
+  SetLength(strings, strings_len + 1);
+  strings[strings_len] := #0;
+  stream.ReadBuffer(strings[0], strings_len);
 
-  for i := 0 to nproperties - 1 do
+  for i := 0 to num_properties - 1 do
     begin
       if properties[i].is_string = 0 then
         continue;
@@ -111,7 +111,7 @@ end;
 procedure ParsePCF(stream: TStream; var info: TFontInfo);
 var
   sign,
-  ntables: longword;
+  num_tables: longword;
   i: longint;
   table_rec: TPCF_TableRec;
 begin
@@ -119,8 +119,8 @@ begin
   if sign <> PCF_MAGICK then
     exit;
 
-  ntables := stream.ReadDWordLE;
-  for i := 0 to ntables - 1 do
+  num_tables := stream.ReadDWordLE;
+  for i := 0 to num_tables - 1 do
     begin
       stream.ReadBuffer(table_rec, SizeOf(table_rec));
 
@@ -149,7 +149,7 @@ begin
     info[IDX_STYLE] := 'Medium';
 
   info[IDX_FORMAT] := 'PCF';
-  info[IDX_NFONTS] := '1';
+  info[IDX_NUM_FONTS] := '1';
 end;
 
 

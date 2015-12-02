@@ -23,7 +23,7 @@ type
     IDX_LICENSE,
     IDX_LICENSE_URL,
     IDX_FORMAT,
-    IDX_NFONTS
+    IDX_NUM_FONTS
   );
 
   TFontInfo = array [TFieldIndex] of string;

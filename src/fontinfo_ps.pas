@@ -31,7 +31,7 @@ const
   // Characters we need to skip to reach certain value.
   SKIP_CHARS = [' ', '(', '/'];
   // Number of fields we need to find.
-  NFIELDS = 7;
+  NUM_FIELDS = 7;
 
 type
   TBinHeader = packed record
@@ -47,53 +47,53 @@ function UnEscape(s: string): string;
 const
   MAX_OCTAL_DIGITS = 3;
 var
-  l,
   i,
-  escpos,
-  esclen: longint;
+  s_len,
+  esc_pos,
+  esc_len: longint;
 begin
-  l := Length(s);
   i := 1;
+  s_len := Length(s);
 
-  while i < l do
+  while i < s_len do
     begin
       if s[i] = '\' then
         begin
-          escpos := i;
-          esclen := 1;
+          esc_pos := i;
+          esc_len := 1;
           inc(i);
 
           case s[i] of
-            'n': s[escpos] := #10;
-            'r': s[escpos] := #13;
-            't': s[escpos] := #9;
-            'b': s[escpos] := #8;
-            'f': s[escpos] := #12;
-            '\': s[escpos] := '\';
-            '(': s[escpos] := '(';
-            ')': s[escpos] := ')';
+            'n': s[esc_pos] := #10;
+            'r': s[esc_pos] := #13;
+            't': s[esc_pos] := #9;
+            'b': s[esc_pos] := #8;
+            'f': s[esc_pos] := #12;
+            '\': s[esc_pos] := '\';
+            '(': s[esc_pos] := '(';
+            ')': s[esc_pos] := ')';
             '0'..'9':
               begin
-                s[escpos] := chr(0);
-                esclen := 0;
-                while (i <= l) and
-                      (esclen <= MAX_OCTAL_DIGITS) and
+                s[esc_pos] := chr(0);
+                esc_len := 0;
+                while (i <= s_len) and
+                      (esc_len <= MAX_OCTAL_DIGITS) and
                       (s[i] in ['0'..'9']) do
                   begin
-                    s[escpos] := chr(
-                      (ord(s[escpos]) shl 3) or (ord(s[i]) - ord('0')));
+                    s[esc_pos] := chr(
+                      (ord(s[esc_pos]) shl 3) or (ord(s[i]) - ord('0')));
                     inc(i);
-                    inc(esclen);
+                    inc(esc_len);
                   end;
               end
           else
             // Ignore "/".
-            dec(escpos);
+            dec(esc_pos);
           end;
 
-          delete(s, escpos + 1, esclen);
-          dec(i, esclen);
-          dec(l, esclen);
+          delete(s, esc_pos + 1, esc_len);
+          dec(i, esc_len);
+          dec(s_len, esc_len);
         end;
 
       inc(i);
@@ -144,7 +144,7 @@ var
   s,
   key: string;
   idx: TFieldIndex;
-  nfound: longint = 0;
+  num_found: longint = 0;
 begin
   Assign(t, FileName);
   {I-}
@@ -165,7 +165,7 @@ begin
       exit;
     end;
 
-  while (nfound < NFIELDS) and not EOF(t) do
+  while (num_found < NUM_FIELDS) and not EOF(t) do
     begin
       ReadLn(t, s);
       s := Trim(s);
@@ -208,10 +208,10 @@ begin
         info[idx] := ExtractPSString(s, val_start);
       end;
 
-      inc(nfound);
+      inc(num_found);
     end;
 
-  info[IDX_NFONTS] := '1';
+  info[IDX_NUM_FONTS] := '1';
 
   Close(t);
 end;

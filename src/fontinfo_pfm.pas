@@ -79,7 +79,7 @@ begin
   info[IDX_PS_NAME] := stream.ReadPChar;
 
   info[IDX_FORMAT] := 'PFM';
-  info[IDX_NFONTS] := '1';
+  info[IDX_NUM_FONTS] := '1';
 end;
 
 

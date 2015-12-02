@@ -31,7 +31,7 @@ implementation
 const
   BDF_SIGN = 'STARTFONT';
 
-  NFIELDS = 6;
+  NUM_FIELDS = 6;
   MAX_LINES = 30;
 
 
@@ -41,11 +41,11 @@ var
   sign: string[Length(BDF_SIGN)];
   version: string;
   i: longint;
-  s,
+  s: string;
+  s_len: longint;
   key: string;
   p,
-  s_len,
-  nfound: longint;
+  num_found: longint;
   idx: TFieldIndex;
 begin
   Assign(t, FileName);
@@ -65,8 +65,8 @@ begin
   info[IDX_FORMAT] := 'BDF ' + TrimLeft(version);
 
   i := 1;
-  nfound := 0;
-  while (nfound < NFIELDS) and (i <= MAX_LINES) and not EOF(t) do
+  num_found := 0;
+  while (num_found < NUM_FIELDS) and (i <= MAX_LINES) and not EOF(t) do
     begin
       ReadLn(t, s);
 
@@ -101,7 +101,7 @@ begin
         end;
 
       info[idx] := Copy(s, p + 1, s_len - p);
-      inc(nfound);
+      inc(num_found);
     end;
 
   if (info[IDX_FAMILY] = '') and (info[IDX_PS_NAME] <> '') then
@@ -109,7 +109,7 @@ begin
   if info[IDX_STYLE] = '' then
     info[IDX_STYLE] := 'Medium';
 
-  info[IDX_NFONTS] := '1';
+  info[IDX_NUM_FONTS] := '1';
 
   Close(t);
 end;

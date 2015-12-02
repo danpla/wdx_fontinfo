@@ -24,7 +24,7 @@ const
   AFM_SIGN = 'StartFontMetrics';
   SFD_SIGN = 'SplineFontDB:';
 
-  NFIELDS = 6; // Number of fields we need to find.
+  NUM_FIELDS = 6; // Number of fields we need to find.
   MAX_LINES = 30;
 
 
@@ -57,11 +57,11 @@ procedure GetSFDorAFMInfo(const FileName: string; var info: TFontInfo);
 var
   t: text;
   i: longint;
-  s,
+  s: string;
+  s_len: longint;
   key: string;
   p,
-  s_len,
-  nfound: longint;
+  num_found: longint;
   idx: TFieldIndex;
 begin
   Assign(t, FileName);
@@ -78,8 +78,8 @@ begin
     end;
 
   i := 1;
-  nfound := 0;
-  while (nfound < NFIELDS) and (i <= MAX_LINES) and not EOF(t) do
+  num_found := 0;
+  while (num_found < NUM_FIELDS) and (i <= MAX_LINES) and not EOF(t) do
     begin
       ReadLn(t, s);
       if s = '' then
@@ -121,10 +121,10 @@ begin
       end;
 
       info[idx] := Copy(s, p + 1, s_len - p);
-      inc(nfound);
+      inc(num_found);
     end;
 
-  info[IDX_NFONTS] := '1';
+  info[IDX_NUM_FONTS] := '1';
 
   Close(t);
 end;

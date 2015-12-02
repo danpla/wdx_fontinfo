@@ -61,7 +61,7 @@ type
     // signature, // Already checked.
     flavor,
     length: longword;
-    numTables,
+    num_tables,
     reserved: word;
     // totalSfntSize: longword;
     // majorVersion: word;
@@ -76,34 +76,34 @@ type
   TWOFFTableDirEntry = packed record
     tag,
     offset,
-    compLength,
-    origLength: longword;
+    comp_length,
+    orig_length: longword;
     // origChecksum: longword;
   end;
 
   TEOTHeader = packed record
-    EOTSize,
-    FontDataSize,
+    eot_size,
+    font_data_size,
     version,
     flags: longword;
-    PANOSE: array [0..9] of byte;
-    Charset,
-    Italic: byte;
-    Weight: longword;
-    fsType,
+    panose: array [0..9] of byte;
+    charset,
+    italic: byte;
+    weight: longword;
+    fs_type,
     magick: word;
-    UnicodeRange1,
-    UnicodeRange2,
-    UnicodeRange3,
-    UnicodeRange4,
-    CodePageRange1,
-    CodePageRange2,
-    CheckSumAdjustment,
-    Reserved1,
-    Reserved2,
-    Reserved3,
-    Reserved4: longword;
-    Padding1: word;
+    unicode_range1,
+    unicode_range2,
+    unicode_range3,
+    unicode_range4,
+    code_page_range1,
+    code_page_range2,
+    checksum_adjustment,
+    reserved1,
+    reserved2,
+    reserved3,
+    reserved4: longword;
+    padding1: word;
   end;
 
 
@@ -130,12 +130,12 @@ type
   TTableReader = procedure(stream: TStream; var info: TFontInfo);
 
 {
-  origLength indicates size of uncompressed table (from WOFF). 0 means
+  orig_length indicates size of uncompressed table (from WOFF). 0 means
     that table already uncompressed.
 }
 procedure ReadTable(stream: TStream; var info: TFontInfo;
                     reader: TTableReader; const offset: longword;
-                    const origLength: longword = 0);
+                    const orig_length: longword = 0);
 var
   start: int64;
   uncomp_data: TBytes;
@@ -145,14 +145,14 @@ begin
   start := stream.Position;
   stream.Seek(offset, soFromBeginning);
 
-  if origLength = 0 then
+  if orig_length = 0 then
     reader(stream, info)
   else
     try
       zs := TDecompressionStream.Create(stream);
       try
-        SetLength(uncomp_data, origLength);
-        zs.ReadBuffer(uncomp_data[0], origLength);
+        SetLength(uncomp_data, orig_length);
+        zs.ReadBuffer(uncomp_data[0], orig_length);
 
         bs := TBytesStream.Create(uncomp_data);
         try
@@ -206,10 +206,10 @@ type
   end;
 
   TNameRecord = packed record
-    platformID,
-    encodingID,
-    languageID,
-    nameID,
+    platform_id,
+    encoding_id,
+    language_id,
+    name_id,
     length,
     offset: word;
   end;
@@ -240,31 +240,31 @@ begin
 
   for i := 0 to naming_table.count - 1 do
     begin
-        stream.ReadBuffer(name_rec, SizeOf(name_rec));
+      stream.ReadBuffer(name_rec, SizeOf(name_rec));
 
-        {$IFDEF ENDIAN_LITTLE}
-        with name_rec do
-          begin
-            platformID := SwapEndian(platformID);
-            encodingID := SwapEndian(encodingID);
-            languageID := SwapEndian(languageID);
-            nameID     := SwapEndian(nameID);
-            length     := SwapEndian(length);
-            offset     := SwapEndian(offset);
-          end;
-        {$ENDIF}
+      {$IFDEF ENDIAN_LITTLE}
+      with name_rec do
+        begin
+          platform_id := SwapEndian(platform_id);
+          encoding_id := SwapEndian(encoding_id);
+          language_id := SwapEndian(language_id);
+          name_id     := SwapEndian(name_id);
+          length     := SwapEndian(length);
+          offset     := SwapEndian(offset);
+        end;
+      {$ENDIF}
 
       // Entries in the Name Record are always sorted so that we can stop
       // parsing immediately after we finished reading the needed record.
-      if (name_rec.platformID < PLATFORM_ID_WIN) or
-         (name_rec.encodingID < ENCODING_ID_WIN_UCS2) or
-         (name_rec.languageID < LANGUAGE_ID_WIN_ENGLISH_US) then
+      if (name_rec.platform_id < PLATFORM_ID_WIN) or
+         (name_rec.encoding_id < ENCODING_ID_WIN_UCS2) or
+         (name_rec.language_id < LANGUAGE_ID_WIN_ENGLISH_US) then
         continue
       else
-        if (name_rec.platformID > PLATFORM_ID_WIN) or
-           (name_rec.encodingID > ENCODING_ID_WIN_UCS2) or
-           (name_rec.languageID > LANGUAGE_ID_WIN_ENGLISH_US) or
-           (name_rec.nameID > High(NAME_MAP)) then
+        if (name_rec.platform_id > PLATFORM_ID_WIN) or
+           (name_rec.encoding_id > ENCODING_ID_WIN_UCS2) or
+           (name_rec.language_id > LANGUAGE_ID_WIN_ENGLISH_US) or
+           (name_rec.name_id > High(NAME_MAP)) then
           break;
 
       offset := stream.Position;
@@ -272,7 +272,7 @@ begin
 
       SetLength(name, name_rec.length);
       stream.ReadBuffer(name[1], name_rec.length);
-      info[NAME_MAP[name_rec.nameID]] := UCS2BEToUTF8(name);
+      info[NAME_MAP[name_rec.name_id]] := UCS2BEToUTF8(name);
 
       stream.Seek(offset, soFromBeginning);
     end;
@@ -292,17 +292,17 @@ end;
 }
 function CheckCommon(stream: TStream; var info: TFontInfo): boolean;
 var
-  ntables: word;
+  num_tables: word;
   i: longint;
   dir: TTableDirEntry;
-  layout_tables: boolean = FALSE;
+  has_layout_tables: boolean = FALSE;
 begin
   // Read offset table.
-  ntables := stream.ReadWordBE;
+  num_tables := stream.ReadWordBE;
   stream.Seek(SizeOf(word) * 3, soFromCurrent); // Skip all other fields.
 
   // Read all tables.
-  for i := 0 to ntables - 1 do
+  for i := 0 to num_tables - 1 do
     begin
       stream.ReadBuffer(dir, SizeOf(dir));
 
@@ -322,13 +322,13 @@ begin
         TAG_GPOS,
         TAG_GSUB,
         TAG_JSTF:
-          layout_tables := TRUE;
+          has_layout_tables := TRUE;
         TAG_NAME:
           ReadTable(stream, info, @NameReader, dir.offset);
       end;
     end;
 
-  result := layout_tables;
+  result := has_layout_tables;
 end;
 
 
@@ -337,16 +337,16 @@ end;
 }
 procedure CheckCollection(stream: TStream; var info: TFontInfo);
 var
-  nfonts,
+  num_fonts,
   offset,
   sign: longword;
-  layout_tables: boolean;
+  has_layout_tables: boolean;
 begin
   // Read collection header.
   stream.Seek(SizeOf(longword), soFromCurrent); // Skip version.
-  nfonts := stream.ReadDWordBE;
+  num_fonts := stream.ReadDWordBE;
 
-  if nfonts = 0 then
+  if num_fonts = 0 then
     exit;
 
   // Read the first font.
@@ -354,24 +354,24 @@ begin
   stream.Seek(offset, soFromBeginning);
 
   sign := stream.ReadDWordBE;
-  layout_tables := CheckCommon(stream, info);
+  has_layout_tables := CheckCommon(stream, info);
 
-  info[IDX_FORMAT] := GetFormatSting(sign, layout_tables);
-  info[IDX_NFONTS] := IntToStr(nfonts);
+  info[IDX_FORMAT] := GetFormatSting(sign, has_layout_tables);
+  info[IDX_NUM_FONTS] := IntToStr(num_fonts);
 end;
 
 
 procedure CheckTTF(stream: TStream; var info: TFontInfo); inline;
 var
-  layout_tables: boolean;
+  has_layout_tables: boolean;
 begin
-  layout_tables := CheckCommon(stream, info);
+  has_layout_tables := CheckCommon(stream, info);
 
-  if layout_tables then
+  if has_layout_tables then
     info[IDX_FORMAT] := FORMAT_OT_TT
   else
     info[IDX_FORMAT] := FORMAT_TT;
-  info[IDX_NFONTS] := '1';
+  info[IDX_NUM_FONTS] := '1';
 end;
 
 
@@ -379,7 +379,7 @@ procedure CheckOTF(stream: TStream; var info: TFontInfo); inline;
 begin
   CheckCommon(stream, info);
   info[IDX_FORMAT] := FORMAT_OT_PS;
-  info[IDX_NFONTS] := '1';
+  info[IDX_NUM_FONTS] := '1';
 end;
 
 
@@ -388,8 +388,8 @@ var
   header: TWOFFHeader;
   i: longint;
   dir: TWOFFTableDirEntry;
-  origLength: longword;
-  layout_tables: boolean = FALSE;
+  orig_length: longword;
+  has_layout_tables: boolean = FALSE;
 begin
   stream.ReadBuffer(header, SizeOf(header));
   // Skip unused.
@@ -400,7 +400,7 @@ begin
     begin
       flavor    := SwapEndian(flavor);
       length    := SwapEndian(length);
-      numTables := SwapEndian(numTables);
+      num_tables := SwapEndian(num_tables);
       reserved  := SwapEndian(reserved);
     end;
   {$ENDIF}
@@ -409,7 +409,7 @@ begin
      (header.reserved <> 0) then
     exit;
 
-  for i := 0 to header.numTables - 1 do
+  for i := 0 to header.num_tables - 1 do
     begin
       stream.ReadBuffer(dir, SizeOf(dir));
       // Skip origChecksum.
@@ -420,18 +420,18 @@ begin
         begin
           tag        := SwapEndian(tag);
           offset     := SwapEndian(offset);
-          compLength := SwapEndian(compLength);
-          origLength := SwapEndian(origLength);
+          comp_length := SwapEndian(comp_length);
+          orig_length := SwapEndian(orig_length);
         end;
       {$ENDIF}
 
-      if dir.compLength > dir.origLength then
+      if dir.comp_length > dir.orig_length then
         exit;
 
-      if dir.compLength < dir.origLength then
-        origLength := dir.origLength
+      if dir.comp_length < dir.orig_length then
+        orig_length := dir.orig_length
       else
-        origLength := 0;
+        orig_length := 0;
 
       case dir.tag of
         TAG_BASE,
@@ -439,14 +439,14 @@ begin
         TAG_GPOS,
         TAG_GSUB,
         TAG_JSTF:
-          layout_tables := TRUE;
+          has_layout_tables := TRUE;
         TAG_NAME:
-          ReadTable(stream, info, @NameReader, dir.offset, origLength);
+          ReadTable(stream, info, @NameReader, dir.offset, orig_length);
       end;
     end;
 
-  info[IDX_FORMAT] := GetFormatSting(header.flavor, layout_tables);
-  info[IDX_NFONTS] := '1';
+  info[IDX_FORMAT] := GetFormatSting(header.flavor, has_layout_tables);
+  info[IDX_NUM_FONTS] := '1';
 end;
 
 
@@ -459,14 +459,14 @@ var
   s_len: word;
 begin
   stream.Seek(
-    SizeOf(TEOTHeader.FontDataSize) +
-    SizeOf(TEOTHeader.Version) +
-    SizeOf(TEOTHeader.Flags) +
-    SizeOf(TEOTHeader.PANOSE) +
-    SizeOf(TEOTHeader.Charset) +
-    SizeOf(TEOTHeader.Italic) +
-    SizeOf(TEOTHeader.Weight) +
-    SizeOf(TEOTHeader.fsType),
+    SizeOf(TEOTHeader.font_data_size) +
+    SizeOf(TEOTHeader.version) +
+    SizeOf(TEOTHeader.flags) +
+    SizeOf(TEOTHeader.panose) +
+    SizeOf(TEOTHeader.charset) +
+    SizeOf(TEOTHeader.italic) +
+    SizeOf(TEOTHeader.weight) +
+    SizeOf(TEOTHeader.fs_type),
     soFromCurrent);
 
   magick := stream.ReadWordLE;
@@ -474,17 +474,17 @@ begin
     exit;
 
   stream.Seek(
-    SizeOf(TEOTHeader.UnicodeRange1) +
-    SizeOf(TEOTHeader.UnicodeRange2) +
-    SizeOf(TEOTHeader.UnicodeRange3) +
-    SizeOf(TEOTHeader.UnicodeRange4) +
-    SizeOf(TEOTHeader.CodePageRange1) +
-    SizeOf(TEOTHeader.CodePageRange2) +
-    SizeOf(TEOTHeader.CheckSumAdjustment) +
-    SizeOf(TEOTHeader.Reserved1) +
-    SizeOf(TEOTHeader.Reserved2) +
-    SizeOf(TEOTHeader.Reserved3) +
-    SizeOf(TEOTHeader.Reserved4),
+    SizeOf(TEOTHeader.unicode_range1) +
+    SizeOf(TEOTHeader.unicode_range2) +
+    SizeOf(TEOTHeader.unicode_range3) +
+    SizeOf(TEOTHeader.unicode_range4) +
+    SizeOf(TEOTHeader.code_page_range1) +
+    SizeOf(TEOTHeader.code_page_range2) +
+    SizeOf(TEOTHeader.checksum_adjustment) +
+    SizeOf(TEOTHeader.reserved1) +
+    SizeOf(TEOTHeader.reserved2) +
+    SizeOf(TEOTHeader.reserved3) +
+    SizeOf(TEOTHeader.reserved4),
     soFromCurrent);
 
   padding := stream.ReadWordLE;
