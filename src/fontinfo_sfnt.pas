@@ -257,7 +257,6 @@ begin
       // Entries in the Name Record are always sorted so that we can stop
       // parsing immediately after we finished reading the needed record.
       if (name_rec.platform_id < PLATFORM_ID_WIN) or
-         (name_rec.encoding_id < ENCODING_ID_WIN_UCS2) or
          (name_rec.language_id < LANGUAGE_ID_WIN_ENGLISH_US) then
         continue
       else
