@@ -49,6 +49,14 @@ const
 
 
 type
+  TOffsetTable = packed record
+    version: longword;
+    num_tables,
+    search_range,
+    entry_selector,
+    range_shift: word;
+  end;
+
   TTableDirEntry = packed record
     tag,
     checksumm,
@@ -103,7 +111,6 @@ type
     reserved2,
     reserved3,
     reserved4: longword;
-    padding1: word;
   end;
 
 
@@ -291,16 +298,23 @@ end;
 }
 function CheckCommon(stream: TStream; var info: TFontInfo): boolean;
 var
+  start: int64;
   num_tables: word;
   i: longint;
   dir: TTableDirEntry;
   has_layout_tables: boolean = FALSE;
 begin
-  // Read offset table.
-  num_tables := stream.ReadWordBE;
-  stream.Seek(SizeOf(word) * 3, soFromCurrent); // Skip all other fields.
+  // Version is already checked.
+  start := stream.Position - SizeOf(TOffsetTable.Version);
 
-  // Read all tables.
+  num_tables := stream.ReadWordBE;
+
+  stream.Seek(
+    SizeOf(TOffsetTable.search_range) +
+    SizeOf(TOffsetTable.entry_selector) +
+    SizeOf(TOffsetTable.range_shift),
+    soFromCurrent);
+
   for i := 0 to num_tables - 1 do
     begin
       stream.ReadBuffer(dir, SizeOf(dir));
@@ -323,7 +337,7 @@ begin
         TAG_JSTF:
           has_layout_tables := TRUE;
         TAG_NAME:
-          ReadTable(stream, info, @NameReader, dir.offset);
+          ReadTable(stream, info, @NameReader, start + dir.offset);
       end;
     end;
 
@@ -449,18 +463,46 @@ begin
 end;
 
 
+const
+  // EOT versions
+  EOT_V1 = $00010000;
+  EOT_V2 = $00020001;
+  EOT_V3 = $00020002;
+
+  // EOT flags
+  TTEMBED_TTCOMPRESSED = $00000004;
+  TTEMBED_XORENCRYPTDATA = $10000000;
+
 procedure CheckEOT(stream: TStream; var info: TFontInfo);
 var
+  eot_size,
+  font_data_size,
+  version,
+  flags: longword;
   magick,
   padding: word;
+  sign: longword;
   idx: TFieldIndex;
   s: string;
   s_len: word;
 begin
+  eot_size := stream.ReadDWordLE;
+  if eot_size <> stream.Size then
+    exit;
+
+  font_data_size := stream.ReadDWordLE;
+  if font_data_size >= eot_size - SizeOf(TEOTHeader) then
+    exit;
+
+  version := stream.ReadDWordLE;
+  if (version <> EOT_V1) and
+     (version <> EOT_V2) and
+     (version <> EOT_V3) then
+    exit;
+
+  flags := stream.ReadDWordLE;
+
   stream.Seek(
-    SizeOf(TEOTHeader.font_data_size) +
-    SizeOf(TEOTHeader.version) +
-    SizeOf(TEOTHeader.flags) +
     SizeOf(TEOTHeader.panose) +
     SizeOf(TEOTHeader.charset) +
     SizeOf(TEOTHeader.italic) +
@@ -471,6 +513,25 @@ begin
   magick := stream.ReadWordLE;
   if magick <> EOT_MAGICK then
     exit;
+
+  if (flags and TTEMBED_TTCOMPRESSED = 0) and
+     (flags and TTEMBED_XORENCRYPTDATA = 0) then
+    begin
+      stream.Seek(eot_size - font_data_size, soFromBeginning);
+
+      sign := stream.ReadDWordBE;
+      case sign of
+        TTF_MAGICK1,
+        TTF_MAGICK2,
+        TTF_MAGICK3,
+        TTF_MAGICK4:
+          CheckTTF(stream, info);
+        OTF_MAGICK:
+          CheckOTF(stream, info);
+      end;
+
+      exit;
+    end;
 
   stream.Seek(
     SizeOf(TEOTHeader.unicode_range1) +
@@ -486,20 +547,16 @@ begin
     SizeOf(TEOTHeader.reserved4),
     soFromCurrent);
 
-  padding := stream.ReadWordLE;
-  if padding <> 0 then
-    exit;
-
   for idx in [IDX_FAMILY, IDX_STYLE, IDX_VERSION, IDX_FULL_NAME] do
     begin
+      padding := stream.ReadWordLE;
+      if padding <> 0 then
+        exit;
+
       s_len := stream.ReadWordLE;
       SetLength(s, s_len);
       stream.ReadBuffer(s[1], s_len);
       info[idx] := UCS2LEToUTF8(s);
-
-      padding := stream.ReadWordLE;
-      if padding <> 0 then
-        exit;
     end;
 
   // Currently we can't uncompress EOT to determine SFNT format.
@@ -529,8 +586,8 @@ begin
         COLLECTION_MAGICK:
           CheckCollection(f, info);
       else
-        if SwapEndian(sign) = f.Size then
-          CheckEOT(f, info);
+        f.seek(0, soFromBeginning);
+        CheckEOT(f, info);
       end;
     finally
       f.Free;
