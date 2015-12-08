@@ -75,8 +75,8 @@ begin
     with properties[i] do
       begin
         name_offset := read_dw();
-        is_string   := stream.ReadByte;
-        value       := read_dw();
+        is_string := stream.ReadByte;
+        value := read_dw();
       end;
 
   if num_properties and 3 <> 0 then
@@ -127,10 +127,10 @@ begin
       {$IFDEF ENDIAN_BIG}
       with table_rec do
         begin
-          type_  := SwapEndian(type_);
+          type_ := SwapEndian(type_);
           format := SwapEndian(format);
-          size   := SwapEndian(size);
-          ofset  := SwapEndian(ofset);
+          size := SwapEndian(size);
+          ofset := SwapEndian(ofset);
         end;
       {$ENDIF}
 

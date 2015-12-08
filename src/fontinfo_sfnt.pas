@@ -202,7 +202,7 @@ type
   TNamingTable = packed record
     format,
     count,
-    stringOffset: word;
+    string_offset: word;
   end;
 
   TNameRecord = packed record
@@ -230,13 +230,13 @@ begin
   {$IFDEF ENDIAN_LITTLE}
   with naming_table do
     begin
-      format       := SwapEndian(format);
-      count        := SwapEndian(count);
-      stringOffset := SwapEndian(stringOffset);
+      format := SwapEndian(format);
+      count := SwapEndian(count);
+      string_offset := SwapEndian(string_offset);
     end;
   {$ENDIF}
 
-  storage_offset := start + naming_table.stringOffset;
+  storage_offset := start + naming_table.string_offset;
 
   for i := 0 to naming_table.count - 1 do
     begin
@@ -248,9 +248,9 @@ begin
           platform_id := SwapEndian(platform_id);
           encoding_id := SwapEndian(encoding_id);
           language_id := SwapEndian(language_id);
-          name_id     := SwapEndian(name_id);
-          length     := SwapEndian(length);
-          offset     := SwapEndian(offset);
+          name_id := SwapEndian(name_id);
+          length := SwapEndian(length);
+          offset := SwapEndian(offset);
         end;
       {$ENDIF}
 
@@ -308,10 +308,10 @@ begin
       {$IFDEF ENDIAN_LITTLE}
       with dir do
         begin
-          tag       := SwapEndian(tag);
+          tag := SwapEndian(tag);
           checksumm := SwapEndian(checksumm);
-          offset    := SwapEndian(offset);
-          length    := SwapEndian(length);
+          offset := SwapEndian(offset);
+          length := SwapEndian(length);
         end;
       {$ENDIF}
 
@@ -397,10 +397,10 @@ begin
   {$IFDEF ENDIAN_LITTLE}
   with header do
     begin
-      flavor    := SwapEndian(flavor);
-      length    := SwapEndian(length);
+      flavor := SwapEndian(flavor);
+      length := SwapEndian(length);
       num_tables := SwapEndian(num_tables);
-      reserved  := SwapEndian(reserved);
+      reserved := SwapEndian(reserved);
     end;
   {$ENDIF}
 
@@ -417,8 +417,8 @@ begin
       {$IFDEF ENDIAN_LITTLE}
       with dir do
         begin
-          tag        := SwapEndian(tag);
-          offset     := SwapEndian(offset);
+          tag := SwapEndian(tag);
+          offset := SwapEndian(offset);
           comp_length := SwapEndian(comp_length);
           orig_length := SwapEndian(orig_length);
         end;
