@@ -15,47 +15,34 @@ uses
   sysutils;
 
 
-procedure GetSFDorAFMInfo(const FileName: string; var info: TFontInfo);
-
+procedure GetAFMInfo(const FileName: string; var info: TFontInfo); inline;
+procedure GetSFDInfo(const FileName: string; var info: TFontInfo); inline;
 
 implementation
+
+type
+  TFontFormat = (
+    AFM,
+    SFD
+    );
 
 const
   AFM_SIGN = 'StartFontMetrics';
   SFD_SIGN = 'SplineFontDB:';
 
+  FONT_FORMAT_STR: array[TFontFormat] of string = (
+    'AFM',
+    'SFD'
+    );
+
   NUM_FIELDS = 6; // Number of fields we need to find.
   MAX_LINES = 30;
 
 
-function ReadSign(var t: text; var info: TFontInfo): boolean; inline;
-var
-  s: string;
-  p: longint;
-begin
-  ReadLn(t, s);
-  if s = '' then
-    exit(FALSE);
-
-  p := Pos(' ', s);
-  if p = 0 then
-    exit(FALSE);
-
-  case Copy(s, 1, p - 1) of
-    AFM_SIGN: info[IDX_FORMAT] := 'AFM ';
-    SFD_SIGN: info[IDX_FORMAT] := 'SFD ';
-  else
-    exit(FALSE);
-  end;
-
-  info[IDX_FORMAT] := info[IDX_FORMAT] + Copy(s, p + 1, Length(s) - p);
-  result := TRUE;
-end;
-
-
-procedure GetSFDorAFMInfo(const FileName: string; var info: TFontInfo);
+procedure GetCommonInfo(const FileName: string; var info: TFontInfo);
 var
   t: text;
+  font_format: TFontFormat;
   i: longint;
   s: string;
   s_len: longint;
@@ -71,11 +58,24 @@ begin
   if IOResult <> 0 then
     exit;
 
-  if not ReadSign(t, info) then
+  ReadLn(t, s);
+  p := Pos(' ', s);
+  if p = 0 then
     begin
       Close(t);
       exit;
     end;
+
+  case Copy(s, 1, p - 1) of
+    AFM_SIGN: font_format := AFM;
+    SFD_SIGN: font_format := SFD;
+  else
+    Close(t);
+    exit;
+  end;
+
+  info[IDX_FORMAT] := FONT_FORMAT_STR[font_format] +
+                      Copy(s, p, Length(s) - p + 1);
 
   i := 1;
   num_found := 0;
@@ -92,8 +92,8 @@ begin
 
       inc(i);
 
-      // Skip colon in SFD.
-      if s[p - 1] = ':' then
+      if font_format = SFD then
+        // Skip colon in SFD.
         key := Copy(s, 1, p - 2)
       else
         key := Copy(s, 1, p - 1);
@@ -106,8 +106,8 @@ begin
         'Copyright': idx := IDX_COPYRIGHT;
         'Notice':
           begin
-            // Skip brackets that may have been added by FontForge.
-            if (s[p + 1] = '(') and (s[s_len] = ')') then
+            if (font_format = SFD) and
+               (s[p + 1] = '(') and (s[s_len] = ')') then
               begin
                 inc(p);
                 dec(s_len);
@@ -129,5 +129,15 @@ begin
   Close(t);
 end;
 
+
+procedure GetAFMInfo(const FileName: string; var info: TFontInfo); inline;
+begin
+  GetCommonInfo(FileName, info);
+end;
+
+procedure GetSFDInfo(const FileName: string; var info: TFontInfo); inline;
+begin
+  GetCommonInfo(FileName, info);
+end;
 
 end.

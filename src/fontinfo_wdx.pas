@@ -43,9 +43,9 @@ uses
 const
   ELLIPSIS = '…';
 
-// Cache.
+// Cache
 var
-  CurrentFileName: string;
+  last_file_name: string;
   info_cache: TFontInfo;
 
 
@@ -77,7 +77,7 @@ function ContentGetSupportedField(FieldIndex: Integer; FieldName: PAnsiChar;
 begin
   StrPCopy(Units, EmptyStr);
 
-  if FieldIndex > ord(High(TFieldIndex)) then
+  if FieldIndex > Ord(High(TFieldIndex)) then
     exit(FT_NOMOREFIELDS);
 
   StrPLCopy(FieldName, TFieldNames[TFieldIndex(FieldIndex)], MaxLen);
@@ -100,7 +100,7 @@ begin
   if FieldIndex > Ord(High(TFieldIndex)) then
     exit(FT_NOSUCHFIELD);
 
-  if CurrentFileName <> FileName_s then
+  if last_file_name <> FileName_s then
     begin
       ext := LowerCase(ExtractFileExt(FileName_s));
       case ext of
@@ -114,8 +114,10 @@ begin
           GetBDFInfo(FileName_s, info);
         '.pcf':
           GetPCFInfo(FileName_s, info, FALSE);
-        '.afm', '.sfd':
-          GetSFDorAFMInfo(FileName_s, info);
+        '.afm':
+          GetAFMInfo(FileName_s, info);
+        '.sfd':
+          GetSFDInfo(FileName_s, info);
         '.gz':
           begin
             ext := LowerCase(ExtractFileExt(
@@ -128,7 +130,7 @@ begin
       end;
 
       info_cache := info;
-      CurrentFileName := FileName_s;
+      last_file_name := FileName_s;
     end;
 
   StrPLCopy(PAnsiChar(FieldValue),
