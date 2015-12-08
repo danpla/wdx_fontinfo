@@ -202,7 +202,7 @@ begin
       until not (s[val_start] in SKIP_CHARS);
 
       case idx of
-        IDX_FORMAT: info[idx] := 'PS T ' + ExtractPSValue(s, val_start);
+        IDX_FORMAT: info[idx] := 'PS ' + ExtractPSValue(s, val_start);
         IDX_PS_NAME: info[idx] := ExtractPSValue(s, val_start);
       else
         info[idx] := ExtractPSString(s, val_start);

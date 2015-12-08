@@ -42,7 +42,7 @@ and [Double][Double Commander] Commanders.
     * "OT TT" — TrueType flavored OpenType
     * "EOT" — compressed Embedded OpenType (currently, the plugin can't
       decompress EOT)
-    * "PS T {type}" — PostScript Type {type}
+    * "PS {type}" — PostScript Type {type}
     * "AFM {version}"
     * "PFM" — Printer Font Metrics
     * "BDF {version}""
