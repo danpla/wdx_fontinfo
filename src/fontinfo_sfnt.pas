@@ -586,7 +586,7 @@ begin
         COLLECTION_MAGICK:
           CheckCollection(f, info);
       else
-        f.seek(0, soFromBeginning);
+        f.Seek(0, soFromBeginning);
         CheckEOT(f, info);
       end;
     finally
