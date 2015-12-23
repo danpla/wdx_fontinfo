@@ -1,6 +1,6 @@
 [plugininstall]
 description=Font info
-version=0.7.1
+version=0.7.2
 type=wdx
 file=fontinfo.wdx
 defaultdir=wdx_fontinfo

@@ -1,4 +1,12 @@
 
+0.7.2 (23.12.15)
+  • Support for reading "name" table from uncompressed EOTs (so-called EOT-Lite)
+  • "Format" for PS fonts changed from "PS T {type}" to "PS {type}"
+  • Fixed reading of .pcf.gz on Unix-like systems when a file has no writing
+    permissions (like fonts from /usr/share/fonts/X11)
+  • Fixed reading of "symbolic" fonts
+
+
 0.7.1 (04.08.15)
   • Fixed closing files when signature doesn't match (PS, BDF)
   • Tiny performance improvements
