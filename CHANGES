@@ -1,4 +1,9 @@
 
+0.7.3 (08.01.16)
+  • Fixed reading of font collections
+  • Fixed empty "Number of Fonts" field for compressed EOT
+
+
 0.7.2 (23.12.15)
   • Support for reading "name" table from uncompressed EOTs (so-called EOT-Lite)
   • "Format" for PS fonts changed from "PS T {type}" to "PS {type}"
