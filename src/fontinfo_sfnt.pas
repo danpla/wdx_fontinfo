@@ -292,21 +292,19 @@ end;
 }
 
 {
-  Common checker for TTF, TTC, OTF and OTC.
+  Common checker for TTF, TTC, OTF, OTC, and EOF.
 
   Returns boolean indicating existence of OpenType-related tables.
 }
-function CheckCommon(stream: TStream; var info: TFontInfo): boolean;
+function CheckCommon(stream: TStream; var info: TFontInfo;
+                     const font_offset: longword = 0): boolean;
 var
-  start: int64;
   num_tables: word;
   i: longint;
   dir: TTableDirEntry;
   has_layout_tables: boolean = FALSE;
 begin
   // Version is already checked.
-  start := stream.Position - SizeOf(TOffsetTable.Version);
-
   num_tables := stream.ReadWordBE;
 
   stream.Seek(
@@ -337,7 +335,7 @@ begin
         TAG_JSTF:
           has_layout_tables := TRUE;
         TAG_NAME:
-          ReadTable(stream, info, @NameReader, start + dir.offset);
+          ReadTable(stream, info, @NameReader, font_offset + dir.offset);
       end;
     end;
 
@@ -481,7 +479,9 @@ var
   flags: longword;
   magick,
   padding: word;
+  font_offset,
   sign: longword;
+  has_layout_tables: boolean;
   idx: TFieldIndex;
   s: string;
   s_len: word;
@@ -517,17 +517,21 @@ begin
   if (flags and TTEMBED_TTCOMPRESSED = 0) and
      (flags and TTEMBED_XORENCRYPTDATA = 0) then
     begin
-      stream.Seek(eot_size - font_data_size, soFromBeginning);
+      font_offset := eot_size - font_data_size;
+      stream.Seek(font_offset, soFromBeginning);
 
       sign := stream.ReadDWordBE;
       case sign of
         TTF_MAGICK1,
         TTF_MAGICK2,
         TTF_MAGICK3,
-        TTF_MAGICK4:
-          CheckTTF(stream, info);
+        TTF_MAGICK4,
         OTF_MAGICK:
-          CheckOTF(stream, info);
+          begin
+            has_layout_tables := CheckCommon(stream, info, font_offset);
+            info[IDX_FORMAT] := GetFormatSting(sign, has_layout_tables);
+            info[IDX_NUM_FONTS] := '1';
+          end;
       end;
 
       exit;
@@ -561,6 +565,7 @@ begin
 
   // Currently we can't uncompress EOT to determine SFNT format.
   info[IDX_FORMAT] := 'EOT';
+  info[IDX_NUM_FONTS] := '1';
 end;
 
 
