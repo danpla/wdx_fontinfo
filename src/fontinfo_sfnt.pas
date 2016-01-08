@@ -292,7 +292,7 @@ end;
 }
 
 {
-  Common checker for TTF, TTC, OTF, OTC, and EOF.
+  Common checker for TTF, TTC, OTF, OTC, and EOT.
 
   Returns boolean indicating existence of OpenType-related tables.
 }
