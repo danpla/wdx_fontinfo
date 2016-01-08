@@ -87,7 +87,7 @@ begin
 
       s_len := Length(s);
       p := Pos(' ', s);
-      if (p < 2) or not (p < s_len - 2) then
+      if (p < 2) or (p = s_len) then
         continue;
 
       inc(i);
