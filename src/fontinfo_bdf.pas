@@ -80,9 +80,12 @@ begin
       if (p < 2) or (p = s_len) then
         continue;
 
+      key := Copy(s, 1, p - 1);
+      if key = 'COMMENT' then
+        continue;
+
       inc(i);
 
-      key := Copy(s, 1, p - 1);
       case key of
         BDF_COPYRIGHT: idx := IDX_COPYRIGHT;
         BDF_FAMILY_NAME: idx := IDX_FAMILY;
