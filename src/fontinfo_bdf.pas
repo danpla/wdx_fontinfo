@@ -110,8 +110,17 @@ begin
 
   if (info[IDX_FAMILY] = '') and (info[IDX_PS_NAME] <> '') then
     info[IDX_FAMILY] := info[IDX_PS_NAME];
+
   if info[IDX_STYLE] = '' then
     info[IDX_STYLE] := 'Medium';
+
+  if info[IDX_FULL_NAME] = '' then
+    begin
+      if info[IDX_STYLE] = 'Medium' then
+        info[IDX_FULL_NAME] := info[IDX_FAMILY]
+      else
+        info[IDX_FULL_NAME] := info[IDX_FAMILY] + ' ' + info[IDX_STYLE];
+    end;
 
   info[IDX_NUM_FONTS] := '1';
 
