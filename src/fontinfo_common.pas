@@ -52,6 +52,12 @@ const
 
 function GetWeightName(const weight: word): string;
 
+{
+  Extract style (weight) from FullName using FamilyName.
+  Falls back to "Regular" on errors or when names are equal.
+}
+function ExtractStyle(const full_name, family_name: string): string;
+
 implementation
 
 
@@ -70,6 +76,32 @@ begin
   else
     result := 'Regular';
   end;
+end;
+
+
+function ExtractStyle(const full_name, family_name: string): string;
+var
+  style_start,
+  style_len,
+  full_name_len: longint;
+begin
+  result := 'Regular';
+  if (full_name = '') or (family_name = '') then
+    exit;
+
+  style_start := Length(family_name) + 1;
+  full_name_len := Length(full_name);
+  if style_start >= full_name_len then
+    exit;
+
+  if full_name[style_start] in [' ', '-'] then
+    inc(style_start);
+
+  style_len := full_name_len - style_start + 1;
+  if style_len < 1 then
+    exit;
+
+  result := Copy(full_name, style_start, style_len);
 end;
 
 end.
