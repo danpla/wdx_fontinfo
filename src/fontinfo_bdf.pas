@@ -52,12 +52,10 @@ begin
     info[IDX_STYLE] := 'Medium';
 
   if info[IDX_FULL_NAME] = '' then
-    begin
-      if info[IDX_STYLE] = 'Medium' then
-        info[IDX_FULL_NAME] := info[IDX_FAMILY]
-      else
-        info[IDX_FULL_NAME] := info[IDX_FAMILY] + ' ' + info[IDX_STYLE];
-    end;
+    if info[IDX_STYLE] = 'Medium' then
+      info[IDX_FULL_NAME] := info[IDX_FAMILY]
+    else
+      info[IDX_FULL_NAME] := info[IDX_FAMILY] + ' ' + info[IDX_STYLE];
 end;
 
 
