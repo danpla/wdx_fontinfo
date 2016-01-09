@@ -143,10 +143,7 @@ begin
         end;
     end;
 
-  if (info[IDX_FAMILY] = '') and (info[IDX_PS_NAME] <> '') then
-    info[IDX_FAMILY] := info[IDX_PS_NAME];
-  if info[IDX_STYLE] = '' then
-    info[IDX_STYLE] := 'Medium';
+  BDF_FillEmpty(info);
 
   info[IDX_FORMAT] := 'PCF';
   info[IDX_NUM_FONTS] := '1';
