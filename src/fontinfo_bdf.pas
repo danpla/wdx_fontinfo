@@ -21,6 +21,7 @@ const
   BDF_FONT = 'FONT';
   BDF_FOUNDRY = 'FOUNDRY';
   BDF_FULL_NAME = 'FULL_NAME';
+  BDF_FACE_NAME = 'FACE_NAME';
   BDF_WEIGHT_NAME = 'WEIGHT_NAME';
 
 
@@ -91,7 +92,7 @@ begin
         BDF_FAMILY_NAME: idx := IDX_FAMILY;
         BDF_FONT: idx := IDX_PS_NAME;
         BDF_FOUNDRY: idx := IDX_MANUFACTURER;
-        BDF_FULL_NAME: idx := IDX_FULL_NAME;
+        BDF_FULL_NAME, BDF_FACE_NAME: idx := IDX_FULL_NAME;
         BDF_WEIGHT_NAME: idx := IDX_STYLE;
       else
         continue;
