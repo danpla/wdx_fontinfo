@@ -59,15 +59,16 @@ function GetWeightName(const weight: word): string;
 begin
   case weight of
     100: result := 'Thin';
-    200: result := 'Extra-light';
+    200: result := 'ExtraLight';
     300: result := 'Light';
     500: result := 'Medium';
-    600: result := 'Semi-bold';
+    600: result := 'SemiBold';
     700: result := 'Bold';
-    800: result := 'Extra-bold';
+    800: result := 'ExtraBold';
     900: result := 'Black';
+    950: result := 'ExtraBlack';
   else
-    result := 'Normal';
+    result := 'Regular';
   end;
 end;
 
