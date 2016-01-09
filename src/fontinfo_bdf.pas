@@ -24,6 +24,13 @@ const
   BDF_FACE_NAME = 'FACE_NAME';
   BDF_WEIGHT_NAME = 'WEIGHT_NAME';
 
+{
+  Fill empty fields with information from existing ones:
+    IDX_FAMILY
+    IDX_STYLE
+    IDX_FULL_NAME
+}
+procedure BDF_FillEmpty(var info: TFontInfo);
 
 procedure GetBDFInfo(FileName: string; var info: TFontInfo);
 
@@ -34,6 +41,24 @@ const
 
   NUM_FIELDS = 6;
   MAX_LINES = 30;
+
+
+procedure BDF_FillEmpty(var info: TFontInfo);
+begin
+  if (info[IDX_FAMILY] = '') and (info[IDX_PS_NAME] <> '') then
+    info[IDX_FAMILY] := info[IDX_PS_NAME];
+
+  if info[IDX_STYLE] = '' then
+    info[IDX_STYLE] := 'Medium';
+
+  if info[IDX_FULL_NAME] = '' then
+    begin
+      if info[IDX_STYLE] = 'Medium' then
+        info[IDX_FULL_NAME] := info[IDX_FAMILY]
+      else
+        info[IDX_FULL_NAME] := info[IDX_FAMILY] + ' ' + info[IDX_STYLE];
+    end;
+end;
 
 
 procedure GetBDFInfo(FileName: string; var info: TFontInfo);
@@ -108,19 +133,7 @@ begin
       inc(num_found);
     end;
 
-  if (info[IDX_FAMILY] = '') and (info[IDX_PS_NAME] <> '') then
-    info[IDX_FAMILY] := info[IDX_PS_NAME];
-
-  if info[IDX_STYLE] = '' then
-    info[IDX_STYLE] := 'Medium';
-
-  if info[IDX_FULL_NAME] = '' then
-    begin
-      if info[IDX_STYLE] = 'Medium' then
-        info[IDX_FULL_NAME] := info[IDX_FAMILY]
-      else
-        info[IDX_FULL_NAME] := info[IDX_FAMILY] + ' ' + info[IDX_STYLE];
-    end;
+  BDF_FillEmpty(info);
 
   info[IDX_NUM_FONTS] := '1';
 
