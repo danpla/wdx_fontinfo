@@ -4,13 +4,13 @@ Font info WDX plugin for [Total][Total Commander]
 and [Double][Double Commander] Commanders.
 
 
-## Currently supported formats
+## Supported formats
 
   * TrueType and TrueType Collections
   * OpenType and OpenType Collections
   * Web Open Font Format (WOFF)
   * Embedded OpenType (EOT)
-  * PostScript Type 0, 1, 3, 11, 42 etc., possibly with AFM and PFM
+  * PostScript Type 0, 1, 3, 11, 42 etc., possibly with AFM, PFM, and INF
   * Bitmap Distribution Format (BDF)
   * X11 Portable Compiled Format (PCF), possibly GZip compressed (.pcf.gz)
   * FontForge’s Spline Font Database (SFD)
@@ -33,10 +33,7 @@ and [Double][Double Commander] Commanders.
   * Designer URL
   * License
   * License URL
-  * Format — short string describing the format "under the hood" of the font
-   file. For example, it can be used to determine what is actually
-   your .ttf file: "plain" TrueType or TrueType flavored OpenType.
-   Can be one of following:
+  * Format. Can be one of following:
     * "TT" — "plain" TrueType
     * "OT PS" — PostSript flavored OpenType
     * "OT TT" — TrueType flavored OpenType
@@ -45,6 +42,7 @@ and [Double][Double Commander] Commanders.
     * "PS {type}" — PostScript Type {type}
     * "AFM {version}"
     * "PFM" — Printer Font Metrics
+    * "INF"
     * "BDF {version}""
     * "PCF"
     * "SFD {version}"
