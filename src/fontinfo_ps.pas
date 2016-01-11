@@ -156,10 +156,11 @@ begin
   SkipBinary(t);
 
   ReadLn(t, s);
-  if (s = '') or
-     (Pos(PS_MAGICK1, s) <> 1) and
-     (Pos(PS_MAGICK2, s) <> 1) and
-     (Pos(PS_MAGICK3, s) <> 1) then
+  if not (
+     (s <> '') and
+     (AnsiStartsStr(PS_MAGICK1, s) or
+      AnsiStartsStr(PS_MAGICK2, s) or
+      AnsiStartsStr(PS_MAGICK3, s))) then
     begin
       Close(t);
       exit;
