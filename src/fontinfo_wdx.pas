@@ -32,10 +32,11 @@ uses
   fontinfo_common,
   fontinfo_sfnt,
   fontinfo_ps,
+  fontinfo_afm_sfd,
   fontinfo_pfm,
+  fontinfo_inf,
   fontinfo_bdf,
   fontinfo_pcf,
-  fontinfo_afm_sfd,
   wdxplugin,
   classes,
   sysutils;
@@ -64,7 +65,7 @@ begin
             '(EXT="TTF")|(EXT="TTC")|(EXT="OTF")|(EXT="OTC")|' +
             '(EXT="WOFF")|(EXT="EOT")|' +
             '(EXT="PS")|(EXT="PFA")|(EXT="PFB")|(EXT="PT3")|(EXT="T42")|' +
-            '(EXT="AFM")|(EXT="PFM")|' +
+            '(EXT="AFM")|(EXT="PFM")|(EXT="INF")|' +
             '(EXT="BDF")|(EXT="PCF")|' +
             '(EXT="SFD")|' +
             '(EXT="GZ")',
@@ -108,14 +109,16 @@ begin
           GetSFNTInfo(FileName_s, info);
         '.ps','.pfa','.pfb','.pt3','.t42':
           GetPSInfo(FileName_s, info);
+        '.afm':
+          GetAFMInfo(FileName_s, info);
         '.pfm':
           GetPFMInfo(FileName_s, info);
+        '.inf':
+          GetINFInfo(FileName_s, info);
         '.bdf':
           GetBDFInfo(FileName_s, info);
         '.pcf':
           GetPCFInfo(FileName_s, info, FALSE);
-        '.afm':
-          GetAFMInfo(FileName_s, info);
         '.sfd':
           GetSFDInfo(FileName_s, info);
         '.gz':
