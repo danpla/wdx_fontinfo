@@ -15,6 +15,7 @@ uses
   fontinfo_utils,
   classes,
   zstream,
+  strutils,
   sysutils;
 
 
@@ -188,6 +189,7 @@ const
   LANGUAGE_ID_WIN_ENGLISH_US = $0409;
   ENCODING_ID_WIN_UCS2 = 1;
 
+  VERSION_STR = 'Version ';
 
 type
   TNamingTable = packed record
@@ -214,7 +216,8 @@ var
   i: longint;
   name_rec: TNameRecord;
   idx: TFieldIndex;
-  name: string;
+  name,
+  version: string;
 begin
   start := stream.Position;
   stream.ReadBuffer(naming_table, SizeOf(naming_table));
@@ -288,6 +291,16 @@ begin
       info[idx] := UCS2BEToUTF8(name);
 
       stream.Seek(offset, soFromBeginning);
+    end;
+
+  // Strip "Version "
+  version := info[IDX_VERSION];
+  if (version <> '') and AnsiStartsStr(VERSION_STR, version) then
+    begin
+      info[IDX_VERSION] := Copy(
+        version,
+        Length(VERSION_STR) + 1,
+        Length(version) - Length(VERSION_STR));
     end;
 end;
 
