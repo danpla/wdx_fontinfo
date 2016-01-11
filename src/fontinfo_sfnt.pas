@@ -188,22 +188,6 @@ const
   LANGUAGE_ID_WIN_ENGLISH_US = $0409;
   ENCODING_ID_WIN_UCS2 = 1;
 
-  NAME_MAP: array [0..14] of TFieldIndex = (
-    IDX_COPYRIGHT,
-    IDX_FAMILY,
-    IDX_STYLE,
-    IDX_UNIQUE_ID,
-    IDX_FULL_NAME,
-    IDX_VERSION,
-    IDX_PS_NAME,
-    IDX_TRADEMARK,
-    IDX_MANUFACTURER,
-    IDX_DESIGNER,
-    IDX_DESCRIPTION,
-    IDX_VENDOR_URL,
-    IDX_DESIGNER_URL,
-    IDX_LICENSE,
-    IDX_LICENSE_URL);
 
 type
   TNamingTable = packed record
@@ -229,6 +213,7 @@ var
   offset: int64;
   i: longint;
   name_rec: TNameRecord;
+  idx: TFieldIndex;
   name: string;
 begin
   start := stream.Position;
@@ -269,16 +254,38 @@ begin
       else
         if (name_rec.platform_id > PLATFORM_ID_WIN) or
            (name_rec.encoding_id > ENCODING_ID_WIN_UCS2) or
-           (name_rec.language_id > LANGUAGE_ID_WIN_ENGLISH_US) or
-           (name_rec.name_id > High(NAME_MAP)) then
+           (name_rec.language_id > LANGUAGE_ID_WIN_ENGLISH_US) then
           break;
+
+      case name_rec.name_id of
+        0:  idx := IDX_COPYRIGHT;
+        1:  idx := IDX_FAMILY;
+        2:  idx := IDX_STYLE;
+        3:  idx := IDX_UNIQUE_ID;
+        4:  idx := IDX_FULL_NAME;
+        5:  idx := IDX_VERSION;
+        6:  idx := IDX_PS_NAME;
+        7:  idx := IDX_TRADEMARK;
+        8:  idx := IDX_MANUFACTURER;
+        9:  idx := IDX_DESIGNER;
+        10: idx := IDX_DESCRIPTION;
+        11: idx := IDX_VENDOR_URL;
+        12: idx := IDX_DESIGNER_URL;
+        13: idx := IDX_LICENSE;
+        14: idx := IDX_LICENSE_URL;
+        15: continue;  // Reserved
+        16: idx := IDX_FAMILY;  // Typographic Family
+        17: idx := IDX_STYLE;  // Typographic Subfamily
+      else
+        break;
+      end;
 
       offset := stream.Position;
       stream.Seek(longint(storage_offset + name_rec.offset), soFromBeginning);
 
       SetLength(name, name_rec.length);
       stream.ReadBuffer(name[1], name_rec.length);
-      info[NAME_MAP[name_rec.name_id]] := UCS2BEToUTF8(name);
+      info[idx] := UCS2BEToUTF8(name);
 
       stream.Seek(offset, soFromBeginning);
     end;
