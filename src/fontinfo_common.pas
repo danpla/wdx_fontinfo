@@ -5,6 +5,9 @@ unit fontinfo_common;
 
 interface
 
+uses
+  strutils;
+
 type
   TFieldIndex = (
     IDX_FAMILY,
@@ -53,10 +56,11 @@ const
 function GetWeightName(const weight: word): string;
 
 {
-  Extract style (weight) from FullName using FamilyName.
-  Falls back to "Regular" on errors or when names are equal.
+  Extract style from FullName using FamilyName.
+  On errors, falls back to "Regular" or to weight if it is not empty.
 }
-function ExtractStyle(const full_name, family_name: string): string;
+function ExtractStyle(const full_name, family_name: string;
+                      const weight: string = ''): string;
 
 implementation
 
@@ -79,19 +83,29 @@ begin
 end;
 
 
-function ExtractStyle(const full_name, family_name: string): string;
+function ExtractStyle(const full_name, family_name: string;
+                      const weight: string = ''): string;
 var
   style_start,
   style_len,
   full_name_len: longint;
 begin
   result := 'Regular';
-  if (full_name = '') or (family_name = '') then
+
+  if full_name = family_name then
+    exit;
+
+  if weight <> '' then
+    result := weight;
+
+  if (full_name = '') or
+     (family_name = '') or
+     not AnsiStartsStr(family_name, full_name) then
     exit;
 
   style_start := Length(family_name) + 1;
   full_name_len := Length(full_name);
-  if style_start >= full_name_len then
+  if style_start = full_name_len then
     exit;
 
   if full_name[style_start] in [' ', '-'] then

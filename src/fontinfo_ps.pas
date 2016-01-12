@@ -31,7 +31,7 @@ const
   // Characters we need to skip to reach certain value.
   SKIP_CHARS = [' ', '(', '/'];
   // Number of fields we need to find.
-  NUM_FIELDS = 6;
+  NUM_FIELDS = 7;
 
 type
   TBinHeader = packed record
@@ -191,6 +191,7 @@ begin
         'Notice': idx := IDX_COPYRIGHT;
         'FullName': idx := IDX_FULL_NAME;
         'FamilyName': idx := IDX_FAMILY;
+        'Weight': idx := IDX_STYLE;
       else
         continue;
       end;
@@ -211,7 +212,8 @@ begin
       inc(num_found);
     end;
 
-  info[IDX_STYLE] := ExtractStyle(info[IDX_FULL_NAME], info[IDX_FAMILY]);
+  info[IDX_STYLE] := ExtractStyle(
+    info[IDX_FULL_NAME], info[IDX_FAMILY], info[IDX_STYLE]);
   info[IDX_NUM_FONTS] := '1';
 
   Close(t);

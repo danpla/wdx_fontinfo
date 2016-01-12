@@ -35,7 +35,7 @@ const
     'SFD'
     );
 
-  NUM_FIELDS = 5; // Number of fields we need to find.
+  NUM_FIELDS = 6; // Number of fields we need to find.
   MAX_LINES = 30;
 
 
@@ -102,6 +102,7 @@ begin
         'FontName': idx := IDX_PS_NAME;
         'FullName': idx := IDX_FULL_NAME;
         'FamilyName': idx := IDX_FAMILY;
+        'Weight': idx := IDX_STYLE;
         'Copyright': idx := IDX_COPYRIGHT;
         'Notice':
           begin
@@ -123,7 +124,8 @@ begin
       inc(num_found);
     end;
 
-  info[IDX_STYLE] := ExtractStyle(info[IDX_FULL_NAME], info[IDX_FAMILY]);
+  info[IDX_STYLE] := ExtractStyle(
+    info[IDX_FULL_NAME], info[IDX_FAMILY], info[IDX_STYLE]);
   info[IDX_NUM_FONTS] := '1';
 
   Close(t);
