@@ -1,5 +1,5 @@
 {
-  Adobe Font Metricks and FontForge's Spline Font Database
+  Adobe Font Metrics and FontForge's Spline Font Database
 }
 
 {$MODE OBJFPC}

@@ -1,5 +1,5 @@
 {
-  Printer Font Metricks
+  Printer Font Metrics
 }
 
 {$MODE OBJFPC}
