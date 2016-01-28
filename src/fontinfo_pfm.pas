@@ -57,7 +57,7 @@ begin
      (header.size <> stream.Size) then
     exit;
 
-  SetLength(copyright, stream.Read(copyright[1], MAX_COPYRIGHT_LEN));
+  stream.ReadBuffer(copyright[1], MAX_COPYRIGHT_LEN);
   info[IDX_COPYRIGHT] := TrimRight(copyright);
 
   stream.Seek(WEIGHT_POS, soFromBeginning);
