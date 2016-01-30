@@ -88,7 +88,7 @@ function ExtractStyle(const full_name, family_name: string;
 var
   style_start,
   style_len,
-  full_name_len: longint;
+  full_name_len: SizeInt;
 begin
   result := 'Regular';
 

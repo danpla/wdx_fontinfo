@@ -30,11 +30,11 @@ const
 procedure GetINFInfo(stream: TStream; var info: TFontInfo);
 var
   t: text;
-  p,
   i,
   num_found: longint;
   s: string;
-  s_len: longint;
+  s_len,
+  p: SizeInt;
   key: string;
   idx: TFieldIndex;
 begin

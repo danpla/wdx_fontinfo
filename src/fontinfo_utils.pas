@@ -75,10 +75,10 @@ end;
 
 function UCS2LEToUTF8(const s: string): string;
 var
-  len: SizeUInt;
+  len: SizeInt;
   src: PWord;
   dest: PChar;
-  i: SizeUInt;
+  i: SizeInt;
 begin
   if s = '' then
     exit(s);
@@ -100,10 +100,10 @@ end;
 
 function UCS2BEToUTF8(const s: string): string;
 var
-  len: SizeUInt;
+  len: SizeInt;
   src: PWord;
   dest: PChar;
-  i: SizeUInt;
+  i: SizeInt;
 begin
   if s = '' then
     exit(s);

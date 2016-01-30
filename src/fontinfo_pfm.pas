@@ -42,7 +42,7 @@ procedure GetPFMInfo(stream: TStream; var info: TFontInfo);
 var
   header: TPFMHeader;
   copyright: string[MAX_COPYRIGHT_LEN];
-  p: longint;
+  p: SizeInt;
 begin
   stream.ReadBuffer(header, SizeOf(header));
   {$IFDEF ENDIAN_BIG}

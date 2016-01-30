@@ -53,7 +53,7 @@ var
   i,
   s_len,
   esc_pos,
-  esc_len: longint;
+  esc_len: SizeInt;
 begin
   i := 1;
   s_len := Length(s);

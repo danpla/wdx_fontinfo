@@ -68,9 +68,9 @@ var
   version: string;
   i: longint;
   s: string;
-  s_len: longint;
+  s_len: SizeInt;
   key: string;
-  p,
+  p: SizeInt;
   num_found: longint;
   idx: TFieldIndex;
 begin
