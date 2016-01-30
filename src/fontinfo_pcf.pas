@@ -15,12 +15,11 @@ uses
   fontinfo_bdf,
   fontinfo_utils,
   classes,
-  zstream,
+  streamio,
   sysutils;
 
 
-procedure GetPCFInfo(const FileName: string; var info: TFontInfo;
-                     const gz: boolean);
+procedure GetPCFInfo(stream: TStream; var info: TFontInfo);
 
 implementation
 
@@ -97,7 +96,7 @@ begin
         BDF_FAMILY_NAME: idx := IDX_FAMILY;
         BDF_FONT: idx := IDX_PS_NAME;
         BDF_FOUNDRY: idx := IDX_MANUFACTURER;
-        BDF_FULL_NAME: idx := IDX_FULL_NAME;
+        BDF_FULL_NAME, BDF_FACE_NAME: idx := IDX_FULL_NAME;
         BDF_WEIGHT_NAME: idx := IDX_STYLE;
       else
         continue;
@@ -108,7 +107,7 @@ begin
 end;
 
 
-procedure ParsePCF(stream: TStream; var info: TFontInfo);
+procedure GetPCFInfo(stream: TStream; var info: TFontInfo);
 var
   sign,
   num_tables: longword;
@@ -147,37 +146,6 @@ begin
 
   info[IDX_FORMAT] := 'PCF';
   info[IDX_NUM_FONTS] := '1';
-end;
-
-
-procedure GetPCFInfo(const FileName: string; var info: TFontInfo;
-                     const gz: boolean);
-var
-  f: TStream;
-  default_mode: byte;
-begin
-  try
-    if gz then
-      begin
-        // TGZFileStream is wrapper for gzio from paszlib which is uses Reset.
-        default_mode := FileMode;
-        FileMode := fmOpenRead;
-        f := TGZFileStream.Create(FileName, gzopenread);
-        FileMode := default_mode;
-      end
-    else
-      f := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
-
-    try
-      ParsePCF(f, info);
-    finally
-      f.Free;
-    end;
-  except
-    on EStreamError do
-      begin
-      end;
-  end;
 end;
 
 

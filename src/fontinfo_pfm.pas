@@ -18,7 +18,7 @@ uses
   sysutils;
 
 
-procedure GetPFMInfo(const FileName: string; var info: TFontInfo);
+procedure GetPFMInfo(stream: TStream; var info: TFontInfo);
 
 implementation
 
@@ -38,7 +38,7 @@ type
   end;
 
 
-procedure ParsePFM(stream: TStream; var info: TFontInfo);
+procedure GetPFMInfo(stream: TStream; var info: TFontInfo);
 var
   header: TPFMHeader;
   copyright: string[MAX_COPYRIGHT_LEN];
@@ -81,26 +81,6 @@ begin
   info[IDX_FORMAT] := 'PFM';
   info[IDX_NUM_FONTS] := '1';
 end;
-
-
-procedure GetPFMInfo(const FileName: string; var info: TFontInfo);
-var
-  f: TFileStream;
-begin
-  try
-    f := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
-    try
-      ParsePFM(f, info);
-    finally
-      f.Free;
-    end;
-  except
-    on EStreamError do
-      begin
-      end;
-  end;
-end;
-
 
 
 end.

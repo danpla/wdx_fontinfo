@@ -12,10 +12,12 @@ interface
 
 uses
   fontinfo_common,
+  classes,
+  streamio,
   sysutils;
 
 
-procedure GetINFInfo(const FileName: string; var info: TFontInfo);
+procedure GetINFInfo(stream: TStream; var info: TFontInfo);
 
 
 implementation
@@ -25,7 +27,7 @@ const
   MAX_LINES = 10;
 
 
-procedure GetINFInfo(const FileName: string; var info: TFontInfo);
+procedure GetINFInfo(stream: TStream; var info: TFontInfo);
 var
   t: text;
   p,
@@ -36,7 +38,7 @@ var
   key: string;
   idx: TFieldIndex;
 begin
-  Assign(t, FileName);
+  AssignStream(t, stream);
   {I-}
   Reset(t);
   {I+}

@@ -19,7 +19,7 @@ uses
   sysutils;
 
 
-procedure GetSFNTInfo(const FileName: string; var info: TFontInfo);
+procedure GetSFNTInfo(stream: TStream; var info: TFontInfo);
 
 implementation
 
@@ -589,38 +589,26 @@ begin
 end;
 
 
-procedure GetSFNTInfo(const FileName: string; var info: TFontInfo);
+procedure GetSFNTInfo(stream: TStream; var info: TFontInfo);
 var
-  f: TFileStream;
   sign: longword;
 begin
-  try
-    f := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
-    try
-      sign := f.ReadDWordBE;
-      case sign of
-        TTF_MAGICK1,
-        TTF_MAGICK2,
-        TTF_MAGICK3,
-        TTF_MAGICK4:
-          CheckTTF(f, info);
-        OTF_MAGICK:
-          CheckOTF(f, info);
-        WOFF_MAGICK:
-          CheckWOFF(f, info);
-        COLLECTION_MAGICK:
-          CheckCollection(f, info);
-      else
-        f.Seek(0, soFromBeginning);
-        CheckEOT(f, info);
-      end;
-    finally
-      f.Free;
-    end;
-  except
-    on EStreamError do
-      begin
-      end;
+  sign := stream.ReadDWordBE;
+  case sign of
+    TTF_MAGICK1,
+    TTF_MAGICK2,
+    TTF_MAGICK3,
+    TTF_MAGICK4:
+      CheckTTF(stream, info);
+    OTF_MAGICK:
+      CheckOTF(stream, info);
+    WOFF_MAGICK:
+      CheckWOFF(stream, info);
+    COLLECTION_MAGICK:
+      CheckCollection(stream, info);
+  else
+    stream.Seek(0, soFromBeginning);
+    CheckEOT(stream, info);
   end;
 end;
 

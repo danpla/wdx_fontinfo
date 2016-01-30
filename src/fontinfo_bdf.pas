@@ -12,6 +12,8 @@ interface
 
 uses
   fontinfo_common,
+  classes,
+  streamio,
   sysutils;
 
 
@@ -32,7 +34,7 @@ const
 }
 procedure BDF_FillEmpty(var info: TFontInfo);
 
-procedure GetBDFInfo(FileName: string; var info: TFontInfo);
+procedure GetBDFInfo(stream: TStream; var info: TFontInfo);
 
 implementation
 
@@ -59,7 +61,7 @@ begin
 end;
 
 
-procedure GetBDFInfo(FileName: string; var info: TFontInfo);
+procedure GetBDFInfo(stream: TStream; var info: TFontInfo);
 var
   t: text;
   sign: string[Length(BDF_SIGN)];
@@ -72,7 +74,7 @@ var
   num_found: longint;
   idx: TFieldIndex;
 begin
-  Assign(t, FileName);
+  AssignStream(t, stream);
   {I-}
   Reset(t);
   {I+}

@@ -39,6 +39,7 @@ uses
   fontinfo_pcf,
   wdxplugin,
   classes,
+  zstream,
   sysutils;
 
 const
@@ -91,45 +92,66 @@ function ContentGetValue(FileName: PAnsiChar; FieldIndex, UnitIndex: Integer;
 var
   FileName_s,
   ext: string;
+  default_file_mode: byte;
+  stream: TStream;
   info: TFontInfo;
 begin
   FileName_s := string(FileName);
 
-  if not FileExists(FileName_s) then
-    exit(FT_FILEERROR);
-
   if FieldIndex > Ord(High(TFieldIndex)) then
     exit(FT_NOSUCHFIELD);
+
+  if not FileExists(FileName_s) then
+    exit(FT_FILEERROR);
 
   if last_file_name <> FileName_s then
     begin
       ext := LowerCase(ExtractFileExt(FileName_s));
-      case ext of
-        '.ttf', '.ttc', '.otf', '.otc', '.woff', '.eot':
-          GetSFNTInfo(FileName_s, info);
-        '.ps','.pfa','.pfb','.pt3','.t42':
-          GetPSInfo(FileName_s, info);
-        '.afm':
-          GetAFMInfo(FileName_s, info);
-        '.pfm':
-          GetPFMInfo(FileName_s, info);
-        '.inf':
-          GetINFInfo(FileName_s, info);
-        '.bdf':
-          GetBDFInfo(FileName_s, info);
-        '.pcf':
-          GetPCFInfo(FileName_s, info, FALSE);
-        '.sfd':
-          GetSFDInfo(FileName_s, info);
-        '.gz':
+
+      try
+        if ext = '.gz' then
           begin
+            {
+              TGZFileStream is wrapper for gzio from paszlib
+              which is uses Reset.
+            }
+            default_file_mode := FileMode;
+            FileMode := fmOpenRead;
+            stream := TGZFileStream.Create(FileName, gzopenread);
+            FileMode := default_file_mode;
+
             ext := LowerCase(ExtractFileExt(
-              Copy(FileName_s, 1, Length(FileName_s) - Length(ext))));
-            case ext of
-              '.pcf':
-                GetPCFInfo(FileName_s, info, TRUE);
-            end;
+              Copy(FileName_s, 1, Length(FileName_s) - Length(ext))))
+          end
+        else
+          stream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
+
+        try
+          case ext of
+            '.ttf', '.ttc', '.otf', '.otc', '.woff', '.eot':
+              GetSFNTInfo(stream, info);
+            '.ps','.pfa','.pfb','.pt3','.t42':
+              GetPSInfo(stream, info);
+            '.afm':
+              GetAFMInfo(stream, info);
+            '.pfm':
+              GetPFMInfo(stream, info);
+            '.inf':
+              GetINFInfo(stream, info);
+            '.bdf':
+              GetBDFInfo(stream, info);
+            '.pcf':
+              GetPCFInfo(stream, info);
+            '.sfd':
+              GetSFDInfo(stream, info);
           end;
+        finally
+          stream.Free;
+        end;
+
+      except
+        on EStreamError do
+          exit(FT_FILEERROR);
       end;
 
       info_cache := info;

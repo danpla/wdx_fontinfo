@@ -12,11 +12,13 @@ interface
 
 uses
   fontinfo_common,
+  classes,
+  streamio,
   sysutils;
 
 
-procedure GetAFMInfo(const FileName: string; var info: TFontInfo); inline;
-procedure GetSFDInfo(const FileName: string; var info: TFontInfo); inline;
+procedure GetAFMInfo(stream: TStream; var info: TFontInfo); inline;
+procedure GetSFDInfo(stream: TStream; var info: TFontInfo); inline;
 
 implementation
 
@@ -39,7 +41,7 @@ const
   MAX_LINES = 30;
 
 
-procedure GetCommonInfo(const FileName: string; var info: TFontInfo);
+procedure GetCommonInfo(stream: TStream; var info: TFontInfo);
 var
   t: text;
   font_format: TFontFormat;
@@ -51,7 +53,7 @@ var
   num_found: longint;
   idx: TFieldIndex;
 begin
-  Assign(t, FileName);
+  AssignStream(t, stream);
   {I-}
   Reset(t);
   {I+}
@@ -132,14 +134,14 @@ begin
 end;
 
 
-procedure GetAFMInfo(const FileName: string; var info: TFontInfo); inline;
+procedure GetAFMInfo(stream: TStream; var info: TFontInfo); inline;
 begin
-  GetCommonInfo(FileName, info);
+  GetCommonInfo(stream, info);
 end;
 
-procedure GetSFDInfo(const FileName: string; var info: TFontInfo); inline;
+procedure GetSFDInfo(stream: TStream; var info: TFontInfo); inline;
 begin
-  GetCommonInfo(FileName, info);
+  GetCommonInfo(stream, info);
 end;
 
 end.

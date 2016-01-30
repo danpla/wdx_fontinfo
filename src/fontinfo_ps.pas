@@ -12,11 +12,14 @@ interface
 
 uses
   fontinfo_common,
+  classes,
   strutils,
+  streamio,
+  streamex,
   sysutils;
 
 
-procedure GetPSInfo(const FileName: string; var info: TFontInfo);
+procedure GetPSInfo(stream: TStream; var info: TFontInfo);
 
 
 implementation
@@ -118,25 +121,7 @@ begin
 end;
 
 
-{
-  Skip binary header of .pfb file (if any).
-}
-procedure SkipBinary(var t: text); inline;
-var
-  h: THandle;
-  magick: word;
-begin
-  h := GetFileHandle(t);
-  FileRead(h, magick, SizeOf(magick));
-
-  if LEtoN(magick) = BIN_MAGICK then
-    FileSeek(h, SizeOf(TBinHeader.ascii_length), fsFromCurrent)
-  else
-    FileSeek(h, 0, fsFromBeginning);
-end;
-
-
-procedure GetPSInfo(const FileName: string; var info: TFontInfo);
+procedure GetPSInfo(stream: TStream; var info: TFontInfo);
 var
   t: text;
   p,
@@ -146,14 +131,18 @@ var
   idx: TFieldIndex;
   num_found: longint = 0;
 begin
-  Assign(t, FileName);
+  AssignStream(t, stream);
   {I-}
   Reset(t);
   {I+}
   if IOResult <> 0 then
     exit;
 
-  SkipBinary(t);
+  // Skip header of .pfb file, if any.
+  if stream.ReadWordLE = BIN_MAGICK then
+    stream.Seek(SizeOf(TBinHeader.ascii_length), fsFromCurrent)
+  else
+    stream.Seek(0, fsFromBeginning);
 
   ReadLn(t, s);
   if not (
