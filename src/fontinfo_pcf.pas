@@ -16,6 +16,7 @@ uses
   fontinfo_utils,
   classes,
   streamio,
+  math,
   sysutils;
 
 
@@ -90,6 +91,10 @@ begin
     begin
       if properties[i].is_string = 0 then
         continue;
+
+      if not InRange(properties[i].value, 0, strings_len) or
+         not InRange(properties[i].name_offset, 0, strings_len) then
+        break;
 
       case String(PAnsiChar(@strings[properties[i].name_offset])) of
         BDF_COPYRIGHT: idx := IDX_COPYRIGHT;
