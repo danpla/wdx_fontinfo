@@ -90,21 +90,20 @@ end;
 function ContentGetValue(FileName: PAnsiChar; FieldIndex, UnitIndex: Integer;
                          FieldValue: PByte; MaxLen, Flags: Integer): Integer; dcpcall;
 var
-  FileName_s,
+  FileName_str,
   ext: string;
   default_file_mode: byte;
   stream: TStream;
   info: TFontInfo;
 begin
-  FileName_s := string(FileName);
-
   if FieldIndex > Ord(High(TFieldIndex)) then
     exit(FT_NOSUCHFIELD);
 
+  FileName_str := string(FileName);
 
-  if last_file_name <> FileName_s then
+  if last_file_name <> FileName_str then
     begin
-      ext := LowerCase(ExtractFileExt(FileName_s));
+      ext := LowerCase(ExtractFileExt(FileName_str));
 
       try
         if ext = '.gz' then
@@ -119,7 +118,7 @@ begin
             FileMode := default_file_mode;
 
             ext := LowerCase(ExtractFileExt(
-              Copy(FileName_s, 1, Length(FileName_s) - Length(ext))))
+              Copy(FileName_str, 1, Length(FileName_str) - Length(ext))))
           end
         else
           stream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
@@ -155,7 +154,7 @@ begin
       end;
 
       info_cache := info;
-      last_file_name := FileName_s;
+      last_file_name := FileName_str;
     end;
 
   StrPLCopy(PAnsiChar(FieldValue),
