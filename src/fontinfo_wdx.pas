@@ -142,6 +142,8 @@ begin
               GetPCFInfo(stream, info);
             '.sfd':
               GetSFDInfo(stream, info);
+          else
+            exit(FT_FILEERROR);
           end;
         finally
           stream.Free;
