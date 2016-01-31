@@ -30,6 +30,7 @@ const
   PS_MAGICK1 = '%!PS-AdobeFont';
   PS_MAGICK2 = '%!FontType';
   PS_MAGICK3 = '%!PS-TrueTypeFont';
+  PS_MAGICK4 = '%!PS-Adobe-3.0 Resource-CIDFont';
 
   // Characters we need to skip to reach certain value.
   SKIP_CHARS = [' ', '(', '/'];
@@ -149,7 +150,8 @@ begin
      (s <> '') and
      (AnsiStartsStr(PS_MAGICK1, s) or
       AnsiStartsStr(PS_MAGICK2, s) or
-      AnsiStartsStr(PS_MAGICK3, s))) then
+      AnsiStartsStr(PS_MAGICK3, s) or
+      AnsiStartsStr(PS_MAGICK4, s))) then
     begin
       Close(t);
       exit;

@@ -65,7 +65,8 @@ begin
   StrPLCopy(DetectString,
             '(EXT="TTF")|(EXT="TTC")|(EXT="OTF")|(EXT="OTC")|' +
             '(EXT="WOFF")|(EXT="EOT")|' +
-            '(EXT="PS")|(EXT="PFA")|(EXT="PFB")|(EXT="PT3")|(EXT="T42")|' +
+            '(EXT="PS")|(EXT="PFA")|(EXT="PFB")|(EXT="PT3")|'+
+            '(EXT="T11")|(EXT="T42")|' +
             '(EXT="AFM")|(EXT="PFM")|(EXT="INF")|' +
             '(EXT="BDF")|(EXT="PCF")|' +
             '(EXT="SFD")|' +
@@ -127,7 +128,7 @@ begin
           case ext of
             '.ttf', '.ttc', '.otf', '.otc', '.woff', '.eot':
               GetSFNTInfo(stream, info);
-            '.ps','.pfa','.pfb','.pt3','.t42':
+            '.ps','.pfa','.pfb','.pt3', '.t11', '.t42':
               GetPSInfo(stream, info);
             '.afm':
               GetAFMInfo(stream, info);
