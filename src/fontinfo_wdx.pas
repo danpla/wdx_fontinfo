@@ -101,8 +101,6 @@ begin
   if FieldIndex > Ord(High(TFieldIndex)) then
     exit(FT_NOSUCHFIELD);
 
-  if not FileExists(FileName_s) then
-    exit(FT_FILEERROR);
 
   if last_file_name <> FileName_s then
     begin
