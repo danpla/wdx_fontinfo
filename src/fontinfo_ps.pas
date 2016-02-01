@@ -45,7 +45,7 @@ type
 
 
 {
-  Unescape string in a single pass.
+  Unescape PostScript string
 }
 function UnEscape(s: string): string;
 const
@@ -73,16 +73,13 @@ begin
             't': s[esc_pos] := #9;
             'b': s[esc_pos] := #8;
             'f': s[esc_pos] := #12;
-            '\': s[esc_pos] := '\';
-            '(': s[esc_pos] := '(';
-            ')': s[esc_pos] := ')';
-            '0'..'9':
+            '0'..'7':
               begin
                 s[esc_pos] := chr(0);
                 esc_len := 0;
                 while (i <= s_len) and
                       (esc_len <= MAX_OCTAL_DIGITS) and
-                      (s[i] in ['0'..'9']) do
+                      (s[i] in ['0'..'7']) do
                   begin
                     s[esc_pos] := chr(
                       (ord(s[esc_pos]) shl 3) or (ord(s[i]) - ord('0')));
@@ -91,8 +88,8 @@ begin
                   end;
               end
           else
-            // Ignore "/".
-            dec(esc_pos);
+            // Ignore backslash
+            s[esc_pos] := s[i];
           end;
 
           delete(s, esc_pos + 1, esc_len);
