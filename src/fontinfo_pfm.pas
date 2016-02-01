@@ -41,7 +41,7 @@ type
 procedure GetPFMInfo(stream: TStream; var info: TFontInfo);
 var
   header: TPFMHeader;
-  copyright: string[MAX_COPYRIGHT_LEN];
+  copyright: string;
   p: SizeInt;
 begin
   stream.ReadBuffer(header, SizeOf(header));
@@ -57,6 +57,7 @@ begin
      (header.size <> stream.Size) then
     exit;
 
+  SetLength(copyright, MAX_COPYRIGHT_LEN);
   stream.ReadBuffer(copyright[1], MAX_COPYRIGHT_LEN);
   info[IDX_COPYRIGHT] := TrimRight(copyright);
 
