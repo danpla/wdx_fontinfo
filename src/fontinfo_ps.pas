@@ -53,51 +53,64 @@ const
 var
   i,
   s_len,
-  esc_pos,
-  esc_len: SizeInt;
+  del_pos,
+  del_len,
+  num_pos: SizeInt;
+  decimal: longword;
 begin
   i := 1;
   s_len := Length(s);
 
   while i < s_len do
     begin
-      if s[i] = '\' then
+      if s[i] <> '\' then
         begin
-          esc_pos := i;
-          esc_len := 1;
           inc(i);
-
-          case s[i] of
-            'n': s[esc_pos] := #10;
-            'r': s[esc_pos] := #13;
-            't': s[esc_pos] := #9;
-            'b': s[esc_pos] := #8;
-            'f': s[esc_pos] := #12;
-            '0'..'7':
-              begin
-                s[esc_pos] := chr(0);
-                esc_len := 0;
-                while (i <= s_len) and
-                      (esc_len <= MAX_OCTAL_DIGITS) and
-                      (s[i] in ['0'..'7']) do
-                  begin
-                    s[esc_pos] := chr(
-                      (ord(s[esc_pos]) shl 3) or (ord(s[i]) - ord('0')));
-                    inc(i);
-                    inc(esc_len);
-                  end;
-              end
-          else
-            // Ignore backslash
-            s[esc_pos] := s[i];
-          end;
-
-          delete(s, esc_pos + 1, esc_len);
-          dec(i, esc_len);
-          dec(s_len, esc_len);
+          continue;
         end;
 
-      inc(i);
+      case s[i + 1] of
+        'n', 'r', 't', 'b', 'f':
+          begin
+            del_pos := i;
+            del_len := 2;
+          end;
+        '0'..'7':
+          begin
+            decimal := 0;
+            del_len := 0;
+            num_pos := i + 1;
+
+            repeat
+              decimal := (decimal shl 3) or (ord(s[num_pos]) - ord('0'));
+              inc(num_pos);
+              inc(del_len);
+            until (del_len = MAX_OCTAL_DIGITS) or
+                  (num_pos > s_len) or
+                  not (s[num_pos] in ['0'..'7']);
+
+            if (decimal < 32) or (decimal > 126) then
+              // Ignore invisible and non-ASCII characters
+              // TODO: Handle copyright sign especially
+              begin
+                del_pos := i;
+                inc(del_len);
+              end
+            else
+              begin
+                s[i] := char(decimal);
+                inc(i);
+                del_pos := i;
+              end;
+          end
+      else
+        // Ignore backslash
+        del_pos := i;
+        del_len := 1;
+      end;
+
+      delete(s, del_pos, del_len);
+      dec(s_len, del_len);
     end;
 
   result := s;
