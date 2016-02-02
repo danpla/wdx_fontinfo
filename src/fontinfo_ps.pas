@@ -172,12 +172,14 @@ begin
       ReadLn(t, s);
       s := Trim(s);
 
-      // Skip empty lines and comments.
-      if (s = '') or (s[1] = '%') then
+      if s = '' then
         continue;
 
-      if s = 'currentdict end' then
-        break;
+      if s[1] <> '/' then
+        if s = 'currentdict end' then
+          break
+        else
+          continue;
 
       p := PosSetEx(SKIP_CHARS, s, 3);
       if p = 0 then
