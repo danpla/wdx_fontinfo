@@ -25,7 +25,7 @@ procedure GetPCFInfo(stream: TStream; var info: TFontInfo);
 implementation
 
 const
-  PCF_MAGICK = $70636601; // '\1pcf'
+  PCF_MAGIC = $70636601; // '\1pcf'
 
   PCF_PROPERTIES = 1 shl 0;
 
@@ -120,7 +120,7 @@ var
   table_rec: TPCF_TableRec;
 begin
   sign := stream.ReadDWordLE;
-  if sign <> PCF_MAGICK then
+  if sign <> PCF_MAGIC then
     exit;
 
   num_tables := stream.ReadDWordLE;

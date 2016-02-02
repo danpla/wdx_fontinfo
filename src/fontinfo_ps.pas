@@ -25,12 +25,12 @@ procedure GetPSInfo(stream: TStream; var info: TFontInfo);
 implementation
 
 const
-  BIN_MAGICK = $0180;
+  BIN_MAGIC = $0180;
 
-  PS_MAGICK1 = '%!PS-AdobeFont';
-  PS_MAGICK2 = '%!FontType';
-  PS_MAGICK3 = '%!PS-TrueTypeFont';
-  PS_MAGICK4 = '%!PS-Adobe-3.0 Resource-CIDFont';
+  PS_MAGIC1 = '%!PS-AdobeFont';
+  PS_MAGIC2 = '%!FontType';
+  PS_MAGIC3 = '%!PS-TrueTypeFont';
+  PS_MAGIC4 = '%!PS-Adobe-3.0 Resource-CIDFont';
 
   // Characters we need to skip to reach certain value.
   SKIP_CHARS = [' ', '(', '/'];
@@ -39,7 +39,7 @@ const
 
 type
   TBinHeader = packed record
-    magick: word;
+    magic: word;
     ascii_length: longword;
   end;
 
@@ -150,7 +150,7 @@ begin
     exit;
 
   // Skip header of .pfb file, if any.
-  if stream.ReadWordLE = BIN_MAGICK then
+  if stream.ReadWordLE = BIN_MAGIC then
     stream.Seek(SizeOf(TBinHeader.ascii_length), fsFromCurrent)
   else
     stream.Seek(0, fsFromBeginning);
@@ -158,10 +158,10 @@ begin
   ReadLn(t, s);
   if not (
      (s <> '') and
-     (AnsiStartsStr(PS_MAGICK1, s) or
-      AnsiStartsStr(PS_MAGICK2, s) or
-      AnsiStartsStr(PS_MAGICK3, s) or
-      AnsiStartsStr(PS_MAGICK4, s))) then
+     (AnsiStartsStr(PS_MAGIC1, s) or
+      AnsiStartsStr(PS_MAGIC2, s) or
+      AnsiStartsStr(PS_MAGIC3, s) or
+      AnsiStartsStr(PS_MAGIC4, s))) then
     begin
       Close(t);
       exit;

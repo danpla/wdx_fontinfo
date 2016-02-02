@@ -24,16 +24,16 @@ procedure GetSFNTInfo(stream: TStream; var info: TFontInfo);
 implementation
 
 const
-  TTF_MAGICK1 = $00010000;
-  TTF_MAGICK2 = $00020000;
-  TTF_MAGICK3 = $74727565; // 'true'
-  TTF_MAGICK4 = $74797031; // 'typ1'
+  TTF_MAGIC1 = $00010000;
+  TTF_MAGIC2 = $00020000;
+  TTF_MAGIC3 = $74727565; // 'true'
+  TTF_MAGIC4 = $74797031; // 'typ1'
 
-  COLLECTION_MAGICK = $74746366; // 'ttcf'
-  OTF_MAGICK = $4f54544f; // 'OTTO'
-  WOFF_MAGICK = $774f4646; // 'wOFF'
+  COLLECTION_MAGIC = $74746366; // 'ttcf'
+  OTF_MAGIC = $4f54544f; // 'OTTO'
+  WOFF_MAGIC = $774f4646; // 'wOFF'
 
-  EOT_MAGICK = $504c;
+  EOT_MAGIC = $504c;
 
   // SFNT table names.
   TAG_BASE = $42415345;
@@ -100,7 +100,7 @@ type
     italic: byte;
     weight: longword;
     fs_type,
-    magick: word;
+    magic: word;
     unicode_range1,
     unicode_range2,
     unicode_range3,
@@ -118,7 +118,7 @@ type
 function GetFormatSting(const sign: longword;
                         const layout_tables: boolean): string; inline;
 begin
-  if sign = OTF_MAGICK then
+  if sign = OTF_MAGIC then
     result := FORMAT_OT_PS
   else
     if layout_tables then
@@ -497,7 +497,7 @@ var
   font_data_size,
   version,
   flags: longword;
-  magick,
+  magic,
   padding: word;
   font_offset,
   sign: longword;
@@ -530,8 +530,8 @@ begin
     SizeOf(TEOTHeader.fs_type),
     soFromCurrent);
 
-  magick := stream.ReadWordLE;
-  if magick <> EOT_MAGICK then
+  magic := stream.ReadWordLE;
+  if magic <> EOT_MAGIC then
     exit;
 
   if (flags and TTEMBED_TTCOMPRESSED = 0) and
@@ -542,11 +542,11 @@ begin
 
       sign := stream.ReadDWordBE;
       case sign of
-        TTF_MAGICK1,
-        TTF_MAGICK2,
-        TTF_MAGICK3,
-        TTF_MAGICK4,
-        OTF_MAGICK:
+        TTF_MAGIC1,
+        TTF_MAGIC2,
+        TTF_MAGIC3,
+        TTF_MAGIC4,
+        OTF_MAGIC:
           begin
             has_layout_tables := CheckCommon(stream, info, font_offset);
             info[IDX_FORMAT] := GetFormatSting(sign, has_layout_tables);
@@ -595,16 +595,16 @@ var
 begin
   sign := stream.ReadDWordBE;
   case sign of
-    TTF_MAGICK1,
-    TTF_MAGICK2,
-    TTF_MAGICK3,
-    TTF_MAGICK4:
+    TTF_MAGIC1,
+    TTF_MAGIC2,
+    TTF_MAGIC3,
+    TTF_MAGIC4:
       CheckTTF(stream, info);
-    OTF_MAGICK:
+    OTF_MAGIC:
       CheckOTF(stream, info);
-    WOFF_MAGICK:
+    WOFF_MAGIC:
       CheckWOFF(stream, info);
-    COLLECTION_MAGICK:
+    COLLECTION_MAGIC:
       CheckCollection(stream, info);
   else
     stream.Seek(0, soFromBeginning);
