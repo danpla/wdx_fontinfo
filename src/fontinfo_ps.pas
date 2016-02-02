@@ -32,8 +32,6 @@ const
   PS_MAGIC3 = '%!PS-TrueTypeFont';
   PS_MAGIC4 = '%!PS-Adobe-3.0 Resource-CIDFont';
 
-  // Characters we need to skip to reach certain value.
-  SKIP_CHARS = [' ', '(', '/'];
   // Number of fields we need to find.
   NUM_FIELDS = 7;
 
@@ -135,8 +133,7 @@ end;
 procedure GetPSInfo(stream: TStream; var info: TFontInfo);
 var
   t: text;
-  p,
-  val_start: SizeInt;
+  p: SizeInt;
   s,
   key: string;
   idx: TFieldIndex;
@@ -181,12 +178,11 @@ begin
         else
           continue;
 
-      p := PosSetEx(SKIP_CHARS, s, 3);
+      p := PosSetEx([' ', '(', '/'], s, 3);
       if p = 0 then
         continue;
 
       key := Copy(s, 2, p - 2);
-
       case key of
         'FontType': idx := IDX_FORMAT;
         'FontName': idx := IDX_PS_NAME;
@@ -199,17 +195,17 @@ begin
         continue;
       end;
 
-      val_start := p;
+      while s[p] = ' ' do
+        inc(p);
 
-      repeat
-        inc(val_start);
-      until not (s[val_start] in SKIP_CHARS);
+      if s[p] in ['(', '/'] then
+        inc(p);
 
       case idx of
-        IDX_FORMAT: info[idx] := 'PS ' + ExtractPSValue(s, val_start);
-        IDX_PS_NAME: info[idx] := ExtractPSValue(s, val_start);
+        IDX_FORMAT: info[idx] := 'PS ' + ExtractPSValue(s, p);
+        IDX_PS_NAME: info[idx] := ExtractPSValue(s, p);
       else
-        info[idx] := ExtractPSString(s, val_start);
+        info[idx] := ExtractPSString(s, p);
       end;
 
       inc(num_found);
