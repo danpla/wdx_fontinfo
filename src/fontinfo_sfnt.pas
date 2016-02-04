@@ -73,7 +73,7 @@ procedure ReadTable(stream: TStream; var info: TFontInfo;
                     const orig_length: longword = 0);
 var
   start: int64;
-  uncomp_data: TBytes;
+  decompressed_data: TBytes;
   zs: TDecompressionStream;
   bs: TBytesStream;
 begin
@@ -83,25 +83,21 @@ begin
   if orig_length = 0 then
     reader(stream, info)
   else
-    try
+    begin
       zs := TDecompressionStream.Create(stream);
       try
-        SetLength(uncomp_data, orig_length);
-        zs.ReadBuffer(uncomp_data[0], orig_length);
-
-        bs := TBytesStream.Create(uncomp_data);
-        try
-          reader(bs, info);
-        finally
-          bs.Free;
-        end;
+        SetLength(decompressed_data, orig_length);
+        zs.ReadBuffer(decompressed_data[0], orig_length);
       finally
         zs.Free;
       end;
-    except
-      on EStreamError do
-        begin
-        end;
+
+      bs := TBytesStream.Create(decompressed_data);
+      try
+        reader(bs, info);
+      finally
+        bs.Free;
+      end;
     end;
 
   stream.Seek(start, soFromBeginning);
