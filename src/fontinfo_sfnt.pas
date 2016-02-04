@@ -19,23 +19,15 @@ uses
   sysutils;
 
 
-procedure GetSFNTInfo(stream: TStream; var info: TFontInfo);
+procedure GetOTFInfo(stream: TStream; var info: TFontInfo);
+procedure GetCollectionInfo(stream: TStream; var info: TFontInfo);
+procedure GetWOFFInfo(stream: TStream; var info: TFontInfo);
+procedure GetEOTInfo(stream: TStream; var info: TFontInfo);
 
 implementation
 
 const
-  TTF_MAGIC1 = $00010000;
-  TTF_MAGIC2 = $00020000;
-  TTF_MAGIC3 = $74727565; // 'true'
-  TTF_MAGIC4 = $74797031; // 'typ1'
-
-  COLLECTION_MAGIC = $74746366; // 'ttcf'
-  OTF_MAGIC = $4f54544f; // 'OTTO'
-  WOFF_MAGIC = $774f4646; // 'wOFF'
-
-  EOT_MAGIC = $504c;
-
-  // SFNT table names.
+  // SFNT table names
   TAG_BASE = $42415345;
   TAG_GDEF = $47444546;
   TAG_GPOS = $47504f53;
@@ -43,88 +35,23 @@ const
   TAG_JSTF = $4a535446;
   TAG_NAME = $6e616d65;
 
-
-  FORMAT_TT = 'TT';
-  FORMAT_OT_PS = 'OT PS';
-  FORMAT_OT_TT = 'OT TT';
-
-
-type
-  TOffsetTable = packed record
-    version: longword;
-    num_tables,
-    search_range,
-    entry_selector,
-    range_shift: word;
-  end;
-
-  TTableDirEntry = packed record
-    tag,
-    checksumm,
-    offset,
-    length: longword;
-  end;
-
-
-  TWOFFHeader = packed record
-    // signature, // Already checked.
-    flavor,
-    length: longword;
-    num_tables,
-    reserved: word;
-    // totalSfntSize: longword;
-    // majorVersion: word;
-    // minorVersion: word;
-    // metaOffset,
-    // metaLength,
-    // metaOrigLength,
-    // privOffset,
-    // privLength: longword;
-  end;
-
-  TWOFFTableDirEntry = packed record
-    tag,
-    offset,
-    comp_length,
-    orig_length: longword;
-    // origChecksum: longword;
-  end;
-
-  TEOTHeader = packed record
-    eot_size,
-    font_data_size,
-    version,
-    flags: longword;
-    panose: array [0..9] of byte;
-    charset,
-    italic: byte;
-    weight: longword;
-    fs_type,
-    magic: word;
-    unicode_range1,
-    unicode_range2,
-    unicode_range3,
-    unicode_range4,
-    code_page_range1,
-    code_page_range2,
-    checksum_adjustment,
-    reserved1,
-    reserved2,
-    reserved3,
-    reserved4: longword;
-  end;
+  TTF_MAGIC1 = $00010000;
+  TTF_MAGIC2 = $00020000;
+  TTF_MAGIC3 = $74727565; // 'true'
+  TTF_MAGIC4 = $74797031; // 'typ1'
+  OTF_MAGIC = $4f54544f; // 'OTTO'
 
 
 function GetFormatSting(const sign: longword;
-                        const layout_tables: boolean): string; inline;
+                        const has_layout_tables: boolean): string; inline;
 begin
   if sign = OTF_MAGIC then
-    result := FORMAT_OT_PS
+    result := 'OT PS'
   else
-    if layout_tables then
-      result := FORMAT_OT_TT
+    if has_layout_tables then
+      result := 'OT TT'
     else
-      result := FORMAT_TT;
+      result := 'TT';
 end;
 
 
@@ -179,7 +106,6 @@ begin
 
   stream.Seek(start, soFromBeginning);
 end;
-
 
 
 // "name" table.
@@ -311,29 +237,53 @@ end;
   =======================
 }
 
-{
-  Common checker for TTF, TTC, OTF, OTC, and EOT.
+type
+  TOffsetTable = packed record
+    version: longword;
+    num_tables: word;
+    //search_range,
+    //entry_selector,
+    //range_shift: word;
+  end;
 
-  Returns boolean indicating existence of OpenType-related tables.
+  TTableDirEntry = packed record
+    tag,
+    checksumm,
+    offset,
+    length: longword;
+  end;
+
+{
+  Common parser for TTF, TTC, OTF, OTC, and EOT.
 }
-function CheckCommon(stream: TStream; var info: TFontInfo;
-                     const font_offset: longword = 0): boolean;
+procedure GetCommonInfo(stream: TStream; var info: TFontInfo;
+                        const font_offset: longword = 0);
 var
-  num_tables: word;
+  offset_table: TOffsetTable;
   i: longint;
   dir: TTableDirEntry;
   has_layout_tables: boolean = FALSE;
 begin
-  // Version is already checked.
-  num_tables := stream.ReadWordBE;
+  stream.ReadBuffer(offset_table, SizeOf(offset_table));
 
-  stream.Seek(
-    SizeOf(TOffsetTable.search_range) +
-    SizeOf(TOffsetTable.entry_selector) +
-    SizeOf(TOffsetTable.range_shift),
-    soFromCurrent);
+  {$IFDEF ENDIAN_LITTLE}
+  with offset_table do
+    begin
+      version := SwapEndian(version);
+      num_tables := SwapEndian(num_tables);
+    end;
+  {$ENDIF}
 
-  for i := 0 to num_tables - 1 do
+  if (offset_table.version <> TTF_MAGIC1) and
+     (offset_table.version <> TTF_MAGIC2) and
+     (offset_table.version <> TTF_MAGIC3) and
+     (offset_table.version <> TTF_MAGIC4) and
+     (offset_table.version <> OTF_MAGIC) then
+    exit;
+
+  stream.Seek(SizeOf(word) * 3, soFromCurrent);
+
+  for i := 0 to offset_table.num_tables - 1 do
     begin
       stream.ReadBuffer(dir, SizeOf(dir));
 
@@ -359,62 +309,84 @@ begin
       end;
     end;
 
-  result := has_layout_tables;
+  info[IDX_FORMAT] := GetFormatSting(offset_table.version, has_layout_tables);
 end;
 
 
-{
-  TTC or OTC.
-}
-procedure CheckCollection(stream: TStream; var info: TFontInfo);
-var
-  num_fonts,
-  offset,
-  sign: longword;
-  has_layout_tables: boolean;
+procedure GetOTFInfo(stream: TStream; var info: TFontInfo);
 begin
-  // Read collection header.
-  stream.Seek(SizeOf(longword), soFromCurrent); // Skip version.
-  num_fonts := stream.ReadDWordBE;
+  GetCommonInfo(stream, info);
+  info[IDX_NUM_FONTS] := '1';
+end;
 
-  if num_fonts = 0 then
+
+const
+  COLLECTION_SIGNATURE = $74746366; // 'ttcf'
+
+type
+  TCOllectionHeader = packed record
+    signature,
+    version,
+    num_fonts,
+    first_font_offset: longword;
+  end;
+
+procedure GetCollectionInfo(stream: TStream; var info: TFontInfo);
+var
+  header: TCOllectionHeader;
+begin
+  stream.ReadBuffer(header, SizeOf(header));
+
+  {$IFDEF ENDIAN_LITTLE}
+  with header do
+    begin
+      signature := SwapEndian(signature);
+      version := SwapEndian(version);
+      num_fonts := SwapEndian(num_fonts);
+      first_font_offset := SwapEndian(first_font_offset);
+    end;
+  {$ENDIF}
+
+  if (header.signature <> COLLECTION_SIGNATURE) or
+     (header.num_fonts = 0) then
     exit;
 
-  // Read the first font.
-  offset := stream.ReadDWordBE;
-  stream.Seek(offset, soFromBeginning);
+  stream.Seek(header.first_font_offset, soFromBeginning);
+  GetCommonInfo(stream, info);
 
-  sign := stream.ReadDWordBE;
-  has_layout_tables := CheckCommon(stream, info);
-
-  info[IDX_FORMAT] := GetFormatSting(sign, has_layout_tables);
-  info[IDX_NUM_FONTS] := IntToStr(num_fonts);
+  info[IDX_NUM_FONTS] := IntToStr(header.num_fonts);
 end;
 
 
-procedure CheckTTF(stream: TStream; var info: TFontInfo); inline;
-var
-  has_layout_tables: boolean;
-begin
-  has_layout_tables := CheckCommon(stream, info);
+const
+  WOFF_SIGNATURE = $774f4646; // 'wOFF'
 
-  if has_layout_tables then
-    info[IDX_FORMAT] := FORMAT_OT_TT
-  else
-    info[IDX_FORMAT] := FORMAT_TT;
-  info[IDX_NUM_FONTS] := '1';
-end;
+type
+  TWOFFHeader = packed record
+    signature,
+    flavor,
+    length: longword;
+    num_tables,
+    reserved: word;
+    // totalSfntSize: longword;
+    // majorVersion,
+    // minorVersion: word;
+    // metaOffset,
+    // metaLength,
+    // metaOrigLength,
+    // privOffset,
+    // privLength: longword;
+  end;
 
+  TWOFFTableDirEntry = packed record
+    tag,
+    offset,
+    comp_length,
+    orig_length: longword;
+    // origChecksum: longword;
+  end;
 
-procedure CheckOTF(stream: TStream; var info: TFontInfo); inline;
-begin
-  CheckCommon(stream, info);
-  info[IDX_FORMAT] := FORMAT_OT_PS;
-  info[IDX_NUM_FONTS] := '1';
-end;
-
-
-procedure CheckWOFF(stream: TStream; var info: TFontInfo);
+procedure GetWOFFInfo(stream: TStream; var info: TFontInfo);
 var
   header: TWOFFHeader;
   i: longint;
@@ -423,12 +395,11 @@ var
   has_layout_tables: boolean = FALSE;
 begin
   stream.ReadBuffer(header, SizeOf(header));
-  // Skip unused.
-  stream.Seek(SizeOf(word) * 2 + SizeOf(longword) * 6, soFromCurrent);
 
   {$IFDEF ENDIAN_LITTLE}
   with header do
     begin
+      signature := SwapEndian(signature);
       flavor := SwapEndian(flavor);
       length := SwapEndian(length);
       num_tables := SwapEndian(num_tables);
@@ -436,9 +407,12 @@ begin
     end;
   {$ENDIF}
 
-  if (header.length <> stream.Size) or
+  if (header.signature <> WOFF_SIGNATURE) or
+     (header.length <> stream.Size) or
      (header.reserved <> 0) then
     exit;
+
+  stream.Seek(SizeOf(word) * 2 + SizeOf(longword) * 6, soFromCurrent);
 
   for i := 0 to header.num_tables - 1 do
     begin
@@ -487,11 +461,38 @@ const
   EOT_V2 = $00020001;
   EOT_V3 = $00020002;
 
+  EOT_MAGIC = $504c;
+
   // EOT flags
   TTEMBED_TTCOMPRESSED = $00000004;
   TTEMBED_XORENCRYPTDATA = $10000000;
 
-procedure CheckEOT(stream: TStream; var info: TFontInfo);
+type
+  TEOTHeader = packed record
+    eot_size,
+    font_data_size,
+    version,
+    flags: longword;
+    panose: array [0..9] of byte;
+    charset,
+    italic: byte;
+    weight: longword;
+    fs_type,
+    magic: word;
+    unicode_range1,
+    unicode_range2,
+    unicode_range3,
+    unicode_range4,
+    code_page_range1,
+    code_page_range2,
+    checksum_adjustment,
+    reserved1,
+    reserved2,
+    reserved3,
+    reserved4: longword;
+  end;
+
+procedure GetEOTInfo(stream: TStream; var info: TFontInfo);
 var
   eot_size,
   font_data_size,
@@ -499,9 +500,7 @@ var
   flags: longword;
   magic,
   padding: word;
-  font_offset,
-  sign: longword;
-  has_layout_tables: boolean;
+  font_offset: longword;
   idx: TFieldIndex;
   s: string;
   s_len: word;
@@ -540,19 +539,8 @@ begin
       font_offset := eot_size - font_data_size;
       stream.Seek(font_offset, soFromBeginning);
 
-      sign := stream.ReadDWordBE;
-      case sign of
-        TTF_MAGIC1,
-        TTF_MAGIC2,
-        TTF_MAGIC3,
-        TTF_MAGIC4,
-        OTF_MAGIC:
-          begin
-            has_layout_tables := CheckCommon(stream, info, font_offset);
-            info[IDX_FORMAT] := GetFormatSting(sign, has_layout_tables);
-            info[IDX_NUM_FONTS] := '1';
-          end;
-      end;
+      GetCommonInfo(stream, info, font_offset);
+      info[IDX_NUM_FONTS] := '1';
 
       exit;
     end;
@@ -586,30 +574,6 @@ begin
   // Currently we can't uncompress EOT to determine SFNT format.
   info[IDX_FORMAT] := 'EOT';
   info[IDX_NUM_FONTS] := '1';
-end;
-
-
-procedure GetSFNTInfo(stream: TStream; var info: TFontInfo);
-var
-  sign: longword;
-begin
-  sign := stream.ReadDWordBE;
-  case sign of
-    TTF_MAGIC1,
-    TTF_MAGIC2,
-    TTF_MAGIC3,
-    TTF_MAGIC4:
-      CheckTTF(stream, info);
-    OTF_MAGIC:
-      CheckOTF(stream, info);
-    WOFF_MAGIC:
-      CheckWOFF(stream, info);
-    COLLECTION_MAGIC:
-      CheckCollection(stream, info);
-  else
-    stream.Seek(0, soFromBeginning);
-    CheckEOT(stream, info);
-  end;
 end;
 
 

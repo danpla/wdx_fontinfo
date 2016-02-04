@@ -63,7 +63,7 @@ end;
 procedure ContentGetDetectString(DetectString: PAnsiChar; MaxLen: Integer); dcpcall;
 begin
   StrPLCopy(DetectString,
-            '(EXT="TTF")|(EXT="TTC")|(EXT="OTF")|(EXT="OTC")|' +
+            '(EXT="TTF")|(EXT="OTF")|(EXT="TTC")|(EXT="OTC")|' +
             '(EXT="WOFF")|(EXT="EOT")|' +
             '(EXT="PS")|(EXT="PFA")|(EXT="PFB")|(EXT="PT3")|'+
             '(EXT="T11")|(EXT="T42")|' +
@@ -126,8 +126,14 @@ begin
 
         try
           case ext of
-            '.ttf', '.ttc', '.otf', '.otc', '.woff', '.eot':
-              GetSFNTInfo(stream, info);
+            '.ttf', '.otf':
+              GetOTFInfo(stream, info);
+            '.ttc', '.otc':
+              GetCollectionInfo(stream, info);
+            '.woff':
+              GetWOFFInfo(stream, info);
+            '.eot':
+              GetEOTInfo(stream, info);
             '.ps','.pfa','.pfb','.pt3', '.t11', '.t42':
               GetPSInfo(stream, info);
             '.afm':
