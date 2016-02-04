@@ -41,7 +41,7 @@ and [Double][Double Commander] Commanders.
       decompress EOT)
     * "PS {type}" — PostScript Type {type}
     * "AFM {version}"
-    * "PFM" — Printer Font Metrics
+    * "PFM"
     * "INF"
     * "BDF {version}""
     * "PCF"
@@ -62,11 +62,8 @@ and then run `compile` script.
   * [WOFF Specification](http://www.w3.org/TR/WOFF/)
   * [EOT Specification](http://www.w3.org/Submission/EOT/)
   * [Apple TrueType Reference Manual](https://developer.apple.com/fonts/TrueType-Reference-Manual/)
-  * [PostScript fonts (Wikipedia)](http://en.wikipedia.org/wiki/PostScript_fonts)
   * [PostScript Specifications](http://partners.adobe.com/public/developer/ps/index_specs.html)
-  * [AFM Specification (PDF)](https://partners.adobe.com/public/developer/en/font/5004.AFM_Spec.pdf)
-  * [PFM Specification (PDF)](https://partners.adobe.com/public/developer/en/font/5178.PFM.pdf)
-  * [BDF Specification (PDF)](https://partners.adobe.com/public/developer/en/font/5005.BDF_Spec.pdf)
+  * Font technical notes [[1]](http://www.adobe.com/devnet/font.html), [[2]](http://partners.adobe.com/public/developer/font/index.html)
   * [PCF Specification](http://fontforge.github.io/pcf-format.html)
   * [FontForge’s SDF Specification](http://fontforge.github.io/en-US/documentation/developers/sfdformat/)
 
