@@ -25,7 +25,7 @@ procedure GetPCFInfo(stream: TStream; var info: TFontInfo);
 implementation
 
 const
-  PCF_MAGIC = $70636601; // '\1pcf'
+  PCF_FILE_VERSION = $70636601; // '\1pcf'
 
   PCF_PROPERTIES = 1 shl 0;
 
@@ -34,8 +34,14 @@ const
 
   PCF_DEFAULT_FORMAT = $00000000;
 
+
 type
-  TPCF_TableRec = packed record
+  TPCF_TOC = packed record
+    version,
+    count: longword;
+  end;
+
+  TPCF_TOCRec = packed record
     type_,
     format,
     size,
@@ -114,22 +120,29 @@ end;
 
 procedure GetPCFInfo(stream: TStream; var info: TFontInfo);
 var
-  sign,
-  num_tables: longword;
-  i: longint;
-  table_rec: TPCF_TableRec;
+  toc: TPCF_TOC;
+  toc_rec: TPCF_TOCRec;
+  i: longword;
 begin
-  sign := stream.ReadDWordLE;
-  if sign <> PCF_MAGIC then
+  stream.ReadBuffer(toc, SizeOf(toc));
+
+  {$IFDEF ENDIAN_BIG}
+  with toc do
+    begin
+      version := SwapEndian(version);
+      count := SwapEndian(count);
+    end;
+  {$ENDIF}
+
+  if toc.version <> PCF_FILE_VERSION then
     exit;
 
-  num_tables := stream.ReadDWordLE;
-  for i := 0 to num_tables - 1 do
+  for i := 0 to toc.count - 1 do
     begin
-      stream.ReadBuffer(table_rec, SizeOf(table_rec));
+      stream.ReadBuffer(toc_rec, SizeOf(toc_rec));
 
       {$IFDEF ENDIAN_BIG}
-      with table_rec do
+      with toc_rec do
         begin
           type_ := SwapEndian(type_);
           format := SwapEndian(format);
@@ -138,10 +151,10 @@ begin
         end;
       {$ENDIF}
 
-      if (table_rec.type_ = PCF_PROPERTIES) and
-         (table_rec.format and PCF_FORMAT_MASK = PCF_DEFAULT_FORMAT) then
+      if (toc_rec.type_ = PCF_PROPERTIES) and
+         (toc_rec.format and PCF_FORMAT_MASK = PCF_DEFAULT_FORMAT) then
         begin
-          stream.Seek(table_rec.offset, soFromBeginning);
+          stream.Seek(toc_rec.offset, soFromBeginning);
           ReadProperties(stream, info);
           break;
         end;
