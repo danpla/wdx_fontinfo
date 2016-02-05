@@ -48,7 +48,7 @@ type
     offset: longword;
   end;
 
-  TPCF_PropertyRec = record
+  TPCF_PropertyRec = packed record
     name_offset: longint;
     is_string: byte;
     value: longint;
@@ -60,6 +60,7 @@ var
   format,
   num_properties,
   i: longint;
+  big_endian: boolean;
   read_dw: function: longword of object;
   properties: array of TPCF_PropertyRec;
   strings_len: longint;
@@ -70,20 +71,27 @@ begin
   if format and PCF_FORMAT_MASK <> PCF_DEFAULT_FORMAT then
     exit;
 
-  if format and PCF_BYTE_MASK = PCF_BYTE_MASK then
+  big_endian := format and PCF_BYTE_MASK = PCF_BYTE_MASK;
+  if big_endian then
     read_dw := @stream.ReadDWordBE
   else
     read_dw := @stream.ReadDWordLE;
 
   num_properties := read_dw();
   SetLength(properties, num_properties);
-  for i := 0 to num_properties - 1 do
-    with properties[i] do
-      begin
-        name_offset := read_dw();
-        is_string := stream.ReadByte;
-        value := read_dw();
-      end;
+  stream.ReadBuffer(properties[0], num_properties * SizeOf(TPCF_PropertyRec));
+
+  {$IFDEF ENDIAN_BIG}
+  if not big_endian then
+  {$ELSE}
+  if big_endian then
+  {$ENDIF}
+    for i := 0 to num_properties - 1 do
+      with properties[i] do
+        begin
+          name_offset := SwapEndian(name_offset);
+          value := SwapEndian(value);
+        end;
 
   if num_properties and 3 <> 0 then
     stream.Seek(4 - num_properties and 3, soFromCurrent);
