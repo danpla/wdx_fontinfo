@@ -151,9 +151,11 @@ begin
         end;
       {$ENDIF}
 
-      if (toc_rec.type_ = PCF_PROPERTIES) and
-         (toc_rec.format and PCF_FORMAT_MASK = PCF_DEFAULT_FORMAT) then
+      if toc_rec.type_ = PCF_PROPERTIES then
         begin
+          if toc_rec.format and PCF_FORMAT_MASK <> PCF_DEFAULT_FORMAT then
+            exit;
+
           stream.Seek(toc_rec.offset, soFromBeginning);
           ReadProperties(stream, info);
           break;
