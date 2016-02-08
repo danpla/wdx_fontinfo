@@ -93,8 +93,10 @@ function ContentGetValue(FileName: PAnsiChar; FieldIndex, UnitIndex: Integer;
 var
   FileName_str,
   ext: string;
+  gzipped: boolean = FALSE;
   default_file_mode: byte;
   stream: TStream;
+  reader: procedure(stream: TStream; var info: TFontInfo);
   info: TFontInfo;
 begin
   if FieldIndex > Ord(High(TFieldIndex)) then
@@ -106,55 +108,60 @@ begin
     begin
       ext := LowerCase(ExtractFileExt(FileName_str));
 
+      if ext = '.gz' then
+        begin
+          gzipped := TRUE;
+          ext := LowerCase(ExtractFileExt(
+            Copy(FileName_str, 1, Length(FileName_str) - Length(ext))))
+        end;
+
+      case ext of
+        '.ttf', '.otf':
+          reader := @GetOTFInfo;
+        '.ttc', '.otc':
+          reader := @GetCollectionInfo;
+        '.woff':
+          reader := @GetWOFFInfo;
+        '.eot':
+          reader := @GetEOTInfo;
+        '.ps','.pfa','.pfb','.pt3', '.t11', '.t42':
+          reader := @GetPSInfo;
+        '.afm':
+          reader := @GetAFMInfo;
+        '.pfm':
+          reader := @GetPFMInfo;
+        '.inf':
+          reader := @GetINFInfo;
+        '.bdf':
+          reader := @GetBDFInfo;
+        '.pcf':
+          reader := @GetPCFInfo;
+        '.sfd':
+          reader := @GetSFDInfo;
+      else
+        exit(FT_FILEERROR);
+      end;
+
       try
-        if ext = '.gz' then
+        if gzipped then
           begin
             {
-              TGZFileStream is wrapper for gzio from paszlib
+              TGZFileStream is wrapper for gzio from paszlib,
               which is uses Reset.
             }
             default_file_mode := FileMode;
             FileMode := fmOpenRead;
             stream := TGZFileStream.Create(FileName, gzopenread);
             FileMode := default_file_mode;
-
-            ext := LowerCase(ExtractFileExt(
-              Copy(FileName_str, 1, Length(FileName_str) - Length(ext))))
           end
         else
           stream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
 
         try
-          case ext of
-            '.ttf', '.otf':
-              GetOTFInfo(stream, info);
-            '.ttc', '.otc':
-              GetCollectionInfo(stream, info);
-            '.woff':
-              GetWOFFInfo(stream, info);
-            '.eot':
-              GetEOTInfo(stream, info);
-            '.ps','.pfa','.pfb','.pt3', '.t11', '.t42':
-              GetPSInfo(stream, info);
-            '.afm':
-              GetAFMInfo(stream, info);
-            '.pfm':
-              GetPFMInfo(stream, info);
-            '.inf':
-              GetINFInfo(stream, info);
-            '.bdf':
-              GetBDFInfo(stream, info);
-            '.pcf':
-              GetPCFInfo(stream, info);
-            '.sfd':
-              GetSFDInfo(stream, info);
-          else
-            exit(FT_FILEERROR);
-          end;
+          reader(stream, info);
         finally
           stream.Free;
         end;
-
       except
         on EStreamError do
           exit(FT_FILEERROR);
