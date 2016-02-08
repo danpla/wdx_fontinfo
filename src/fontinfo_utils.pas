@@ -80,10 +80,10 @@ var
   dest: PChar;
   i: SizeInt;
 begin
-  if s = '' then
+  len := Length(s) div 2;
+  if len = 0 then
     exit(s);
 
-  len := Length(s) div 2;
   SetLength(result, len * 3);
   src := PWord(s);
   dest := PChar(result);
@@ -105,10 +105,10 @@ var
   dest: PChar;
   i: SizeInt;
 begin
-  if s = '' then
+  len := Length(s) div 2;
+  if len = 0 then
     exit(s);
 
-  len := Length(s) div 2;
   SetLength(result, len * 3);
   src := PWord(s);
   dest := PChar(result);
