@@ -95,6 +95,9 @@ begin
 
   if last_file_name <> FileName_str then
     begin
+      if Flags and CONTENT_DELAYIFSLOW <> 0 then
+        exit(FT_DELAYED);
+
       ext := LowerCase(ExtractFileExt(FileName_str));
 
       if ext = '.gz' then
