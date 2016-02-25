@@ -63,14 +63,14 @@ end;
 procedure ContentGetDetectString(DetectString: PAnsiChar; MaxLen: Integer); dcpcall;
 begin
   StrPLCopy(DetectString,
-            '(EXT="TTF")|(EXT="OTF")|(EXT="TTC")|(EXT="OTC")|' +
-            '(EXT="WOFF")|(EXT="EOT")|' +
-            '(EXT="PS")|(EXT="PFA")|(EXT="PFB")|(EXT="PT3")|'+
-            '(EXT="T11")|(EXT="T42")|' +
-            '(EXT="AFM")|(EXT="PFM")|(EXT="INF")|' +
-            '(EXT="BDF")|(EXT="PCF")|' +
-            '(EXT="SFD")|' +
-            '(EXT="GZ")',
+            'EXT="TTF"|EXT="OTF"|EXT="TTC"|EXT="OTC"|' +
+            'EXT="WOFF"|EXT="EOT"|' +
+            'EXT="PS"|EXT="PFA"|EXT="PFB"|EXT="PT3"|'+
+            'EXT="T11"|EXT="T42"|' +
+            'EXT="AFM"|EXT="PFM"|EXT="INF"|' +
+            'EXT="BDF"|EXT="PCF"|' +
+            'EXT="SFD"|' +
+            'EXT="GZ"',
             MaxLen);
 end;
 
