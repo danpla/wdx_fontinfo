@@ -42,22 +42,11 @@ uses
   zstream,
   sysutils;
 
-const
-  ELLIPSIS = '…';
 
 // Cache
 var
   last_file_name: string;
   info_cache: TFontInfo;
-
-
-function EnsureLength(const s: string; MaxLen: Integer): string;
-begin
-  if Length(s) < MaxLen then
-    result := s
-  else
-    result := Copy(s, 1, MaxLen - Length(ELLIPSIS) + 1) + ELLIPSIS;
-end;
 
 
 procedure ContentGetDetectString(DetectString: PAnsiChar; MaxLen: Integer); dcpcall;
@@ -171,9 +160,7 @@ begin
       last_file_name := FileName_str;
     end;
 
-  StrPLCopy(PAnsiChar(FieldValue),
-            EnsureLength(info_cache[TFieldIndex(FieldIndex)], MaxLen),
-            MaxLen);
+  StrPLCopy(PAnsiChar(FieldValue), info_cache[TFieldIndex(FieldIndex)], MaxLen);
   result := FT_STRING;
 end;
 
