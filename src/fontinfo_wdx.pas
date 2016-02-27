@@ -163,6 +163,9 @@ begin
       last_file_name := FileName_str;
     end;
 
+  if info_cache[TFieldIndex(FieldIndex)] = '' then
+    exit(FT_FIELDEMPTY);
+
   StrPLCopy(PAnsiChar(FieldValue), info_cache[TFieldIndex(FieldIndex)], MaxLen);
   result := FT_STRING;
 end;
