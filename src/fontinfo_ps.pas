@@ -115,21 +115,6 @@ begin
 end;
 
 
-{
-  Extract literal or number.
-}
-function ExtractPSValue(const s: string; const start: longword): string; inline;
-begin
-  result := Copy(s, start, PosEx(' ', s, start) - start);
-end;
-
-
-function ExtractPSString(const s: string; const start: longword): string; inline;
-begin
-  result := UnEscape(Copy(s, start, RPos(')', s) - start));
-end;
-
-
 procedure GetPSInfo(stream: TStream; var info: TFontInfo);
 var
   t: text;
@@ -198,18 +183,25 @@ begin
       while s[p] = ' ' do
         inc(p);
 
-      if s[p] in ['(', '/'] then
-        inc(p);
-
-      case idx of
-        IDX_FORMAT: info[idx] := 'PS ' + ExtractPSValue(s, p);
-        IDX_PS_NAME: info[idx] := ExtractPSValue(s, p);
+      if s[p] = '(' then
+        // String
+        begin
+          inc(p);
+          info[idx] := UnEscape(Copy(s, p, RPos(')', s) - p));
+        end
       else
-        info[idx] := ExtractPSString(s, p);
-      end;
+        // Literal, number, etc.
+        begin
+          if s[p] = '/' then
+            inc(p);
+          info[idx] := Copy(s, p, PosEx(' ', s, p) - p);
+        end;
 
       inc(num_found);
     end;
+
+  if info[IDX_FORMAT] <> '' then
+    info[IDX_FORMAT] := 'PS ' + info[IDX_FORMAT];
 
   info[IDX_STYLE] := ExtractStyle(
     info[IDX_FULL_NAME], info[IDX_FAMILY], info[IDX_STYLE]);
