@@ -69,7 +69,8 @@ var
 begin
   format := stream.ReadDWordLE;
   if format and PCF_FORMAT_MASK <> PCF_DEFAULT_FORMAT then
-    exit;
+    raise EStreamError.Create(
+      'The PCF properties table has a non-default format');
 
   big_endian := format and PCF_BYTE_MASK = PCF_BYTE_MASK;
   if big_endian then
@@ -78,6 +79,11 @@ begin
     read_dw := @stream.ReadDWordLE;
 
   num_properties := read_dw();
+  if num_properties <= 0 then
+    raise EStreamError.CreateFmt(
+      'The PCF properties table has a wrong number of properties (%d)',
+      [num_properties]);
+
   SetLength(properties, num_properties);
   stream.ReadBuffer(properties[0], num_properties * SizeOf(TPCF_PropertyRec));
 
@@ -97,6 +103,11 @@ begin
     stream.Seek(4 - num_properties and 3, soFromCurrent);
 
   strings_len := read_dw();
+  if strings_len <= 0 then
+    raise EStreamError.CreateFmt(
+      'The PCF properties table has a wrong size of strings (%d)',
+      [strings_len]);
+
   SetLength(strings, strings_len + 1);
   strings[strings_len] := #0;
   stream.ReadBuffer(strings[0], strings_len);
@@ -106,9 +117,15 @@ begin
       if properties[i].is_string = 0 then
         continue;
 
-      if not InRange(properties[i].value, 0, strings_len) or
-         not InRange(properties[i].name_offset, 0, strings_len) then
-        break;
+      if not InRange(properties[i].name_offset, 0, strings_len) then
+        raise EStreamError.CreateFmt(
+          'The PCF property %d name offset is out of bounds [0..%d]',
+          [i + 1, strings_len]);
+
+      if not InRange(properties[i].value, 0, strings_len) then
+        raise EStreamError.CreateFmt(
+          'The PCF property %d ("%s") value offset is out of bounds [0..%d]',
+          [i + 1, PAnsiChar(@strings[properties[i].name_offset]), strings_len]);
 
       case String(PAnsiChar(@strings[properties[i].name_offset])) of
         BDF_COPYRIGHT: idx := IDX_COPYRIGHT;
@@ -143,7 +160,10 @@ begin
   {$ENDIF}
 
   if toc.version <> PCF_FILE_VERSION then
-    exit;
+    raise EStreamError.Create('Not a PCF file');
+
+  if toc.count = 0 then
+    raise EStreamError.Create('PCF has no tables');
 
   for i := 0 to toc.count - 1 do
     begin
@@ -162,7 +182,8 @@ begin
       if toc_rec.type_ = PCF_PROPERTIES then
         begin
           if toc_rec.format and PCF_FORMAT_MASK <> PCF_DEFAULT_FORMAT then
-            exit;
+            raise EStreamError.Create(
+              'The PCF TOC has a non-default format for the properties table');
 
           stream.Seek(toc_rec.offset, soFromBeginning);
           ReadProperties(stream, info);
