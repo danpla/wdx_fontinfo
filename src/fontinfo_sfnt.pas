@@ -42,6 +42,17 @@ const
   OTF_MAGIC = $4f54544f; // 'OTTO'
 
 
+function TableTagToString(tag: longword): string;
+begin
+  SetLength(result, SizeOf(tag));
+  {$IFDEF ENDIAN_LITTLE}
+  tag := SwapEndian(tag);
+  {$ENDIF}
+  Move(tag, result[1], SizeOf(tag));
+  result := TrimRight(result);
+end;
+
+
 function GetFormatSting(const sign: longword;
                         const has_layout_tables: boolean): string; inline;
 begin
@@ -152,6 +163,9 @@ begin
       string_offset := SwapEndian(string_offset);
     end;
   {$ENDIF}
+
+  if naming_table.count = 0 then
+    raise EStreamError.Create('Naming table has no records');
 
   storage_offset := start + naming_table.string_offset;
 
@@ -275,7 +289,10 @@ begin
      (offset_table.version <> TTF_MAGIC3) and
      (offset_table.version <> TTF_MAGIC4) and
      (offset_table.version <> OTF_MAGIC) then
-    exit;
+    raise EStreamError.Create('Not a SFNT-based font');
+
+  if offset_table.num_tables = 0 then
+    raise EStreamError.Create('Font has no tables');
 
   stream.Seek(SizeOf(word) * 3, soFromCurrent);
 
@@ -343,9 +360,11 @@ begin
     end;
   {$ENDIF}
 
-  if (header.signature <> COLLECTION_SIGNATURE) or
-     (header.num_fonts = 0) then
-    exit;
+  if header.signature <> COLLECTION_SIGNATURE then
+    raise EStreamError.Create('Not a font collection');
+
+  if header.num_fonts = 0 then
+    raise EStreamError.Create('Collection has no fonts');
 
   stream.Seek(header.first_font_offset, soFromBeginning);
   GetCommonInfo(stream, info);
@@ -403,10 +422,21 @@ begin
     end;
   {$ENDIF}
 
-  if (header.signature <> WOFF_SIGNATURE) or
-     (header.length <> stream.Size) or
-     (header.reserved <> 0) then
-    exit;
+  if header.signature <> WOFF_SIGNATURE then
+    raise EStreamError.Create('Not a WOFF font');
+
+  if header.length <> stream.Size then
+    raise EStreamError.CreateFmt(
+      'Size in WOFF header (%u) does not match the file size (%u)',
+      [header.length, stream.Size]);
+
+  if header.num_tables = 0 then
+    raise EStreamError.Create('WOFF has no tables');
+
+  if header.reserved <> 0 then
+    raise EStreamError.CreateFmt(
+      'Reserved field in WOFF header is not 0 (%u)',
+      [header.reserved]);
 
   stream.Seek(SizeOf(word) * 2 + SizeOf(longword) * 6, soFromCurrent);
 
@@ -427,7 +457,10 @@ begin
       {$ENDIF}
 
       if dir.comp_length > dir.orig_length then
-        exit;
+        raise EStreamError.CreateFmt(
+          'Compressed size (%u) of the "%s" WOFF table is greater than ' +
+          'uncompressed size (%u)',
+          [dir.comp_length, TableTagToString(dir.tag), dir.orig_length]);
 
       if dir.comp_length < dir.orig_length then
         orig_length := dir.orig_length
@@ -497,11 +530,15 @@ var
 begin
   eot_size := stream.ReadDWordLE;
   if eot_size <> stream.Size then
-    exit;
+    raise EStreamError.CreateFmt(
+      'Size in EOT header (%u) does not match the file size (%u)',
+      [eot_size, stream.Size]);
 
   font_data_size := stream.ReadDWordLE;
   if font_data_size >= eot_size - SizeOf(TEOTHeader) then
-    exit;
+    raise EStreamError.CreateFmt(
+      'Data size in EOT header (%u) is too big for the actual file size (%u)',
+      [font_data_size, eot_size]);
 
   stream.Seek(SizeOf(TEOTHeader.version), soFromCurrent);
 
@@ -517,7 +554,7 @@ begin
 
   magic := stream.ReadWordLE;
   if magic <> EOT_MAGIC then
-    exit;
+    raise EStreamError.Create('Not an EOT font');
 
   if (flags and TTEMBED_TTCOMPRESSED = 0) and
      (flags and TTEMBED_XORENCRYPTDATA = 0) then
@@ -549,7 +586,9 @@ begin
     begin
       padding := stream.ReadWordLE;
       if padding <> 0 then
-        exit;
+        raise EStreamError.CreateFmt(
+          'Non-zero (%u) padding for "%s" EOT field',
+          [padding, TFieldNames[idx]]);
 
       s_len := stream.ReadWordLE;
       SetLength(s, s_len);
