@@ -18,7 +18,7 @@ and [Double][Double Commander] Commanders.
 
 ## Available fields
 
-  * Name
+  * Family
   * Style
   * Full Name
   * PostScript Name
@@ -43,7 +43,7 @@ and [Double][Double Commander] Commanders.
     * "AFM {version}"
     * "PFM"
     * "INF"
-    * "BDF {version}""
+    * "BDF {version}"
     * "PCF"
     * "SFD {version}"
   * Number of Fonts — number of fonts in TTC or OTC. Always 1 for all
