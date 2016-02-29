@@ -87,18 +87,6 @@ begin
   SetLength(properties, num_properties);
   stream.ReadBuffer(properties[0], num_properties * SizeOf(TPCF_PropertyRec));
 
-  {$IFDEF ENDIAN_BIG}
-  if not big_endian then
-  {$ELSE}
-  if big_endian then
-  {$ENDIF}
-    for i := 0 to num_properties - 1 do
-      with properties[i] do
-        begin
-          name_offset := SwapEndian(name_offset);
-          value := SwapEndian(value);
-        end;
-
   if num_properties and 3 <> 0 then
     stream.Seek(4 - num_properties and 3, soFromCurrent);
 
@@ -116,6 +104,17 @@ begin
     begin
       if properties[i].is_string = 0 then
         continue;
+
+      {$IFDEF ENDIAN_BIG}
+      if not big_endian then
+      {$ELSE}
+      if big_endian then
+      {$ENDIF}
+        with properties[i] do
+          begin
+            name_offset := SwapEndian(name_offset);
+            value := SwapEndian(value);
+          end;
 
       if not InRange(properties[i].name_offset, 0, strings_len) then
         raise EStreamError.CreateFmt(
