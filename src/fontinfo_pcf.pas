@@ -96,9 +96,9 @@ begin
       'The PCF properties table has a wrong size of strings (%d)',
       [strings_len]);
 
-  SetLength(strings, strings_len + 1);
-  strings[strings_len] := #0;
+  SetLength(strings, strings_len);
   stream.ReadBuffer(strings[0], strings_len);
+  strings[strings_len - 1] := #0;
 
   for i := 0 to num_properties - 1 do
     begin
