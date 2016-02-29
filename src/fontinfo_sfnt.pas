@@ -452,11 +452,6 @@ end;
 
 
 const
-  // EOT versions
-  EOT_V1 = $00010000;
-  EOT_V2 = $00020001;
-  EOT_V3 = $00020002;
-
   EOT_MAGIC = $504c;
 
   // EOT flags
@@ -492,7 +487,6 @@ procedure GetEOTInfo(stream: TStream; var info: TFontInfo);
 var
   eot_size,
   font_data_size,
-  version,
   flags: longword;
   magic,
   padding: word;
@@ -509,11 +503,7 @@ begin
   if font_data_size >= eot_size - SizeOf(TEOTHeader) then
     exit;
 
-  version := stream.ReadDWordLE;
-  if (version <> EOT_V1) and
-     (version <> EOT_V2) and
-     (version <> EOT_V3) then
-    exit;
+  stream.Seek(SizeOf(TEOTHeader.version), soFromCurrent);
 
   flags := stream.ReadDWordLE;
 
