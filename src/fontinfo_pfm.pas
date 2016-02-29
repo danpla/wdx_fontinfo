@@ -53,9 +53,12 @@ begin
     end;
   {$ENDIF}
 
-  if (header.version <> PFM_VERSION) or
-     (header.size <> stream.Size) then
-    exit;
+  if header.version <> PFM_VERSION then
+    raise EStreamError.Create('Not a PFM font');
+  if header.size <> stream.Size then
+    raise EStreamError.CreateFmt(
+      'Size in PFM header (%u) does not match the file size (%u)',
+      [header.size, stream.Size]);
 
   SetLength(copyright, MAX_COPYRIGHT_LEN);
   stream.ReadBuffer(copyright[1], MAX_COPYRIGHT_LEN);
