@@ -104,7 +104,7 @@ begin
 
       p := Pos(' ', s);
       if p = 0 then
-        continue;
+        break;
 
       key := Copy(s, 1, p - 1);
       if key = 'COMMENT' then
