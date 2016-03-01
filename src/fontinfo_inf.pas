@@ -33,7 +33,6 @@ var
   i,
   num_found: longint;
   s: string;
-  s_len,
   p: SizeInt;
   key: string;
   idx: TFieldIndex;
@@ -50,12 +49,12 @@ begin
   while (num_found < NUM_FIELDS) and (i <= MAX_LINES) and not EOF(t) do
     begin
       ReadLn(t, s);
+      s := Trim(s);
       if s = '' then
-        break;
+        continue;
 
-      s_len := Length(s);
       p := Pos(' ', s);
-      if (p < 2) or (p = s_len) then
+      if p = 0 then
         break;
 
       inc(i);
@@ -70,7 +69,11 @@ begin
         continue;
       end;
 
-      info[idx] := Copy(s, p + 2, s_len - p - 2);  // Skipping brackets
+      repeat
+        inc(p);
+      until s[p] <> ' ';
+
+      info[idx] := Copy(s, p + 1, Length(s) - p - 1);  // Skipping brackets
       inc(num_found);
     end;
 
