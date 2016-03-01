@@ -88,22 +88,22 @@ begin
       exit;
     end;
 
-  info[IDX_FORMAT] := 'BDF ' + TrimLeft(version);
+  info[IDX_FORMAT] := 'BDF ' + Trim(version);
 
   i := 1;
   num_found := 0;
   while (num_found < NUM_FIELDS) and (i <= MAX_LINES) and not EOF(t) do
     begin
       ReadLn(t, s);
+      s := Trim(s);
 
       case s of
         '': continue;
         'ENDPROPERTIES': break;
       end;
 
-      s_len := Length(s);
       p := Pos(' ', s);
-      if (p < 2) or (p = s_len) then
+      if p = 0 then
         continue;
 
       key := Copy(s, 1, p - 1);
@@ -123,13 +123,19 @@ begin
         continue;
       end;
 
-      if (s[p + 1] = '"') and (s[s_len] = '"') then
+      repeat
+        inc(p);
+      until s[p] <> ' ';
+
+      s_len := Length(s);
+
+      if (s[p] = '"') and (s[s_len] = '"') then
         begin
           inc(p);
           dec(s_len);
         end;
 
-      info[idx] := Copy(s, p + 1, s_len - p);
+      info[idx] := Copy(s, p, s_len - (p - 1));
       inc(num_found);
     end;
 
