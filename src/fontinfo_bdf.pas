@@ -61,9 +61,8 @@ begin
 end;
 
 
-procedure GetBDFInfo(stream: TStream; var info: TFontInfo);
+procedure ReadBDF(var t: text; var info: TFontInfo);
 var
-  t: text;
   sign: string[Length(BDF_SIGN)];
   version: string;
   i: longint;
@@ -73,6 +72,71 @@ var
   p: SizeInt;
   num_found: longint;
   idx: TFieldIndex;
+begin
+  ReadLn(t, sign, version);
+  if sign <> BDF_SIGN then
+    raise EStreamError.Create('Not a BDF font');
+
+  info[IDX_FORMAT] := 'BDF ' + Trim(version);
+
+  i := 1;
+  num_found := 0;
+  while (num_found < NUM_FIELDS) and (i <= MAX_LINES) and not EOF(t) do
+    begin
+      ReadLn(t, s);
+      s := Trim(s);
+
+      case s of
+        '': continue;
+        'ENDPROPERTIES': break;
+      end;
+
+      p := Pos(' ', s);
+      if p = 0 then
+        raise EStreamError.CreateFmt('BDF has no space in line "%s"', [s]);
+
+      key := Copy(s, 1, p - 1);
+      if key = 'COMMENT' then
+        continue;
+
+      inc(i);
+
+      case key of
+        BDF_COPYRIGHT: idx := IDX_COPYRIGHT;
+        BDF_FAMILY_NAME: idx := IDX_FAMILY;
+        BDF_FONT: idx := IDX_PS_NAME;
+        BDF_FOUNDRY: idx := IDX_MANUFACTURER;
+        BDF_FULL_NAME, BDF_FACE_NAME: idx := IDX_FULL_NAME;
+        BDF_WEIGHT_NAME: idx := IDX_STYLE;
+      else
+        continue;
+      end;
+
+      repeat
+        inc(p);
+      until s[p] <> ' ';
+
+      s_len := Length(s);
+
+      if (s[p] = '"') and (s[s_len] = '"') then
+        begin
+          inc(p);
+          dec(s_len);
+        end;
+
+      info[idx] := Copy(s, p, s_len - (p - 1));
+      inc(num_found);
+    end;
+
+  BDF_FillEmpty(info);
+
+  info[IDX_NUM_FONTS] := '1';
+end;
+
+
+procedure GetBDFInfo(stream: TStream; var info: TFontInfo);
+var
+  t: text;
 begin
   try
     AssignStream(t, stream);
@@ -85,64 +149,7 @@ begin
   end;
 
   try
-    ReadLn(t, sign, version);
-    if sign <> BDF_SIGN then
-      raise EStreamError.Create('Not a BDF font');
-
-    info[IDX_FORMAT] := 'BDF ' + Trim(version);
-
-    i := 1;
-    num_found := 0;
-    while (num_found < NUM_FIELDS) and (i <= MAX_LINES) and not EOF(t) do
-      begin
-        ReadLn(t, s);
-        s := Trim(s);
-
-        case s of
-          '': continue;
-          'ENDPROPERTIES': break;
-        end;
-
-        p := Pos(' ', s);
-        if p = 0 then
-          raise EStreamError.CreateFmt('BDF has no space in line "%s"', [s]);
-
-        key := Copy(s, 1, p - 1);
-        if key = 'COMMENT' then
-          continue;
-
-        inc(i);
-
-        case key of
-          BDF_COPYRIGHT: idx := IDX_COPYRIGHT;
-          BDF_FAMILY_NAME: idx := IDX_FAMILY;
-          BDF_FONT: idx := IDX_PS_NAME;
-          BDF_FOUNDRY: idx := IDX_MANUFACTURER;
-          BDF_FULL_NAME, BDF_FACE_NAME: idx := IDX_FULL_NAME;
-          BDF_WEIGHT_NAME: idx := IDX_STYLE;
-        else
-          continue;
-        end;
-
-        repeat
-          inc(p);
-        until s[p] <> ' ';
-
-        s_len := Length(s);
-
-        if (s[p] = '"') and (s[s_len] = '"') then
-          begin
-            inc(p);
-            dec(s_len);
-          end;
-
-        info[idx] := Copy(s, p, s_len - (p - 1));
-        inc(num_found);
-      end;
-
-    BDF_FillEmpty(info);
-
-    info[IDX_NUM_FONTS] := '1';
+    ReadBDF(t, info);
   finally
     Close(t);
   end;
