@@ -14,6 +14,7 @@ uses
   fontinfo_common,
   classes,
   streamio,
+  strutils,
   sysutils;
 
 
@@ -91,16 +92,16 @@ begin
         'ENDPROPERTIES': break;
       end;
 
+      if AnsiStartsStr('COMMENT', s) then
+        continue;
+
       p := Pos(' ', s);
       if p = 0 then
         raise EStreamError.CreateFmt('BDF has no space in line "%s"', [s]);
 
-      key := Copy(s, 1, p - 1);
-      if key = 'COMMENT' then
-        continue;
-
       inc(i);
 
+      key := Copy(s, 1, p - 1);
       case key of
         BDF_COPYRIGHT: idx := IDX_COPYRIGHT;
         BDF_FAMILY_NAME: idx := IDX_FAMILY;
