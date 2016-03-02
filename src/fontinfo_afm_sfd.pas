@@ -108,7 +108,7 @@ begin
         'Copyright': idx := IDX_COPYRIGHT;
         'Notice':
           begin
-            if (font_format = SFD) and
+            if (font_format = AFM) and
                (s[p + 1] = '(') and (s[s_len] = ')') then
               begin
                 inc(p);
