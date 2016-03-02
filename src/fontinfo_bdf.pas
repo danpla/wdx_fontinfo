@@ -97,6 +97,11 @@ begin
 
       p := Pos(' ', s);
       if p = 0 then
+        {
+          Assuming that global info goes before glyphs, all lines
+          (except comments, which can be empty) should be key-value
+          pairs separated by spaces.
+        }
         raise EStreamError.CreateFmt('BDF has no space in line "%s"', [s]);
 
       inc(i);
@@ -109,6 +114,7 @@ begin
         BDF_FOUNDRY: idx := IDX_MANUFACTURER;
         BDF_FULL_NAME, BDF_FACE_NAME: idx := IDX_FULL_NAME;
         BDF_WEIGHT_NAME: idx := IDX_STYLE;
+        'CHARS': break;
       else
         continue;
       end;
