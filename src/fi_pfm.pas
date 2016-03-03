@@ -6,13 +6,13 @@
 {$H+}
 {$INLINE ON}
 
-unit fontinfo_pfm;
+unit fi_pfm;
 
 interface
 
 uses
-  fontinfo_common,
-  fontinfo_utils,
+  fi_common,
+  fi_utils,
   classes,
   strutils,
   sysutils;

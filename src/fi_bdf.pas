@@ -6,12 +6,12 @@
 {$H+}
 {$INLINE ON}
 
-unit fontinfo_bdf;
+unit fi_bdf;
 
 interface
 
 uses
-  fontinfo_common,
+  fi_common,
   classes,
   streamio,
   strutils,

@@ -6,12 +6,12 @@
 {$H+}
 {$INLINE ON}
 
-unit fontinfo_ps;
+unit fi_ps;
 
 interface
 
 uses
-  fontinfo_common,
+  fi_common,
   classes,
   strutils,
   streamio,

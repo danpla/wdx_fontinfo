@@ -1,7 +1,7 @@
 {$MODE OBJFPC}
 {$H+}
 
-unit fontinfo_common;
+unit fi_common;
 
 interface
 

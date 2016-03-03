@@ -6,12 +6,12 @@
 {$H+}
 {$INLINE ON}
 
-unit fontinfo_inf;
+unit fi_inf;
 
 interface
 
 uses
-  fontinfo_common,
+  fi_common,
   classes,
   streamio,
   sysutils;

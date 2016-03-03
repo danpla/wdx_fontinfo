@@ -6,13 +6,13 @@
 {$H+}
 {$INLINE ON}
 
-unit fontinfo_sfnt;
+unit fi_sfnt;
 
 interface
 
 uses
-  fontinfo_common,
-  fontinfo_utils,
+  fi_common,
+  fi_utils,
   classes,
   zstream,
   strutils,

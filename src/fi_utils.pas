@@ -2,7 +2,7 @@
 {$H+}
 {$INLINE ON}
 
-unit fontinfo_utils;
+unit fi_utils;
 
 interface
 

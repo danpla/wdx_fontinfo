@@ -6,14 +6,14 @@
 {$H+}
 {$INLINE ON}
 
-unit fontinfo_pcf;
+unit fi_pcf;
 
 interface
 
 uses
-  fontinfo_common,
-  fontinfo_bdf,
-  fontinfo_utils,
+  fi_common,
+  fi_bdf,
+  fi_utils,
   classes,
   streamio,
   math,

@@ -24,19 +24,19 @@
 {$MODE OBJFPC}
 {$H+}
 
-library fontinfo_wdx;
+library fi_wdx;
 
 {$INCLUDE calling.inc}
 
 uses
-  fontinfo_common,
-  fontinfo_sfnt,
-  fontinfo_ps,
-  fontinfo_afm_sfd,
-  fontinfo_pfm,
-  fontinfo_inf,
-  fontinfo_bdf,
-  fontinfo_pcf,
+  fi_common,
+  fi_sfnt,
+  fi_ps,
+  fi_afm_sfd,
+  fi_pfm,
+  fi_inf,
+  fi_bdf,
+  fi_pcf,
   wdxplugin,
   classes,
   zstream,

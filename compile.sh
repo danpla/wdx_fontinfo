@@ -7,4 +7,4 @@ case `uname -m` in
     *) EXT="wdx";;
 esac
 
-fpc src/fontinfo_wdx.pas @compile.cfg -o./fontinfo."${EXT}"
+fpc src/fi_wdx.pas @compile.cfg -o./fontinfo."${EXT}"
