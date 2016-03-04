@@ -115,28 +115,14 @@ begin
 end;
 
 
-procedure GetPSInfo(stream: TStream; var info: TFontInfo);
+procedure ReadPS(var t: text; var info: TFontInfo);
 var
-  t: text;
   p: SizeInt;
   s,
   key: string;
   idx: TFieldIndex;
   num_found: longint = 0;
 begin
-  AssignStream(t, stream);
-  {I-}
-  Reset(t);
-  {I+}
-  if IOResult <> 0 then
-    exit;
-
-  // Skip header of .pfb file, if any.
-  if stream.ReadWordLE = BIN_MAGIC then
-    stream.Seek(SizeOf(TBinHeader.ascii_length), fsFromCurrent)
-  else
-    stream.Seek(0, fsFromBeginning);
-
   ReadLn(t, s);
   if not (
      (s <> '') and
@@ -144,10 +130,7 @@ begin
       AnsiStartsStr(PS_MAGIC2, s) or
       AnsiStartsStr(PS_MAGIC3, s) or
       AnsiStartsStr(PS_MAGIC4, s))) then
-    begin
-      Close(t);
-      exit;
-    end;
+    raise EStreamError.Create('Not a PostScript font');
 
   while (num_found < NUM_FIELDS) and not EOF(t) do
     begin
@@ -206,8 +189,34 @@ begin
   info[IDX_STYLE] := ExtractStyle(
     info[IDX_FULL_NAME], info[IDX_FAMILY], info[IDX_STYLE]);
   info[IDX_NUM_FONTS] := '1';
+end;
 
-  Close(t);
+
+procedure GetPSInfo(stream: TStream; var info: TFontInfo);
+var
+  t: text;
+begin
+  try
+    AssignStream(t, stream);
+    Reset(t);
+  except
+    on E: EInOutError do
+      raise EStreamError.CreateFmt(
+        'PS IO error %d: %s',
+        [E.ErrorCode, E.Message]);
+  end;
+
+  // Skip header of .pfb file, if any.
+  if stream.ReadWordLE = BIN_MAGIC then
+    stream.Seek(SizeOf(TBinHeader.ascii_length), fsFromCurrent)
+  else
+    stream.Seek(0, fsFromBeginning);
+
+  try
+    ReadPS(t, info);
+  finally
+    Close(t);
+  end;
 end;
 
 
