@@ -29,22 +29,22 @@ type
     );
 
 const
-  AFM_SIGN = 'StartFontMetrics';
-  SFD_SIGN = 'SplineFontDB:';
+  FONT_IDENT: array [TFontFormat] of record
+    name,
+    sign: string;
+  end = (
+    (name: 'AFM';
+     sign: 'StartFontMetrics'),
+    (name: 'SFD';
+     sign: 'SplineFontDB:'));
 
-  FONT_FORMAT_STR: array[TFontFormat] of string = (
-    'AFM',
-    'SFD'
-    );
-
-  NUM_FIELDS = 6; // Number of fields we need to find.
+  NUM_FIELDS = 6;
   MAX_LINES = 30;
 
 
-procedure GetCommonInfo(stream: TStream; var info: TFontInfo);
+procedure GetCommonInfo(
+  var t: text; var info: TFontInfo; const font_format: TFontFormat);
 var
-  t: text;
-  font_format: TFontFormat;
   i: longint;
   s: string;
   s_len: SizeInt;
@@ -53,30 +53,18 @@ var
   num_found: longint;
   idx: TFieldIndex;
 begin
-  AssignStream(t, stream);
-  {I-}
-  Reset(t);
-  {I+}
-  if IOResult <> 0 then
-    exit;
-
   ReadLn(t, s);
+  s := Trim(s);
+
   p := Pos(' ', s);
-  if p = 0 then
-    begin
-      Close(t);
-      exit;
-    end;
+  if (p = 0) or (Copy(s, 1, p - 1) <> FONT_IDENT[font_format].sign) then
+    raise EStreamError.CreateFmt(
+      'Not a %s font', [FONT_IDENT[font_format].name]);
 
-  case Copy(s, 1, p - 1) of
-    AFM_SIGN: font_format := AFM;
-    SFD_SIGN: font_format := SFD;
-  else
-    Close(t);
-    exit;
-  end;
+  while s[p + 1] = ' ' do
+    inc(p);
 
-  info[IDX_FORMAT] := FONT_FORMAT_STR[font_format] +
+  info[IDX_FORMAT] := FONT_IDENT[font_format].name +
                       Copy(s, p, Length(s) - p + 1);
 
   i := 1;
@@ -84,19 +72,18 @@ begin
   while (num_found < NUM_FIELDS) and (i <= MAX_LINES) and not EOF(t) do
     begin
       ReadLn(t, s);
+      s := Trim(s);
       if s = '' then
-        break;
+        continue;
 
-      s_len := Length(s);
       p := Pos(' ', s);
-      if (p < 2) or (p = s_len) then
+      if p = 0 then
         continue;
 
       inc(i);
 
       if font_format = SFD then
-        // Skip colon in SFD.
-        key := Copy(s, 1, p - 2)
+        key := Copy(s, 1, p - 2)  // Skip colon
       else
         key := Copy(s, 1, p - 1);
 
@@ -105,43 +92,69 @@ begin
         'FullName': idx := IDX_FULL_NAME;
         'FamilyName': idx := IDX_FAMILY;
         'Weight': idx := IDX_STYLE;
-        'Copyright': idx := IDX_COPYRIGHT;
-        'Notice':
-          begin
-            if (font_format = AFM) and
-               (s[p + 1] = '(') and (s[s_len] = ')') then
-              begin
-                inc(p);
-                dec(s_len);
-              end;
-
-            idx := IDX_COPYRIGHT;
-          end;
         'Version': idx := IDX_VERSION;
+        'Copyright': idx := IDX_COPYRIGHT;  // SFD
+        'Notice': idx := IDX_COPYRIGHT;  // AFM
       else
         continue;
       end;
 
-      info[idx] := Copy(s, p + 1, s_len - p);
+      repeat
+        inc(p);
+      until s[p] <> ' ';
+
+      s_len := Length(s);
+      if (idx = IDX_COPYRIGHT) and
+         (font_format = AFM) and
+         (s[p] = '(') and
+         (s[s_len] = ')') then
+        begin
+          inc(p);
+          dec(s_len);
+        end;
+
+      info[idx] := Copy(s, p, s_len - (p - 1));
       inc(num_found);
     end;
 
   info[IDX_STYLE] := ExtractStyle(
     info[IDX_FULL_NAME], info[IDX_FAMILY], info[IDX_STYLE]);
   info[IDX_NUM_FONTS] := '1';
+end;
 
-  Close(t);
+
+procedure GetCommonInfo(
+  stream: TStream; var info: TFontInfo; const font_format: TFontFormat);
+var
+  t: text;
+begin
+  try
+    AssignStream(t, stream);
+    Reset(t);
+  except
+    on E: EInOutError do
+      raise EStreamError.CreateFmt(
+        '%s IO error %d: %s',
+        [FONT_IDENT[font_format].name, E.ErrorCode, E.Message]);
+  end;
+
+  try
+    GetCommonInfo(t, info, font_format);
+  finally
+    Close(t);
+  end;
 end;
 
 
 procedure GetAFMInfo(stream: TStream; var info: TFontInfo); inline;
 begin
-  GetCommonInfo(stream, info);
+  GetCommonInfo(stream, info, AFM);
 end;
+
 
 procedure GetSFDInfo(stream: TStream; var info: TFontInfo); inline;
 begin
-  GetCommonInfo(stream, info);
+  GetCommonInfo(stream, info, SFD);
 end;
 
 end.
