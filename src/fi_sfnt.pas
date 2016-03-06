@@ -87,7 +87,7 @@ var
   bs: TBytesStream;
 begin
   start := stream.Position;
-  stream.Seek(offset, soFromBeginning);
+  stream.Seek(offset, soBeginning);
 
   if orig_length = 0 then
     reader(stream, info)
@@ -109,7 +109,7 @@ begin
       end;
     end;
 
-  stream.Seek(start, soFromBeginning);
+  stream.Seek(start, soBeginning);
 end;
 
 
@@ -218,13 +218,13 @@ begin
       end;
 
       offset := stream.Position;
-      stream.Seek(storage_offset + name_rec.offset, soFromBeginning);
+      stream.Seek(storage_offset + name_rec.offset, soBeginning);
 
       SetLength(name, name_rec.length);
       stream.ReadBuffer(name[1], name_rec.length);
       info[idx] := UCS2BEToUTF8(name);
 
-      stream.Seek(offset, soFromBeginning);
+      stream.Seek(offset, soBeginning);
     end;
 
   // Strip "Version "
@@ -289,7 +289,7 @@ begin
   if offset_table.num_tables = 0 then
     raise EStreamError.Create('Font has no tables');
 
-  stream.Seek(SizeOf(word) * 3, soFromCurrent);
+  stream.Seek(SizeOf(word) * 3, soCurrent);
 
   for i := 0 to offset_table.num_tables - 1 do
     begin
@@ -361,7 +361,7 @@ begin
   if header.num_fonts = 0 then
     raise EStreamError.Create('Collection has no fonts');
 
-  stream.Seek(header.first_font_offset, soFromBeginning);
+  stream.Seek(header.first_font_offset, soBeginning);
   GetCommonInfo(stream, info);
 
   info[IDX_NUM_FONTS] := IntToStr(header.num_fonts);
@@ -433,13 +433,13 @@ begin
       'Reserved field in WOFF header is not 0 (%u)',
       [header.reserved]);
 
-  stream.Seek(SizeOf(word) * 2 + SizeOf(longword) * 6, soFromCurrent);
+  stream.Seek(SizeOf(word) * 2 + SizeOf(longword) * 6, soCurrent);
 
   for i := 0 to header.num_tables - 1 do
     begin
       stream.ReadBuffer(dir, SizeOf(dir));
       // Skip origChecksum.
-      stream.Seek(SizeOf(longword), soFromCurrent);
+      stream.Seek(SizeOf(longword), soCurrent);
 
       {$IFDEF ENDIAN_LITTLE}
       with dir do
@@ -535,7 +535,7 @@ begin
       'Data size in EOT header (%u) is too big for the actual file size (%u)',
       [font_data_size, eot_size]);
 
-  stream.Seek(SizeOf(TEOTHeader.version), soFromCurrent);
+  stream.Seek(SizeOf(TEOTHeader.version), soCurrent);
 
   flags := stream.ReadDWordLE;
 
@@ -545,7 +545,7 @@ begin
     SizeOf(TEOTHeader.italic) +
     SizeOf(TEOTHeader.weight) +
     SizeOf(TEOTHeader.fs_type),
-    soFromCurrent);
+    soCurrent);
 
   magic := stream.ReadWordLE;
   if magic <> EOT_MAGIC then
@@ -555,7 +555,7 @@ begin
      (flags and TTEMBED_XORENCRYPTDATA = 0) then
     begin
       font_offset := eot_size - font_data_size;
-      stream.Seek(font_offset, soFromBeginning);
+      stream.Seek(font_offset, soBeginning);
 
       GetCommonInfo(stream, info, font_offset);
       info[IDX_NUM_FONTS] := '1';
@@ -575,7 +575,7 @@ begin
     SizeOf(TEOTHeader.reserved2) +
     SizeOf(TEOTHeader.reserved3) +
     SizeOf(TEOTHeader.reserved4),
-    soFromCurrent);
+    soCurrent);
 
   for idx in [IDX_FAMILY, IDX_STYLE, IDX_VERSION, IDX_FULL_NAME] do
     begin
