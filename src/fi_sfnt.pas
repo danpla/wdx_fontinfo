@@ -218,7 +218,7 @@ begin
       end;
 
       offset := stream.Position;
-      stream.Seek(longint(storage_offset + name_rec.offset), soFromBeginning);
+      stream.Seek(storage_offset + name_rec.offset, soFromBeginning);
 
       SetLength(name, name_rec.length);
       stream.ReadBuffer(name[1], name_rec.length);
