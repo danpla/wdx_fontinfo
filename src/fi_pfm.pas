@@ -64,11 +64,11 @@ begin
   stream.ReadBuffer(copyright[1], MAX_COPYRIGHT_LEN);
   info[IDX_COPYRIGHT] := TrimRight(copyright);
 
-  stream.Seek(WEIGHT_POS, soFromBeginning);
+  stream.Seek(WEIGHT_POS, soBeginning);
   info[IDX_STYLE] := GetWeightName(stream.ReadWordLE);
 
-  stream.Seek(FACE_OFFSET_POS, soFromBeginning);
-  stream.Seek(stream.ReadDWordLE, soFromBeginning);
+  stream.Seek(FACE_OFFSET_POS, soBeginning);
+  stream.Seek(stream.ReadDWordLE, soBeginning);
   info[IDX_FULL_NAME] := stream.ReadPChar;
 
   // Strip style if font uses PS name as a Full Name.
@@ -78,8 +78,8 @@ begin
   else
     info[IDX_FAMILY] := info[IDX_FULL_NAME];
 
-  stream.Seek(DRIVER_INFO_OFFSET_POS, soFromBeginning);
-  stream.Seek(stream.ReadDWordLE, soFromBeginning);
+  stream.Seek(DRIVER_INFO_OFFSET_POS, soBeginning);
+  stream.Seek(stream.ReadDWordLE, soBeginning);
   info[IDX_PS_NAME] := stream.ReadPChar;
 
   info[IDX_FORMAT] := 'PFM';

@@ -88,7 +88,7 @@ begin
   stream.ReadBuffer(properties[0], num_properties * SizeOf(TPCF_PropertyRec));
 
   if num_properties and 3 <> 0 then
-    stream.Seek(4 - num_properties and 3, soFromCurrent);
+    stream.Seek(4 - num_properties and 3, soCurrent);
 
   strings_len := read_dw();
   if strings_len <= 0 then
@@ -184,7 +184,7 @@ begin
             raise EStreamError.Create(
               'The PCF TOC has a non-default format for the properties table');
 
-          stream.Seek(toc_rec.offset, soFromBeginning);
+          stream.Seek(toc_rec.offset, soBeginning);
           ReadProperties(stream, info);
           break;
         end;
