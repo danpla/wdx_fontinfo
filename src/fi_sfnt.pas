@@ -66,11 +66,9 @@ begin
 end;
 
 
-{
- ===============
-  Table reading
- ===============
-}
+
+// Table reading
+
 
 type
   TTableReader = procedure(stream: TStream; var info: TFontInfo);
@@ -115,7 +113,7 @@ begin
 end;
 
 
-// "name" table.
+// "name" table
 
 const
   PLATFORM_ID_WIN = 3;
@@ -241,11 +239,8 @@ begin
 end;
 
 
-{
-  =======================
-   Format-specific stuff
-  =======================
-}
+
+// Format-specific stuff
 
 type
   TOffsetTable = packed record
