@@ -84,6 +84,9 @@ begin
   if (p = 0) or (Copy(s, 1, p - 1) <> BDF_SIGN) then
     raise EStreamError.Create('Not a BDF font');
 
+  while s[p + 1] = ' ' do
+    inc(p);
+
   info[IDX_FORMAT] := 'BDF' + Copy(s, p, Length(s) - p + 1);
 
   i := 1;
