@@ -123,9 +123,15 @@ var
   idx: TFieldIndex;
   num_found: longint = 0;
 begin
-  ReadLn(t, s);
+  repeat
+    if EOF(t) then
+      raise EStreamError.Create('PS font is empty');
+
+    ReadLn(t, s);
+    s := TrimLeft(s);
+  until s <> '';
+
   if not (
-     (s <> '') and
      (AnsiStartsStr(PS_MAGIC1, s) or
       AnsiStartsStr(PS_MAGIC2, s) or
       AnsiStartsStr(PS_MAGIC3, s) or

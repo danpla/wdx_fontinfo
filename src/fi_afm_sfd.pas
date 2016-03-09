@@ -53,8 +53,14 @@ var
   num_found: longint;
   idx: TFieldIndex;
 begin
-  ReadLn(t, s);
-  s := Trim(s);
+  repeat
+    if EOF(t) then
+      raise EStreamError.CreateFmt(
+        '%s is empty', [FONT_IDENT[font_format].name]);
+
+    ReadLn(t, s);
+    s := Trim(s);
+  until s <> '';
 
   p := Pos(' ', s);
   if (p = 0) or (Copy(s, 1, p - 1) <> FONT_IDENT[font_format].sign) then

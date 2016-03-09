@@ -64,8 +64,6 @@ end;
 
 procedure ReadBDF(var t: text; var info: TFontInfo);
 var
-  sign: string[Length(BDF_SIGN)];
-  version: string;
   i: longint;
   s: string;
   s_len: SizeInt;
@@ -74,11 +72,19 @@ var
   num_found: longint;
   idx: TFieldIndex;
 begin
-  ReadLn(t, sign, version);
-  if sign <> BDF_SIGN then
+  repeat
+    if EOF(t) then
+      raise EStreamError.Create('BDF is empty');
+
+    ReadLn(t, s);
+    s := Trim(s);
+  until s <> '';
+
+  p := Pos(' ', s);
+  if (p = 0) or (Copy(s, 1, p - 1) <> BDF_SIGN) then
     raise EStreamError.Create('Not a BDF font');
 
-  info[IDX_FORMAT] := 'BDF ' + Trim(version);
+  info[IDX_FORMAT] := 'BDF' + Copy(s, p, Length(s) - p + 1);
 
   i := 1;
   num_found := 0;
