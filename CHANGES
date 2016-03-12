@@ -1,10 +1,10 @@
 
-0.7.3 (08.01.16)
+0.7.3 (2016-01-08)
   • Fixed reading of font collections
   • Fixed empty "Number of Fonts" field for compressed EOT
 
 
-0.7.2 (23.12.15)
+0.7.2 (2015-12-23)
   • Support for reading "name" table from uncompressed EOTs (so-called EOT-Lite)
   • "Format" for PS fonts changed from "PS T {type}" to "PS {type}"
   • Fixed reading of .pcf.gz on Unix-like systems when a file has no writing
@@ -12,26 +12,26 @@
   • Fixed reading of "symbolic" fonts
 
 
-0.7.1 (04.08.15)
+0.7.1 (2015-08-04)
   • Fixed closing files when signature doesn't match (PS, BDF)
   • Tiny performance improvements
 
 
-0.7.0 (04.06.15)
+0.7.0 (2015-06-04)
   • Support for BDF and PCX
   • Fixed empty "Number of Fonts" field
   • Fixed detection of .t42 fonts
 
 
-0.6.0 (27.05.15)
+0.6.0 (2015-05-27)
   • Support for AFM and PFB
   • Small performance improvements
 
 
-0.5.0 (24.05.15)
+0.5.0 (2015-05-24)
   • Support for PostScript fonts
   • FontForge’s Spline Font Database support
 
 
-0.4.0 (22.05.15)
+0.4.0 (2015-05-22)
   Initial release.
