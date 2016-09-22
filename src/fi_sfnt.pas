@@ -147,7 +147,7 @@ var
   i: longint;
   name_rec: TNameRecord;
   idx: TFieldIndex;
-  name,
+  name: UnicodeString;
   version: string;
 begin
   start := stream.Position;
@@ -220,9 +220,12 @@ begin
       offset := stream.Position;
       stream.Seek(storage_offset + name_rec.offset, soBeginning);
 
-      SetLength(name, name_rec.length);
+      SetLength(name, name_rec.length div SizeOf(WideChar));
       stream.ReadBuffer(name[1], name_rec.length);
-      info[idx] := UCS2BEToUTF8(name);
+      {$IFDEF ENDIAN_LITTLE}
+      SwapUnicode(name);
+      {$ENDIF}
+      info[idx] := UTF8Encode(name);
 
       stream.Seek(offset, soBeginning);
     end;
@@ -520,7 +523,7 @@ var
   padding: word;
   font_offset: longword;
   idx: TFieldIndex;
-  s: string;
+  s: UnicodeString;
   s_len: word;
 begin
   eot_size := stream.ReadDWordLE;
@@ -586,9 +589,12 @@ begin
           [padding, TFieldNames[idx]]);
 
       s_len := stream.ReadWordLE;
-      SetLength(s, s_len);
+      SetLength(s, s_len div SizeOf(WideChar));
       stream.ReadBuffer(s[1], s_len);
-      info[idx] := UCS2LEToUTF8(s);
+      {$IFDEF ENDIAN_BIG}
+      SwapUnicode(s);
+      {$ENDIF}
+      info[idx] := UTF8Encode(s);
     end;
 
   // Currently we can't uncompress EOT to determine SFNT format.
