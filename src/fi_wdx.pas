@@ -166,8 +166,16 @@ begin
   if info_cache[TFieldIndex(FieldIndex)] = '' then
     exit(FT_FIELDEMPTY);
 
+  {$IFDEF WINDOWS}
+  StrPLCopy(
+    PWideChar(FieldValue),
+    UTF8Decode(info_cache[TFieldIndex(FieldIndex)]),
+    MaxLen div SizeOf(WideChar));
+  result := FT_STRINGW;
+  {$ELSE}
   StrPLCopy(PAnsiChar(FieldValue), info_cache[TFieldIndex(FieldIndex)], MaxLen);
   result := FT_STRING;
+  {$ENDIF}
 end;
 
 
