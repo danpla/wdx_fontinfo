@@ -187,7 +187,7 @@ begin
   until FALSE;
 
   if font_count = 0 then
-    raise EStreamError.Create('Not FNT resources in the file');
+    raise EStreamError.Create('No FNT resources in the file');
 
   stream.Seek(stream.ReadWordLE shl size_shift, soBeginning);
   GetFNTInfo(stream, info);
