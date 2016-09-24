@@ -37,6 +37,7 @@ uses
   fi_inf,
   fi_bdf,
   fi_pcf,
+  fi_winfnt,
   wdxplugin,
   classes,
   zstream,
@@ -58,6 +59,7 @@ begin
             'EXT="T11"|EXT="T42"|' +
             'EXT="AFM"|EXT="PFM"|EXT="INF"|' +
             'EXT="BDF"|EXT="PCF"|' +
+            'EXT="FON"|EXT="FNT"|' +
             'EXT="SFD"|' +
             'EXT="GZ"',
             MaxLen);
@@ -128,6 +130,8 @@ begin
           reader := @GetBDFInfo;
         '.pcf':
           reader := @GetPCFInfo;
+        '.fon', '.fnt':
+          reader := @GetWinFNTInfo;
         '.sfd':
           reader := @GetSFDInfo;
       else

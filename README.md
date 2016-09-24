@@ -13,6 +13,7 @@ and [Double][Double Commander] Commanders.
   * PostScript Type 0, 1, 3, 11, 42 etc., possibly with AFM, PFM, and INF
   * Bitmap Distribution Format (BDF)
   * X11 Portable Compiled Format (PCF), possibly GZip compressed (.pcf.gz)
+  * Windows’ FNT/FON
   * FontForge’s Spline Font Database (SFD)
 
 
@@ -45,6 +46,7 @@ and [Double][Double Commander] Commanders.
     * "INF"
     * "BDF {version}"
     * "PCF"
+    * "FNT" (both for FNT and FON)
     * "SFD {version}"
   * Number of Fonts — number of fonts in TTC or OTC. Always 1 for all
     other formats.
@@ -65,6 +67,9 @@ and then run `compile` script.
   * [PostScript Specifications](http://partners.adobe.com/public/developer/ps/index_specs.html)
   * Font technical notes [[1]](http://www.adobe.com/devnet/font.html), [[2]](http://partners.adobe.com/public/developer/font/index.html)
   * [PCF Specification](http://fontforge.github.io/pcf-format.html)
+  * FNT Specification:
+    * Version 2 and 3: https://support.microsoft.com/en-us/kb/65123
+    * Version 1: [Windows 1.03 SDK Programmer's Reference (Appendix C)](http://www.os2museum.com/files/docs/win10sdk/windows-1.03-sdk-prgref-1986.pdf)
   * [FontForge’s SDF Specification](http://fontforge.github.io/en-US/documentation/developers/sfdformat/)
 
 
