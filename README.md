@@ -48,7 +48,7 @@ and [Double][Double Commander] Commanders.
     * "PCF"
     * "FNT" (both for FNT and FON)
     * "SFD {version}"
-  * Number of Fonts — number of fonts in TTC or OTC. Always 1 for all
+  * Number of Fonts — number of fonts in TTC, OTC, or FON. Always 1 for all
     other formats.
 
 
