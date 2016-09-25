@@ -66,20 +66,29 @@ implementation
 
 
 function GetWeightName(weight: word): string;
+const NAMES: array [0..9] of string = (
+  'Thin',
+  'ExtraLight',
+  'Light',
+  'Regular',
+  'Medium',
+  'SemiBold',
+  'Bold',
+  'ExtraBold',
+  'Black',
+  'ExtraBlack'
+  );
 begin
-  case weight of
-    100: result := 'Thin';
-    200: result := 'ExtraLight';
-    300: result := 'Light';
-    500: result := 'Medium';
-    600: result := 'SemiBold';
-    700: result := 'Bold';
-    800: result := 'ExtraBold';
-    900: result := 'Black';
-    950: result := 'ExtraBlack';
-  else
-    result := 'Regular';
-  end;
+  if weight > 0 then
+    begin
+      if weight > 1000 then
+        // Map to Regular
+        weight := 399
+      else
+        dec(weight);
+    end;
+
+  result := NAMES[weight div 100];
 end;
 
 
