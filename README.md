@@ -68,8 +68,8 @@ and then run `compile` script.
   * Font technical notes [[1]](http://www.adobe.com/devnet/font.html), [[2]](http://partners.adobe.com/public/developer/font/index.html)
   * [PCF Specification](http://fontforge.github.io/pcf-format.html)
   * FNT Specification:
-    * Version 2 and 3: https://support.microsoft.com/en-us/kb/65123
     * Version 1: [Windows 1.03 SDK Programmer's Reference (Appendix C)](http://www.os2museum.com/files/docs/win10sdk/windows-1.03-sdk-prgref-1986.pdf)
+    * [Version 2 and 3](https://support.microsoft.com/en-us/kb/65123)
   * [FontForge’s SDF Specification](http://fontforge.github.io/en-US/documentation/developers/sfdformat/)
 
 
