@@ -53,8 +53,8 @@ begin
 end;
 
 
-function GetFormatSting(const sign: longword;
-                        const has_layout_tables: boolean): string; inline;
+function GetFormatSting(sign: longword;
+                        has_layout_tables: boolean): string; inline;
 begin
   if sign = OTF_MAGIC then
     result := 'OT PS'
@@ -78,8 +78,8 @@ type
     that table already uncompressed.
 }
 procedure ReadTable(stream: TStream; var info: TFontInfo;
-                    reader: TTableReader; const offset: longword;
-                    const orig_length: longword = 0);
+                    reader: TTableReader; offset: longword;
+                    orig_length: longword = 0);
 var
   start: int64;
   decompressed_data: TBytes;
@@ -265,7 +265,7 @@ type
   Common parser for TTF, TTC, OTF, OTC, and EOT.
 }
 procedure GetCommonInfo(stream: TStream; var info: TFontInfo;
-                        const font_offset: longword = 0);
+                        font_offset: longword = 0);
 var
   offset_table: TOffsetTable;
   i: longint;

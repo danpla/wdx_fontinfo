@@ -53,7 +53,7 @@ const
     );
 
 
-function GetWeightName(const weight: word): string;
+function GetWeightName(weight: word): string;
 
 {
   Extract style from FullName using FamilyName.
@@ -65,7 +65,7 @@ function ExtractStyle(const full_name, family_name: string;
 implementation
 
 
-function GetWeightName(const weight: word): string;
+function GetWeightName(weight: word): string;
 begin
   case weight of
     100: result := 'Thin';

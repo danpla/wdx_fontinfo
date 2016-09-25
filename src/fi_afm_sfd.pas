@@ -43,7 +43,7 @@ const
 
 
 procedure GetCommonInfo(
-  var t: text; var info: TFontInfo; const font_format: TFontFormat);
+  var t: text; var info: TFontInfo; font_format: TFontFormat);
 var
   i: longint;
   s: string;
@@ -130,7 +130,7 @@ end;
 
 
 procedure GetCommonInfo(
-  stream: TStream; var info: TFontInfo; const font_format: TFontFormat);
+  stream: TStream; var info: TFontInfo; font_format: TFontFormat);
 var
   t: text;
 begin
