@@ -85,7 +85,7 @@ var
   FileName_str,
   ext: string;
   gzipped: boolean = FALSE;
-  default_file_mode: byte;
+  last_file_mode: byte;
   stream: TStream;
   reader: procedure(stream: TStream; var info: TFontInfo);
   info: TFontInfo;
@@ -145,10 +145,10 @@ begin
               TGZFileStream is wrapper for gzio from paszlib,
               which is uses Reset.
             }
-            default_file_mode := FileMode;
+            last_file_mode := FileMode;
             FileMode := fmOpenRead;
             stream := TGZFileStream.Create(FileName, gzopenread);
-            FileMode := default_file_mode;
+            FileMode := last_file_mode;
           end
         else
           stream := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
