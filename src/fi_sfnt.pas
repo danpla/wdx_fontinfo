@@ -73,13 +73,16 @@ end;
 type
   TTableReader = procedure(stream: TStream; var info: TFontInfo);
 
-{
-  orig_length indicates size of uncompressed table (from WOFF). 0 means
-    that table already uncompressed.
-}
+  TTableCompression = (
+    NO_COMPRESSION,
+    ZLIB
+    );
+
+// uncompressed_size is ignored if compression is NO_COMPRESSION
 procedure ReadTable(stream: TStream; var info: TFontInfo;
                     reader: TTableReader; offset: longword;
-                    orig_length: longword = 0);
+                    compression: TTableCompression;
+                    uncompressed_size: longword = 0);
 var
   start: int64;
   decompressed_data: TBytes;
@@ -89,25 +92,27 @@ begin
   start := stream.Position;
   stream.Seek(offset, soBeginning);
 
-  if orig_length = 0 then
-    reader(stream, info)
-  else
-    begin
-      zs := TDecompressionStream.Create(stream);
-      try
-        SetLength(decompressed_data, orig_length);
-        zs.ReadBuffer(decompressed_data[0], orig_length);
-      finally
-        zs.Free;
-      end;
+  case compression of
+    NO_COMPRESSION:
+      reader(stream, info);
+    ZLIB:
+      begin
+        zs := TDecompressionStream.Create(stream);
+        try
+          SetLength(decompressed_data, uncompressed_size);
+          zs.ReadBuffer(decompressed_data[0], uncompressed_size);
+        finally
+          zs.Free;
+        end;
 
-      bs := TBytesStream.Create(decompressed_data);
-      try
-        reader(bs, info);
-      finally
-        bs.Free;
+        bs := TBytesStream.Create(decompressed_data);
+        try
+          reader(bs, info);
+        finally
+          bs.Free;
+        end;
       end;
-    end;
+  end;
 
   stream.Seek(start, soBeginning);
 end;
@@ -316,7 +321,9 @@ begin
         TAG_JSTF:
           has_layout_tables := TRUE;
         TAG_NAME:
-          ReadTable(stream, info, @NameReader, font_offset + dir.offset);
+          ReadTable(
+            stream, info, @NameReader, font_offset + dir.offset,
+            NO_COMPRESSION);
       end;
     end;
 
@@ -404,8 +411,8 @@ var
   header: TWOFFHeader;
   i: longint;
   dir: TWOFFTableDirEntry;
-  orig_length: longword;
   has_layout_tables: boolean = FALSE;
+  compression: TTableCompression;
 begin
   stream.ReadBuffer(header, SizeOf(header));
 
@@ -461,9 +468,9 @@ begin
           [dir.comp_length, TableTagToString(dir.tag), dir.orig_length]);
 
       if dir.comp_length < dir.orig_length then
-        orig_length := dir.orig_length
+        compression := ZLIB
       else
-        orig_length := 0;
+        compression := NO_COMPRESSION;
 
       case dir.tag of
         TAG_BASE,
@@ -473,7 +480,9 @@ begin
         TAG_JSTF:
           has_layout_tables := TRUE;
         TAG_NAME:
-          ReadTable(stream, info, @NameReader, dir.offset, orig_length);
+          ReadTable(
+            stream, info, @NameReader, dir.offset,
+            compression, dir.orig_length);
       end;
     end;
 
