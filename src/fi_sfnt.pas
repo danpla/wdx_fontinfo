@@ -461,16 +461,15 @@ begin
         end;
       {$ENDIF}
 
-      if dir.comp_length > dir.orig_length then
+      if dir.comp_length < dir.orig_length then
+        compression := ZLIB
+      else if dir.comp_length = dir.orig_length then
+        compression := NO_COMPRESSION
+      else
         raise EStreamError.CreateFmt(
           'Compressed size (%u) of the "%s" WOFF table is greater than ' +
           'uncompressed size (%u)',
           [dir.comp_length, TableTagToString(dir.tag), dir.orig_length]);
-
-      if dir.comp_length < dir.orig_length then
-        compression := ZLIB
-      else
-        compression := NO_COMPRESSION;
 
       case dir.tag of
         TAG_BASE,
