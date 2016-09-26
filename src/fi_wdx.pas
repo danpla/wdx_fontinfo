@@ -106,7 +106,7 @@ begin
         begin
           gzipped := TRUE;
           ext := LowerCase(ExtractFileExt(
-            Copy(FileName_str, 1, Length(FileName_str) - Length(ext))))
+            Copy(FileName_str, 1, Length(FileName_str) - Length(ext))));
         end;
 
       case ext of
