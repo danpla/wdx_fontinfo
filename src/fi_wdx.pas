@@ -30,6 +30,7 @@ library fi_wdx;
 
 uses
   fi_common,
+  fi_info_reader,
   fi_sfnt,
   fi_ps,
   fi_afm_sfd,
@@ -51,18 +52,15 @@ var
 
 
 procedure ContentGetDetectString(DetectString: PAnsiChar; MaxLen: Integer); dcpcall;
+var
+  s,
+  ext: string;
 begin
-  StrPLCopy(DetectString,
-            'EXT="TTF"|EXT="OTF"|EXT="TTC"|EXT="OTC"|' +
-            'EXT="WOFF"|EXT="EOT"|' +
-            'EXT="PS"|EXT="PFA"|EXT="PFB"|EXT="PT3"|'+
-            'EXT="T11"|EXT="T42"|' +
-            'EXT="AFM"|EXT="PFM"|EXT="INF"|' +
-            'EXT="BDF"|EXT="PCF"|' +
-            'EXT="FON"|EXT="FNT"|' +
-            'EXT="SFD"|' +
-            'EXT="GZ"',
-            MaxLen);
+  s := 'EXT="GZ"';
+  for ext in GetSupportedExtensions() do
+    s:= s + '|EXT="' + UpperCase(Copy(ext, 2, Length(ext) - 1)) + '"';
+
+  StrPLCopy(DetectString, s, MaxLen);
 end;
 
 
@@ -87,7 +85,7 @@ var
   gzipped: boolean = FALSE;
   last_file_mode: byte;
   stream: TStream;
-  reader: procedure(stream: TStream; var info: TFontInfo);
+  reader: TInfoReader;
   info: TFontInfo;
 begin
   if FieldIndex > Ord(High(TFieldIndex)) then
@@ -109,34 +107,9 @@ begin
             Copy(FileName_str, 1, Length(FileName_str) - Length(ext))));
         end;
 
-      case ext of
-        '.ttf', '.otf':
-          reader := @GetOTFInfo;
-        '.ttc', '.otc':
-          reader := @GetCollectionInfo;
-        '.woff':
-          reader := @GetWOFFInfo;
-        '.eot':
-          reader := @GetEOTInfo;
-        '.ps','.pfa','.pfb','.pt3', '.t11', '.t42':
-          reader := @GetPSInfo;
-        '.afm':
-          reader := @GetAFMInfo;
-        '.pfm':
-          reader := @GetPFMInfo;
-        '.inf':
-          reader := @GetINFInfo;
-        '.bdf':
-          reader := @GetBDFInfo;
-        '.pcf':
-          reader := @GetPCFInfo;
-        '.fon', '.fnt':
-          reader := @GetWinFNTInfo;
-        '.sfd':
-          reader := @GetSFDInfo;
-      else
+      reader := FindReader(ext);
+      if reader = NIL then
         exit(FT_FILEERROR);
-      end;
 
       try
         if gzipped then

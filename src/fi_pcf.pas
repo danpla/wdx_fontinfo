@@ -12,6 +12,7 @@ interface
 
 uses
   fi_common,
+  fi_info_reader,
   fi_bdf,
   fi_utils,
   classes,
@@ -20,11 +21,11 @@ uses
   sysutils;
 
 
-procedure GetPCFInfo(stream: TStream; var info: TFontInfo);
-
 implementation
 
 const
+  PCF_EXTENSIONS: array [0..0] of string = ('.pcf');
+
   PCF_FILE_VERSION = $70636601; // '\1pcf'
 
   PCF_PROPERTIES = 1 shl 0;
@@ -195,6 +196,10 @@ begin
   info[IDX_FORMAT] := 'PCF';
   info[IDX_NUM_FONTS] := '1';
 end;
+
+
+initialization
+  RegisterReader(@GetPCFInfo, PCF_EXTENSIONS);
 
 
 end.

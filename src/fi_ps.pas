@@ -12,6 +12,7 @@ interface
 
 uses
   fi_common,
+  fi_info_reader,
   classes,
   strutils,
   streamio,
@@ -19,12 +20,12 @@ uses
   sysutils;
 
 
-procedure GetPSInfo(stream: TStream; var info: TFontInfo);
-
-
 implementation
 
 const
+  PS_EXTENSIONS: array [0..5] of string = (
+    '.ps','.pfa','.pfb','.pt3','.t11','.t42');
+
   BIN_MAGIC = $0180;
 
   PS_MAGIC1 = '%!PS-AdobeFont';
@@ -224,6 +225,10 @@ begin
     Close(t);
   end;
 end;
+
+
+initialization
+  RegisterReader(@GetPSInfo, PS_EXTENSIONS);
 
 
 end.

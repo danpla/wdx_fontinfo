@@ -12,13 +12,11 @@ interface
 
 uses
   fi_common,
+  fi_info_reader,
   classes,
   streamio,
   sysutils;
 
-
-procedure GetAFMInfo(stream: TStream; var info: TFontInfo); inline;
-procedure GetSFDInfo(stream: TStream; var info: TFontInfo); inline;
 
 implementation
 
@@ -32,11 +30,14 @@ const
   FONT_IDENT: array [TFontFormat] of record
     name,
     sign: string;
+    extensions: array [0..0] of string;
   end = (
     (name: 'AFM';
-     sign: 'StartFontMetrics'),
+     sign: 'StartFontMetrics';
+     extensions: ('.afm')),
     (name: 'SFD';
-     sign: 'SplineFontDB:'));
+     sign: 'SplineFontDB:';
+     extensions: ('.sfd')));
 
   NUM_FIELDS = 6;
   MAX_LINES = 30;
@@ -162,5 +163,10 @@ procedure GetSFDInfo(stream: TStream; var info: TFontInfo); inline;
 begin
   GetCommonInfo(stream, info, SFD);
 end;
+
+
+initialization
+  RegisterReader(@GetAFMInfo, FONT_IDENT[AFM].extensions);
+  RegisterReader(@GetSFDInfo, FONT_IDENT[SFD].extensions);
 
 end.

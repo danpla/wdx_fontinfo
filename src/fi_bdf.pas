@@ -12,6 +12,7 @@ interface
 
 uses
   fi_common,
+  fi_info_reader,
   classes,
   streamio,
   strutils,
@@ -35,11 +36,11 @@ const
 }
 procedure BDF_FillEmpty(var info: TFontInfo);
 
-procedure GetBDFInfo(stream: TStream; var info: TFontInfo);
 
 implementation
 
 const
+  BDF_EXTENSIONS: array [0..0] of string = ('.bdf');
   BDF_SIGN = 'STARTFONT';
 
   NUM_FIELDS = 6;
@@ -170,6 +171,10 @@ begin
     Close(t);
   end;
 end;
+
+
+initialization
+  RegisterReader(@GetBDFInfo, BDF_EXTENSIONS);
 
 
 end.

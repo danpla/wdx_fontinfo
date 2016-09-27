@@ -12,17 +12,16 @@ interface
 
 uses
   fi_common,
+  fi_info_reader,
   classes,
   streamio,
   sysutils;
 
 
-procedure GetINFInfo(stream: TStream; var info: TFontInfo);
-
-
 implementation
 
 const
+  INF_EXTENSIONS: array [0..0] of string = ('.inf');
   NUM_FIELDS = 4;
   MAX_LINES = 10;
 
@@ -100,6 +99,10 @@ begin
     Close(t);
   end;
 end;
+
+
+initialization
+  RegisterReader(@GetINFInfo, INF_EXTENSIONS);
 
 
 end.

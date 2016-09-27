@@ -12,17 +12,17 @@ interface
 
 uses
   fi_common,
+  fi_info_reader,
   fi_utils,
   classes,
   strutils,
   sysutils;
 
 
-procedure GetPFMInfo(stream: TStream; var info: TFontInfo);
-
 implementation
 
 const
+  PFM_EXTENSIONS: array [0..0] of string = ('.pfm');
   PFM_VERSION = 256;
   MAX_COPYRIGHT_LEN = 60;
 
@@ -85,6 +85,10 @@ begin
   info[IDX_FORMAT] := 'PFM';
   info[IDX_NUM_FONTS] := '1';
 end;
+
+
+initialization
+  RegisterReader(@GetPFMInfo, PFM_EXTENSIONS);
 
 
 end.
