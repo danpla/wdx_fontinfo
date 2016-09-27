@@ -215,7 +215,7 @@ begin
 
   // Skip header of .pfb file, if any.
   if stream.ReadWordLE = BIN_MAGIC then
-    stream.Seek(SizeOf(TBinHeader.ascii_length), fsFromCurrent)
+    stream.Seek(SizeOf(TBinHeader.ascii_length), soCurrent)
   else
     stream.Seek(0, fsFromBeginning);
 
