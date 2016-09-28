@@ -217,7 +217,7 @@ begin
   if stream.ReadWordLE = BIN_MAGIC then
     stream.Seek(SizeOf(TBinHeader.ascii_length), soCurrent)
   else
-    stream.Seek(0, fsFromBeginning);
+    stream.Seek(0, soBeginning);
 
   try
     ReadPS(t, info);
