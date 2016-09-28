@@ -46,7 +46,7 @@ and [Double][Double Commander] Commanders.
     * "INF"
     * "BDF {version}"
     * "PCF"
-    * "FNT" (both for FNT and FON)
+    * "FNT {version}" (both for FNT and FON)
     * "SFD {version}"
   * Number of Fonts — number of fonts in TTC, OTC, or FON. Always 1 for all
     other formats.

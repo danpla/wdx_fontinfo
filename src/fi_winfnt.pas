@@ -132,9 +132,7 @@ begin
   else
     info[IDX_FULL_NAME] := info[IDX_FAMILY] + ' ' + info[IDX_STYLE];
 
-  info[IDX_VERSION] := IntToStr(version shr 8);
-
-  info[IDX_FORMAT] := 'FNT';
+  info[IDX_FORMAT] := 'FNT ' + IntToStr(version shr 8);
   info[IDX_NUM_FONTS] := '1';
 end;
 
