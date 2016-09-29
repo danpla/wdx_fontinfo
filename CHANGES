@@ -1,4 +1,17 @@
 
+0.8.0 ()
+  • Support for INF and PS Type 11
+  • More common weight names (like "SemiBold" instead of "Semi-bold")
+  • Fixed displaying of non-ASCII characters on Windows
+  • BDF, PS, AFM, SFD: "Style" now extracted from FullName and FamilyName
+  • BDF: "FACE_NAME" is added as an alternative for FullName
+  • BDF, PCF: If "Family", "Style", or "Full Name" field is empty, it will be
+    filled using information from existing fields
+  • Partially implemented WPF font selection model for SFNT fonts
+  • "Version " is now stripped from the version string in SFNT fonts
+  • The plugin can now read most of fonts in gzip archives, not only PCF
+
+
 0.7.3 (2016-01-08)
   • Fixed reading of font collections
   • Fixed empty "Number of Fonts" field for compressed EOT
