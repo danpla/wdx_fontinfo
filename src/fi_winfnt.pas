@@ -101,7 +101,6 @@ begin
 
   stream.Seek(SizeOf(TFNTHeader.file_size), soCurrent);
 
-  // TODO: Convert from 1252 to UTF-8
   SetLength(copyright, MAX_COPYRIGHT_LEN);
   stream.ReadBuffer(copyright[1], MAX_COPYRIGHT_LEN);
   info[IDX_COPYRIGHT] := TrimRight(copyright);
