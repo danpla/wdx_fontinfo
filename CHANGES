@@ -1,6 +1,6 @@
 
 0.8.0 ()
-  • Support for INF and PS Type 11
+  • Support for INF, PS Type 11, and Windows' FNT/FON
   • More common weight names (like "SemiBold" instead of "Semi-bold")
   • Fixed displaying of non-ASCII characters on Windows
   • BDF, PS, AFM, SFD: "Style" now extracted from FullName and FamilyName
