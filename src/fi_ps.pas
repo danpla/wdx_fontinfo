@@ -180,7 +180,7 @@ begin
           info[idx] := UnEscape(Copy(s, p, RPos(')', s) - p));
         end
       else
-        // Literal, number, etc.
+        // Literal name, number, etc.
         begin
           if s[p] = '/' then
             inc(p);
