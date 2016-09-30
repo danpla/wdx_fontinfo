@@ -48,71 +48,97 @@ type
 }
 function UnEscape(s: string): string;
 const
+  OCTAL_DIGITS = ['0'..'7'];
   MAX_OCTAL_DIGITS = 3;
+
+  MAX_ASCII = 127;
+  PRINTABLE_ASCII = [32..126];
+
+  COPYRIGHT = $a9;
+  COPYRIGHT_UTF8: array [0..1] of byte = ($c2, $a9);
+  REPLACEMENT_UTF8: array [0..2] of byte = ($ef, $bf, $bd);
 var
-  i,
-  s_len,
-  del_pos,
-  del_len,
-  num_pos: SizeInt;
+  src: PChar;
+  dst: PChar;
+  oct_len,
   decimal: longword;
 begin
-  i := 1;
-  s_len := Length(s);
+  if s = '' then
+    exit(s);
 
-  while i < s_len do
+  SetLength(result, Length(s));
+
+  src := PChar(s);
+  dst := PChar(result);
+  while src^ <> #0 do
     begin
-      if s[i] <> '\' then
+      // We skip non-printable characters; non-ASCII values are not allowed
+      // by the specification (they should always be escaped).
+      if not (byte(src^) in PRINTABLE_ASCII) then
         begin
-          inc(i);
+          inc(src);
           continue;
         end;
 
-      case s[i + 1] of
-        'n', 'r', 't', 'b', 'f':
-          begin
-            del_pos := i;
-            del_len := 2;
+      if src^ <> '\' then
+        begin
+          dst^ := src^;
+          inc(src);
+          inc(dst);
+          continue;
+        end;
+
+      // A backslash is always ignored
+      inc(src);
+
+      if src^ in OCTAL_DIGITS then
+        begin
+          decimal := 0;
+          oct_len := 0;
+
+          repeat
+            decimal := (decimal shl 3) or (byte(src^) - byte('0'));
+            inc(src);
+            inc(oct_len);
+          until (oct_len = MAX_OCTAL_DIGITS) or not (src^ in OCTAL_DIGITS);
+
+          if decimal in PRINTABLE_ASCII then
+            begin
+              dst^ := char(decimal);
+              inc(dst);
+            end
+          // If decimal value is >= 64, we guaranteed to have 4 free
+          // bytes in dst (skipped backslash + 3 octal digits) to insert
+          // a UTF-8 encoded character.
+          else if decimal = COPYRIGHT then
+            begin
+              Move(COPYRIGHT_UTF8, dst^, SizeOf(COPYRIGHT_UTF8));
+              inc(dst, SizeOf(COPYRIGHT_UTF8));
+            end
+          // We don't handle any non-ASCII symbols except a copyright sign,
+          // because they can be in any possible code page (although most
+          // of the fonts I've seen used Mac OS Roman).
+          else if decimal > MAX_ASCII then
+            begin
+              Move(REPLACEMENT_UTF8, dst^, SizeOf(REPLACEMENT_UTF8));
+              inc(dst, SizeOf(REPLACEMENT_UTF8));
+            end;
+        end
+      else if (byte(src^) in PRINTABLE_ASCII) then
+        begin
+          case src^ of
+            't': dst^ := ' ';
+          else
+            if not (src^ in ['b', 'f', 'n', 'r']) then
+              dst^ := src^;
           end;
-        '0'..'7':
-          begin
-            decimal := 0;
-            del_len := 0;
-            num_pos := i + 1;
 
-            repeat
-              decimal := (decimal shl 3) or (ord(s[num_pos]) - ord('0'));
-              inc(num_pos);
-              inc(del_len);
-            until (del_len = MAX_OCTAL_DIGITS) or
-                  (num_pos > s_len) or
-                  not (s[num_pos] in ['0'..'7']);
-
-            if (decimal < 32) or (decimal > 126) then
-              // Ignore invisible and non-ASCII characters
-              // TODO: Handle copyright sign especially
-              begin
-                del_pos := i;
-                inc(del_len);
-              end
-            else
-              begin
-                s[i] := char(decimal);
-                inc(i);
-                del_pos := i;
-              end;
-          end
-      else
-        // Ignore backslash
-        del_pos := i;
-        del_len := 1;
-      end;
-
-      delete(s, del_pos, del_len);
-      dec(s_len, del_len);
+          inc(src);
+          inc(dst);
+        end;
     end;
 
-  result := s;
+  SetLength(result, dst - PChar(result));
 end;
 
 
