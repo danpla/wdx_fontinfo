@@ -1,5 +1,6 @@
 
 0.8.0 ()
+  • The Number of Fonts column is now integer instead of string
   • Support for INF, PS Type 11, and Windows' FNT/FON
   • More common weight names (like "SemiBold" instead of "Semi-bold")
   • Fixed displaying of non-ASCII characters on Windows
