@@ -13,8 +13,8 @@ interface
 uses
   fi_common,
   fi_info_reader,
+  line_reader,
   classes,
-  streamio,
   sysutils;
 
 
@@ -26,7 +26,7 @@ const
   MAX_LINES = 10;
 
 
-procedure ReadINF(var t: text; var info: TFontInfo);
+procedure ReadINF(line_reader: TLineReader; var info: TFontInfo);
 var
   i,
   num_found: longint;
@@ -37,9 +37,11 @@ var
 begin
   i := 1;
   num_found := 0;
-  while (num_found < NUM_FIELDS) and (i <= MAX_LINES) and not EOF(t) do
+  while (
+      (num_found < NUM_FIELDS)
+      and (i <= MAX_LINES)
+      and line_reader.ReadLine(s)) do
     begin
-      ReadLn(t, s);
       s := Trim(s);
       if s = '' then
         continue;
@@ -81,22 +83,13 @@ end;
 
 procedure GetINFInfo(stream: TStream; var info: TFontInfo);
 var
-  t: text;
+  line_reader: TLineReader;
 begin
+  line_reader := TLineReader.Create(stream);
   try
-    AssignStream(t, stream);
-    Reset(t);
-  except
-    on E: EInOutError do
-      raise EStreamError.CreateFmt(
-        'INF IO error %d: %s',
-        [E.ErrorCode, E.Message]);
-  end;
-
-  try
-    ReadINF(t, info);
+    ReadINF(line_reader, info);
   finally
-    Close(t);
+    line_reader.Free;
   end;
 end;
 

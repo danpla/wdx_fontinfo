@@ -13,8 +13,8 @@ interface
 uses
   fi_common,
   fi_info_reader,
+  line_reader,
   classes,
-  streamio,
   sysutils;
 
 
@@ -44,7 +44,7 @@ const
 
 
 procedure GetCommonInfo(
-  var t: text; var info: TFontInfo; font_format: TFontFormat);
+  line_reader: TLineReader; var info: TFontInfo; font_format: TFontFormat);
 var
   i: longint;
   s: string;
@@ -55,11 +55,10 @@ var
   idx: TFieldIndex;
 begin
   repeat
-    if EOF(t) then
+    if not line_reader.ReadLine(s) then
       raise EStreamError.CreateFmt(
         '%s is empty', [FONT_IDENT[font_format].name]);
 
-    ReadLn(t, s);
     s := Trim(s);
   until s <> '';
 
@@ -76,9 +75,11 @@ begin
 
   i := 1;
   num_found := 0;
-  while (num_found < NUM_FIELDS) and (i <= MAX_LINES) and not EOF(t) do
+  while (
+      (num_found < NUM_FIELDS)
+      and (i <= MAX_LINES)
+      and line_reader.ReadLine(s)) do
     begin
-      ReadLn(t, s);
       s := Trim(s);
       if s = '' then
         continue;
@@ -133,22 +134,13 @@ end;
 procedure GetCommonInfo(
   stream: TStream; var info: TFontInfo; font_format: TFontFormat);
 var
-  t: text;
+  line_reader: TLineReader;
 begin
+  line_reader := TLineReader.Create(stream);
   try
-    AssignStream(t, stream);
-    Reset(t);
-  except
-    on E: EInOutError do
-      raise EStreamError.CreateFmt(
-        '%s IO error %d: %s',
-        [FONT_IDENT[font_format].name, E.ErrorCode, E.Message]);
-  end;
-
-  try
-    GetCommonInfo(t, info, font_format);
+    GetCommonInfo(line_reader, info, font_format);
   finally
-    Close(t);
+    line_reader.Free;
   end;
 end;
 

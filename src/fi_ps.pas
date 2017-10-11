@@ -13,9 +13,9 @@ interface
 uses
   fi_common,
   fi_info_reader,
+  line_reader,
   classes,
   strutils,
-  streamio,
   streamex,
   sysutils;
 
@@ -142,7 +142,7 @@ begin
 end;
 
 
-procedure ReadPS(var t: text; var info: TFontInfo);
+procedure ReadPS(line_reader: TLineReader; var info: TFontInfo);
 var
   p: SizeInt;
   s,
@@ -151,10 +151,9 @@ var
   num_found: longint = 0;
 begin
   repeat
-    if EOF(t) then
+    if not line_reader.ReadLine(s) then
       raise EStreamError.Create('PS font is empty');
 
-    ReadLn(t, s);
     s := TrimLeft(s);
   until s <> '';
 
@@ -165,9 +164,8 @@ begin
       AnsiStartsStr(PS_MAGIC4, s))) then
     raise EStreamError.Create('Not a PostScript font');
 
-  while (num_found < NUM_FIELDS) and not EOF(t) do
+  while (num_found < NUM_FIELDS) and line_reader.ReadLine(s) do
     begin
-      ReadLn(t, s);
       s := Trim(s);
 
       if s = '' then
@@ -227,28 +225,19 @@ end;
 
 procedure GetPSInfo(stream: TStream; var info: TFontInfo);
 var
-  t: text;
+  line_reader: TLineReader;
 begin
-  try
-    AssignStream(t, stream);
-    Reset(t);
-  except
-    on E: EInOutError do
-      raise EStreamError.CreateFmt(
-        'PS IO error %d: %s',
-        [E.ErrorCode, E.Message]);
-  end;
-
   // Skip header of .pfb file, if any.
   if stream.ReadWordLE = BIN_MAGIC then
     stream.Seek(SizeOf(TBinHeader.ascii_length), soCurrent)
   else
     stream.Seek(0, soBeginning);
 
+  line_reader := TLineReader.Create(stream);
   try
-    ReadPS(t, info);
+    ReadPS(line_reader, info);
   finally
-    Close(t);
+    line_reader.Free;
   end;
 end;
 

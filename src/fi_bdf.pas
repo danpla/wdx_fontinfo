@@ -13,8 +13,8 @@ interface
 uses
   fi_common,
   fi_info_reader,
+  line_reader,
   classes,
-  streamio,
   strutils,
   sysutils;
 
@@ -63,7 +63,7 @@ begin
 end;
 
 
-procedure ReadBDF(var t: text; var info: TFontInfo);
+procedure ReadBDF(line_reader: TLineReader; var info: TFontInfo);
 var
   i: longint;
   s: string;
@@ -74,10 +74,9 @@ var
   idx: TFieldIndex;
 begin
   repeat
-    if EOF(t) then
+    if not line_reader.ReadLine(s) then
       raise EStreamError.Create('BDF is empty');
 
-    ReadLn(t, s);
     s := Trim(s);
   until s <> '';
 
@@ -92,9 +91,11 @@ begin
 
   i := 1;
   num_found := 0;
-  while (num_found < NUM_FIELDS) and (i <= MAX_LINES) and not EOF(t) do
+  while (
+      (num_found < NUM_FIELDS)
+      and (i <= MAX_LINES)
+      and line_reader.ReadLine(s)) do
     begin
-      ReadLn(t, s);
       s := Trim(s);
 
       case s of
@@ -153,22 +154,13 @@ end;
 
 procedure GetBDFInfo(stream: TStream; var info: TFontInfo);
 var
-  t: text;
+  line_reader: TLineReader;
 begin
+  line_reader := TLineReader.Create(stream);
   try
-    AssignStream(t, stream);
-    Reset(t);
-  except
-    on E: EInOutError do
-      raise EStreamError.CreateFmt(
-        'PCF IO error %d: %s',
-        [E.ErrorCode, E.Message]);
-  end;
-
-  try
-    ReadBDF(t, info);
+    ReadBDF(line_reader, info);
   finally
-    Close(t);
+    line_reader.Free;
   end;
 end;
 
