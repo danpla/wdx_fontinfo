@@ -16,7 +16,6 @@ uses
   fi_bdf,
   fi_utils,
   classes,
-  streamio,
   math,
   sysutils;
 
