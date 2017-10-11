@@ -149,8 +149,7 @@ var
   res_table_offset: int64;
   size_shift: word;
   type_id,
-  count,
-  font_count: word;
+  count: word;
 begin
   start := stream.Position - SizeOf(word);
 
@@ -161,7 +160,6 @@ begin
 
   size_shift := stream.ReadWordLE;
 
-  font_count := 0;
   repeat
     // Read TYPEINFO tables
     type_id := stream.ReadWordLE;
@@ -174,7 +172,6 @@ begin
         if count = 0 then
           raise EStreamError.Create('RT_FONT TYPEINFO is empty');
 
-        font_count := count;
         stream.Seek(TYPEINFO_RESERVED_SIZE, soCurrent);
         break;
       end;
@@ -182,13 +179,8 @@ begin
     stream.Seek(TYPEINFO_RESERVED_SIZE + count * NAMEINFO_SIZE, soCurrent);
   until FALSE;
 
-  if font_count = 0 then
-    raise EStreamError.Create('No FNT resources in the file');
-
   stream.Seek(stream.ReadWordLE shl size_shift, soBeginning);
   GetFNTInfo(stream, info);
-
-  info[IDX_NUM_FONTS] := IntToStr(font_count);
 end;
 
 
