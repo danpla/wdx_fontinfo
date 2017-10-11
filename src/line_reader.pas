@@ -55,7 +55,7 @@ begin
               break;
             end;
 
-          FBufferPos := 0;
+          FBufferPos := 1;
         end;
 
       BreakPos := 0;
@@ -105,6 +105,7 @@ begin
   FStream := Stream;
 
   SetLength(FBuffer, BUFFER_SIZE);
+  FBufferPos := 1;
 end;
 
 
