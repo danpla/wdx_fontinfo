@@ -22,7 +22,6 @@ uses
 implementation
 
 const
-  PFM_EXTENSIONS: array [0..0] of string = ('.pfm');
   PFM_VERSION = 256;
   MAX_COPYRIGHT_LEN = 60;
 
@@ -88,7 +87,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetPFMInfo, PFM_EXTENSIONS);
+  RegisterReader(@GetPFMInfo, ['.pfm']);
 
 
 end.

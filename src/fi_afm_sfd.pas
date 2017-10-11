@@ -30,14 +30,11 @@ const
   FONT_IDENT: array [TFontFormat] of record
     name,
     sign: string;
-    extensions: array [0..0] of string;
   end = (
     (name: 'AFM';
-     sign: 'StartFontMetrics';
-     extensions: ('.afm')),
+     sign: 'StartFontMetrics'),
     (name: 'SFD';
-     sign: 'SplineFontDB:';
-     extensions: ('.sfd')));
+     sign: 'SplineFontDB:'));
 
   NUM_FIELDS = 6;
   MAX_LINES = 30;
@@ -158,7 +155,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetAFMInfo, FONT_IDENT[AFM].extensions);
-  RegisterReader(@GetSFDInfo, FONT_IDENT[SFD].extensions);
+  RegisterReader(@GetAFMInfo, ['.afm']);
+  RegisterReader(@GetSFDInfo, ['.sfd']);
 
 end.

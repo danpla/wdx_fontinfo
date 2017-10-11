@@ -23,8 +23,6 @@ uses
 implementation
 
 const
-  PCF_EXTENSIONS: array [0..0] of string = ('.pcf');
-
   PCF_FILE_VERSION = $70636601; // '\1pcf'
 
   PCF_PROPERTIES = 1 shl 0;
@@ -198,7 +196,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetPCFInfo, PCF_EXTENSIONS);
+  RegisterReader(@GetPCFInfo, ['.pcf']);
 
 
 end.

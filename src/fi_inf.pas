@@ -21,7 +21,6 @@ uses
 implementation
 
 const
-  INF_EXTENSIONS: array [0..0] of string = ('.inf');
   NUM_FIELDS = 4;
   MAX_LINES = 10;
 
@@ -95,7 +94,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetINFInfo, INF_EXTENSIONS);
+  RegisterReader(@GetINFInfo, ['.inf']);
 
 
 end.

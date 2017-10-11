@@ -40,7 +40,6 @@ procedure BDF_FillEmpty(var info: TFontInfo);
 implementation
 
 const
-  BDF_EXTENSIONS: array [0..0] of string = ('.bdf');
   BDF_SIGN = 'STARTFONT';
 
   NUM_FIELDS = 6;
@@ -166,7 +165,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetBDFInfo, BDF_EXTENSIONS);
+  RegisterReader(@GetBDFInfo, ['.bdf']);
 
 
 end.

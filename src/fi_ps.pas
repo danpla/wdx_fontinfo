@@ -23,9 +23,6 @@ uses
 implementation
 
 const
-  PS_EXTENSIONS: array [0..5] of string = (
-    '.ps','.pfa','.pfb','.pt3','.t11','.t42');
-
   BIN_MAGIC = $0180;
 
   PS_MAGIC1 = '%!PS-AdobeFont';
@@ -243,7 +240,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetPSInfo, PS_EXTENSIONS);
+  RegisterReader(@GetPSInfo, ['.ps','.pfa','.pfb','.pt3','.t11','.t42']);
 
 
 end.

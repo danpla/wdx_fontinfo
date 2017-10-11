@@ -327,9 +327,6 @@ begin
 end;
 
 
-const
-  OTF_EXTENSIONS: array [0..1] of string = ('.ttf', '.otf');
-
 procedure GetOTFInfo(stream: TStream; var info: TFontInfo);
 begin
   GetCommonInfo(stream, info);
@@ -338,7 +335,6 @@ end;
 
 
 const
-  COLLECTION_EXTENSIONS: array [0..1] of string = ('.ttc', '.otc');
   COLLECTION_SIGNATURE = $74746366; // 'ttcf'
 
 type
@@ -379,7 +375,6 @@ end;
 
 
 const
-  WOFF_EXTENSIONS: array [0..0] of string = ('.woff');
   WOFF_SIGNATURE = $774f4646; // 'wOFF'
 
 type
@@ -492,7 +487,6 @@ end;
 
 
 const
-  EOT_EXTENSIONS: array [0..0] of string = ('.eot');
   EOT_MAGIC = $504c;
 
   // EOT flags
@@ -614,10 +608,10 @@ end;
 
 
 initialization
-  RegisterReader(@GetOTFInfo, OTF_EXTENSIONS);
-  RegisterReader(@GetCollectionInfo, COLLECTION_EXTENSIONS);
-  RegisterReader(@GetWOFFInfo, WOFF_EXTENSIONS);
-  RegisterReader(@GetEOTInfo, EOT_EXTENSIONS);
+  RegisterReader(@GetOTFInfo, ['.ttf', '.otf']);
+  RegisterReader(@GetCollectionInfo, ['.ttc', '.otc']);
+  RegisterReader(@GetWOFFInfo, ['.woff']);
+  RegisterReader(@GetEOTInfo, ['.eot']);
 
 
 end.

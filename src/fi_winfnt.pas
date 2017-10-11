@@ -31,8 +31,6 @@ const
     as well as everything I found on the Internet.
   }
 
-  FNT_EXTENSIONS: array [0..1] of string = ('.fon', '.fnt');
-
   FNT_V1 = $100;
   FNT_V2 = $200;
   FNT_V3 = $300;
@@ -236,7 +234,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetWinFNTInfo, FNT_EXTENSIONS);
+  RegisterReader(@GetWinFNTInfo, ['.fon', '.fnt']);
 
 
 end.
