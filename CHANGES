@@ -1,5 +1,5 @@
 
-0.8.0 ()
+1.0.0 (2017-12-30)
   • The Number of Fonts column is now integer instead of string
   • Support for INF, PS Type 11, and Windows' FNT/FON
   • More common weight names (like "SemiBold" instead of "Semi-bold")
