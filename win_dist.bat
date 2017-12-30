@@ -5,4 +5,4 @@ if "%%i" == "version" (
     set VERSION=%%j
 )
 
-zip wdx_fontinfo_%VERSION%_win.zip fontinfo.wdx fontinfo.wdx64 pluginst.inf README.md CHANGES
+zip wdx_fontinfo_%VERSION%_win.zip fontinfo.wdx fontinfo.wdx64 pluginst.inf README.md CHANGES LICENSE
