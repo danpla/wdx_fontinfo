@@ -3,6 +3,9 @@
 Font info WDX plugin for [Total][Total Commander]
 and [Double][Double Commander] Commanders.
 
+Binaries for Windows and 64-bit Linux are available on the
+[Releases](https://github.com/danpla/wdx_fontinfo/releases/latest) page.
+
 
 ## Supported formats
 
