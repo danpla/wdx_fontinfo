@@ -52,6 +52,21 @@ begin
 end;
 
 
+function IsLayoutTable(tag: longword): boolean;
+begin
+  case tag of
+    TAG_BASE,
+    TAG_GDEF,
+    TAG_GPOS,
+    TAG_GSUB,
+    TAG_JSTF:
+      result := TRUE;
+  else
+    result := FALSE;
+  end;
+end;
+
+
 function GetFormatSting(
   sign: longword; has_layout_tables: boolean): string; inline;
 begin
@@ -310,18 +325,13 @@ begin
         end;
       {$ENDIF}
 
-      case dir.tag of
-        TAG_BASE,
-        TAG_GDEF,
-        TAG_GPOS,
-        TAG_GSUB,
-        TAG_JSTF:
-          has_layout_tables := TRUE;
-        TAG_NAME:
-          ReadTable(
-            stream, info, @NameReader, font_offset + dir.offset,
-            NO_COMPRESSION);
-      end;
+      if dir.tag = TAG_NAME then
+        ReadTable(
+          stream, info, @NameReader, font_offset + dir.offset,
+          NO_COMPRESSION)
+      else
+        has_layout_tables := (
+          has_layout_tables or IsLayoutTable(dir.tag));
     end;
 
   info[IDX_FORMAT] := GetFormatSting(offset_table.version, has_layout_tables);
@@ -468,18 +478,13 @@ begin
           'uncompressed size (%u)',
           [dir.comp_length, TableTagToString(dir.tag), dir.orig_length]);
 
-      case dir.tag of
-        TAG_BASE,
-        TAG_GDEF,
-        TAG_GPOS,
-        TAG_GSUB,
-        TAG_JSTF:
-          has_layout_tables := TRUE;
-        TAG_NAME:
-          ReadTable(
-            stream, info, @NameReader, dir.offset,
-            compression, dir.orig_length);
-      end;
+      if dir.tag = TAG_NAME then
+        ReadTable(
+          stream, info, @NameReader, dir.offset,
+          compression, dir.orig_length)
+      else
+        has_layout_tables := (
+          has_layout_tables or IsLayoutTable(dir.tag));
     end;
 
   info[IDX_FORMAT] := GetFormatSting(header.flavor, has_layout_tables);
@@ -770,18 +775,13 @@ begin
 
   try
     for i := 0 to High(table_dir_indices) do
-      case table_dir[i].tag of
-        TAG_BASE,
-        TAG_GDEF,
-        TAG_GPOS,
-        TAG_GSUB,
-        TAG_JSTF:
-          has_layout_tables := TRUE;
-        TAG_NAME:
-          ReadTable(
-            decompressed_data_stream, info, @NameReader,
-            table_dir[i].offset, NO_COMPRESSION);
-      end;
+      if table_dir[i].tag = TAG_NAME then
+        ReadTable(
+          decompressed_data_stream, info, @NameReader,
+          table_dir[i].offset, NO_COMPRESSION)
+      else
+        has_layout_tables := (
+          has_layout_tables or IsLayoutTable(table_dir[i].tag));
   finally
     decompressed_data_stream.Free;
   end;
