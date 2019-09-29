@@ -11,7 +11,7 @@ Binaries for Windows and 64-bit Linux are available on the
 
 * TrueType and TrueType Collections
 * OpenType and OpenType Collections
-* Web Open Font Format (WOFF)
+* Web Open Font Format 1 & 2 (WOFF, WOFF2)
 * Embedded OpenType (EOT)
 * PostScript Type 0, 1, 3, 11, 42 etc., possibly with AFM, PFM, and INF
 * Bitmap Distribution Format (BDF)
@@ -65,6 +65,7 @@ and then run `compile` script.
 
 * [OpenType Specification](https://www.microsoft.com/typography/otspec/)
 * [WOFF Specification](http://www.w3.org/TR/WOFF/)
+* [WOFF2 Specification](http://www.w3.org/TR/WOFF2/)
 * [EOT Specification](http://www.w3.org/Submission/EOT/)
 * [Apple TrueType Reference Manual](https://developer.apple.com/fonts/TrueType-Reference-Manual/)
 * [PostScript Specifications](http://partners.adobe.com/public/developer/ps/index_specs.html)
