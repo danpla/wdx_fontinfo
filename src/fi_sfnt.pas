@@ -281,14 +281,15 @@ type
 {
   Common parser for TTF, TTC, OTF, OTC, and EOT.
 }
-procedure GetCommonInfo(stream: TStream; var info: TFontInfo;
-                        font_offset: longword = 0);
+procedure GetCommonInfo(stream: TStream; var info: TFontInfo);
 var
+  start: int64;
   offset_table: TOffsetTable;
   i: longint;
   dir: TTableDirEntry;
   has_layout_tables: boolean = FALSE;
 begin
+  start := stream.Position;
   stream.ReadBuffer(offset_table, SizeOf(offset_table));
 
   {$IFDEF ENDIAN_LITTLE}
@@ -327,7 +328,7 @@ begin
 
       if dir.tag = TAG_NAME then
         ReadTable(
-          stream, info, @NameReader, font_offset + dir.offset,
+          stream, info, @NameReader, start + dir.offset,
           NO_COMPRESSION)
       else
         has_layout_tables := (
@@ -869,7 +870,7 @@ begin
       font_offset := eot_size - font_data_size;
       stream.Seek(font_offset, soBeginning);
 
-      GetCommonInfo(stream, info, font_offset);
+      GetCommonInfo(stream, info);
       info[IDX_NUM_FONTS] := '1';
 
       exit;
