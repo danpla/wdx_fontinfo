@@ -99,7 +99,7 @@ begin
       font_offset := eot_size - font_data_size;
       stream.Seek(font_offset, soBeginning);
 
-      GetCommonInfo(stream, info);
+      GetCommonInfo(stream, info, font_offset);
       info[IDX_NUM_FONTS] := '1';
 
       exit;

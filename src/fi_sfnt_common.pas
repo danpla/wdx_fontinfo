@@ -61,8 +61,12 @@ procedure NameReader(stream: TStream; var info: TFontInfo);
 
 {
   Common parser for TTF, TTC, OTF, OTC, and EOT.
+
+  font_offset is necessary for EOT since its EMBEDDEDFONT structure
+  is not treated as part of the font data.
 }
-procedure GetCommonInfo(stream: TStream; var info: TFontInfo);
+procedure GetCommonInfo(
+  stream: TStream; var info: TFontInfo; font_offset: longword = 0);
 
 implementation
 
@@ -290,15 +294,14 @@ type
     length: longword;
   end;
 
-procedure GetCommonInfo(stream: TStream; var info: TFontInfo);
+procedure GetCommonInfo(
+  stream: TStream; var info: TFontInfo; font_offset: longword);
 var
-  start: int64;
   offset_table: TOffsetTable;
   i: longint;
   dir: TTableDirEntry;
   has_layout_tables: boolean = FALSE;
 begin
-  start := stream.Position;
   stream.ReadBuffer(offset_table, SizeOf(offset_table));
 
   {$IFDEF ENDIAN_LITTLE}
@@ -337,7 +340,7 @@ begin
 
       if dir.tag = TAG_NAME then
         ReadTable(
-          stream, info, @NameReader, start + dir.offset,
+          stream, info, @NameReader, font_offset + dir.offset,
           NO_COMPRESSION)
       else
         has_layout_tables := (
