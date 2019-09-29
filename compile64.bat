@@ -1,2 +1,2 @@
 md units_tmp
-ppcrossx64 src\fi_wdx.pas @compile.cfg -o.\fontinfo.wdx64
+ppcrossx64 src\fi_wdx.pas @compile.cfg
