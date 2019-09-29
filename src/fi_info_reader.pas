@@ -96,7 +96,6 @@ begin
       readers[i].extensions[j] := extensions[j];
     end;
 
-
   readers[i].reader := reader;
 end;
 
