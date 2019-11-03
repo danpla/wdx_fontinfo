@@ -61,28 +61,27 @@ begin
 
   SetLength(copyright, MAX_COPYRIGHT_LEN);
   stream.ReadBuffer(copyright[1], MAX_COPYRIGHT_LEN);
-  info[IDX_COPYRIGHT] := TrimRight(copyright);
+  info.copyright := TrimRight(copyright);
 
   stream.Seek(WEIGHT_POS, soBeginning);
-  info[IDX_STYLE] := GetWeightName(stream.ReadWordLE);
+  info.style := GetWeightName(stream.ReadWordLE);
 
   stream.Seek(FACE_OFFSET_POS, soBeginning);
   stream.Seek(stream.ReadDWordLE, soBeginning);
-  info[IDX_FULL_NAME] := stream.ReadPChar;
+  info.full_name := stream.ReadPChar;
 
   // Strip style if font uses PS name as a Full Name.
-  p := RPos('-', info[IDX_FULL_NAME]);
+  p := RPos('-', info.full_name);
   if p <> 0 then
-    info[IDX_FAMILY] := Copy(info[IDX_FULL_NAME], 1, p - 1)
+    info.family := Copy(info.full_name, 1, p - 1)
   else
-    info[IDX_FAMILY] := info[IDX_FULL_NAME];
+    info.family := info.full_name;
 
   stream.Seek(DRIVER_INFO_OFFSET_POS, soBeginning);
   stream.Seek(stream.ReadDWordLE, soBeginning);
-  info[IDX_PS_NAME] := stream.ReadPChar;
+  info.ps_name := stream.ReadPChar;
 
-  info[IDX_FORMAT] := 'PFM';
-  info[IDX_NUM_FONTS] := '1';
+  info.format := 'PFM';
 end;
 
 

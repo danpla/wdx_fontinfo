@@ -101,7 +101,7 @@ begin
 
   SetLength(copyright, MAX_COPYRIGHT_LEN);
   stream.ReadBuffer(copyright[1], MAX_COPYRIGHT_LEN);
-  info[IDX_COPYRIGHT] := TrimRight(copyright);
+  info.copyright := TrimRight(copyright);
 
   stream.Seek(start + SizeUInt(@TFNTHeader(NIL^).italic), soBeginning);
   italic := stream.ReadByte = 1;
@@ -112,25 +112,24 @@ begin
   if italic then
     begin
       if weight = 400 then
-        info[IDX_STYLE] := 'Italic'
+        info.style := 'Italic'
       else
-        info[IDX_STYLE] := GetWeightName(weight) + ' Italic';
+        info.style := GetWeightName(weight) + ' Italic';
     end
   else
-    info[IDX_STYLE] := GetWeightName(weight);
+    info.style := GetWeightName(weight);
 
   stream.Seek(
     start + SizeUInt(@TFNTHeader(NIL^).face_name_offset), soBeginning);
   stream.Seek(start + stream.ReadDWordLE, soBeginning);
-  info[IDX_FAMILY] := stream.ReadPChar;
+  info.family := stream.ReadPChar;
 
   if (weight = 400) and not italic then
-    info[IDX_FULL_NAME] := info[IDX_FAMILY]
+    info.full_name := info.family
   else
-    info[IDX_FULL_NAME] := info[IDX_FAMILY] + ' ' + info[IDX_STYLE];
+    info.full_name := info.family + ' ' + info.style;
 
-  info[IDX_FORMAT] := 'FNT ' + IntToStr(version shr 8);
-  info[IDX_NUM_FONTS] := '1';
+  info.format := 'FNT ' + IntToStr(version shr 8);
 end;
 
 

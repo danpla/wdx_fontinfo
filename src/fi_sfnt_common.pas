@@ -181,9 +181,8 @@ var
   offset: int64;
   i: longint;
   name_rec: TNameRecord;
-  idx: TFieldIndex;
   name: UnicodeString;
-  version: string;
+  dst: pstring;
 begin
   start := stream.Position;
   stream.ReadBuffer(naming_table, SizeOf(naming_table));
@@ -218,8 +217,9 @@ begin
         end;
       {$ENDIF}
 
-      // Entries in the Name Record are always sorted so that we can stop
-      // parsing immediately after we finished reading the needed record.
+      // Entries in the Name Record are always sorted so that we can
+      // stop parsing immediately after we finished reading the needed
+      // record.
       if (name_rec.platform_id < PLATFORM_ID_WIN) or
           (name_rec.language_id < LANGUAGE_ID_WIN_ENGLISH_US) then
         continue
@@ -229,24 +229,24 @@ begin
         break;
 
       case name_rec.name_id of
-        0:  idx := IDX_COPYRIGHT;
-        1:  idx := IDX_FAMILY;
-        2:  idx := IDX_STYLE;
-        3:  idx := IDX_UNIQUE_ID;
-        4:  idx := IDX_FULL_NAME;
-        5:  idx := IDX_VERSION;
-        6:  idx := IDX_PS_NAME;
-        7:  idx := IDX_TRADEMARK;
-        8:  idx := IDX_MANUFACTURER;
-        9:  idx := IDX_DESIGNER;
-        10: idx := IDX_DESCRIPTION;
-        11: idx := IDX_VENDOR_URL;
-        12: idx := IDX_DESIGNER_URL;
-        13: idx := IDX_LICENSE;
-        14: idx := IDX_LICENSE_URL;
+        0:  dst := @info.copyright;
+        1:  dst := @info.family;
+        2:  dst := @info.style;
+        3:  dst := @info.unique_id;
+        4:  dst := @info.full_name;
+        5:  dst := @info.version;
+        6:  dst := @info.ps_name;
+        7:  dst := @info.trademark;
+        8:  dst := @info.manufacturer;
+        9:  dst := @info.designer;
+        10: dst := @info.description;
+        11: dst := @info.vendor_url;
+        12: dst := @info.designer_url;
+        13: dst := @info.license;
+        14: dst := @info.license_url;
         15: continue;  // Reserved
-        16: idx := IDX_FAMILY;  // Typographic Family
-        17: idx := IDX_STYLE;  // Typographic Subfamily
+        16: dst := @info.family;  // Typographic Family
+        17: dst := @info.style;  // Typographic Subfamily
       else
         break;
       end;
@@ -259,19 +259,19 @@ begin
       {$IFDEF ENDIAN_LITTLE}
       SwapUnicode(name);
       {$ENDIF}
-      info[idx] := UTF8Encode(name);
+      dst^ := UTF8Encode(name);
 
       stream.Seek(offset, soBeginning);
     end;
 
   // Strip "Version "
-  version := info[IDX_VERSION];
-  if (version <> '') and AnsiStartsStr(VERSION_STR, version) then
+  if (info.version <> '')
+      and AnsiStartsStr(VERSION_STR, info.version) then
     begin
-      info[IDX_VERSION] := Copy(
-        version,
+      info.version := Copy(
+        info.version,
         Length(VERSION_STR) + 1,
-        Length(version) - Length(VERSION_STR));
+        Length(info.version) - Length(VERSION_STR));
     end;
 end;
 
@@ -347,7 +347,8 @@ begin
           has_layout_tables or IsLayoutTable(dir.tag));
     end;
 
-  info[IDX_FORMAT] := GetFormatSting(offset_table.version, has_layout_tables);
+  info.format := GetFormatSting(
+    offset_table.version, has_layout_tables);
 end;
 
 

@@ -48,17 +48,17 @@ const
 
 procedure BDF_FillEmpty(var info: TFontInfo);
 begin
-  if (info[IDX_FAMILY] = '') and (info[IDX_PS_NAME] <> '') then
-    info[IDX_FAMILY] := info[IDX_PS_NAME];
+  if (info.family = '') and (info.ps_name <> '') then
+    info.family := info.ps_name;
 
-  if info[IDX_STYLE] = '' then
-    info[IDX_STYLE] := 'Medium';
+  if info.style = '' then
+    info.style := 'Medium';
 
-  if info[IDX_FULL_NAME] = '' then
-    if info[IDX_STYLE] = 'Medium' then
-      info[IDX_FULL_NAME] := info[IDX_FAMILY]
+  if info.full_name = '' then
+    if info.style = 'Medium' then
+      info.full_name := info.family
     else
-      info[IDX_FULL_NAME] := info[IDX_FAMILY] + ' ' + info[IDX_STYLE];
+      info.full_name := info.family + ' ' + info.style;
 end;
 
 
@@ -69,8 +69,8 @@ var
   s_len: SizeInt;
   key: string;
   p: SizeInt;
+  dst: pstring;
   num_found: longint;
-  idx: TFieldIndex;
 begin
   repeat
     if not line_reader.ReadLine(s) then
@@ -86,7 +86,7 @@ begin
   while s[p + 1] = ' ' do
     inc(p);
 
-  info[IDX_FORMAT] := 'BDF' + Copy(s, p, Length(s) - p + 1);
+  info.format := 'BDF' + Copy(s, p, Length(s) - p + 1);
 
   i := 1;
   num_found := 0;
@@ -118,12 +118,12 @@ begin
 
       key := Copy(s, 1, p - 1);
       case key of
-        BDF_COPYRIGHT: idx := IDX_COPYRIGHT;
-        BDF_FAMILY_NAME: idx := IDX_FAMILY;
-        BDF_FONT: idx := IDX_PS_NAME;
-        BDF_FOUNDRY: idx := IDX_MANUFACTURER;
-        BDF_FULL_NAME, BDF_FACE_NAME: idx := IDX_FULL_NAME;
-        BDF_WEIGHT_NAME: idx := IDX_STYLE;
+        BDF_COPYRIGHT: dst := @info.copyright;
+        BDF_FAMILY_NAME: dst := @info.family;
+        BDF_FONT: dst := @info.ps_name;
+        BDF_FOUNDRY: dst := @info.manufacturer;
+        BDF_FULL_NAME, BDF_FACE_NAME: dst := @info.full_name;
+        BDF_WEIGHT_NAME: dst := @info.style;
         'CHARS': break;
       else
         continue;
@@ -141,13 +141,11 @@ begin
           dec(s_len);
         end;
 
-      info[idx] := Copy(s, p, s_len - (p - 1));
+      dst^ := Copy(s, p, s_len - (p - 1));
       inc(num_found);
     end;
 
   BDF_FillEmpty(info);
-
-  info[IDX_NUM_FONTS] := '1';
 end;
 
 

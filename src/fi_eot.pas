@@ -53,17 +53,35 @@ type
     reserved4: longword;
   end;
 
+function ReadField(stream: TStream; const field_name: string): string;
+var
+  padding: word;
+  s: UnicodeString;
+  s_len: word;
+begin
+  padding := stream.ReadWordLE;
+  if padding <> 0 then
+    raise EStreamError.CreateFmt(
+      'Non-zero (%u) padding for "%s" EOT field',
+      [padding, field_name]);
+
+  s_len := stream.ReadWordLE;
+  SetLength(s, s_len div SizeOf(WideChar));
+  stream.ReadBuffer(s[1], s_len);
+  {$IFDEF ENDIAN_BIG}
+  SwapUnicode(s);
+  {$ENDIF}
+
+  result := UTF8Encode(s);
+end;
+
 procedure GetEOTInfo(stream: TStream; var info: TFontInfo);
 var
   eot_size,
   font_data_size,
   flags: longword;
   magic,
-  padding: word;
   font_offset: longword;
-  idx: TFieldIndex;
-  s: UnicodeString;
-  s_len: word;
 begin
   eot_size := stream.ReadDWordLE;
   if eot_size <> stream.Size then
@@ -100,7 +118,6 @@ begin
       stream.Seek(font_offset, soBeginning);
 
       GetCommonInfo(stream, info, font_offset);
-      info[IDX_NUM_FONTS] := '1';
 
       exit;
     end;
@@ -119,26 +136,13 @@ begin
     SizeOf(TEOTHeader.reserved4),
     soCurrent);
 
-  for idx in [IDX_FAMILY, IDX_STYLE, IDX_VERSION, IDX_FULL_NAME] do
-    begin
-      padding := stream.ReadWordLE;
-      if padding <> 0 then
-        raise EStreamError.CreateFmt(
-          'Non-zero (%u) padding for "%s" EOT field',
-          [padding, TFieldNames[idx]]);
-
-      s_len := stream.ReadWordLE;
-      SetLength(s, s_len div SizeOf(WideChar));
-      stream.ReadBuffer(s[1], s_len);
-      {$IFDEF ENDIAN_BIG}
-      SwapUnicode(s);
-      {$ENDIF}
-      info[idx] := UTF8Encode(s);
-    end;
+  info.family := ReadField(stream, 'FamilyName');
+  info.style := ReadField(stream, 'StyleName');
+  info.version := ReadField(stream, 'VersionName');
+  info.full_name := ReadField(stream, 'FullName');
 
   // Currently we can't uncompress EOT to determine SFNT format.
-  info[IDX_FORMAT] := 'EOT';
-  info[IDX_NUM_FONTS] := '1';
+  info.format := 'EOT';
 end;
 
 

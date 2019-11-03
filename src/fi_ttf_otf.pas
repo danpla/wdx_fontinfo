@@ -11,8 +11,7 @@ uses
   fi_common,
   fi_info_reader,
   fi_sfnt_common,
-  classes,
-  sysutils;
+  classes;
 
 
 implementation
@@ -21,7 +20,6 @@ implementation
 procedure GetOTFInfo(stream: TStream; var info: TFontInfo);
 begin
   GetCommonInfo(stream, info);
-  info[IDX_NUM_FONTS] := '1';
 end;
 
 

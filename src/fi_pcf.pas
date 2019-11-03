@@ -63,7 +63,7 @@ var
   properties: array of TPCF_PropertyRec;
   strings_len: longint;
   strings: array of AnsiChar;
-  idx: TFieldIndex;
+  dst: pstring;
 begin
   format := stream.ReadDWordLE;
   if format and PCF_FORMAT_MASK <> PCF_DEFAULT_FORMAT then
@@ -125,17 +125,17 @@ begin
           [i + 1, PAnsiChar(@strings[properties[i].name_offset]), strings_len]);
 
       case String(PAnsiChar(@strings[properties[i].name_offset])) of
-        BDF_COPYRIGHT: idx := IDX_COPYRIGHT;
-        BDF_FAMILY_NAME: idx := IDX_FAMILY;
-        BDF_FONT: idx := IDX_PS_NAME;
-        BDF_FOUNDRY: idx := IDX_MANUFACTURER;
-        BDF_FULL_NAME, BDF_FACE_NAME: idx := IDX_FULL_NAME;
-        BDF_WEIGHT_NAME: idx := IDX_STYLE;
+        BDF_COPYRIGHT: dst := @info.copyright;
+        BDF_FAMILY_NAME: dst := @info.family;
+        BDF_FONT: dst := @info.ps_name;
+        BDF_FOUNDRY: dst := @info.manufacturer;
+        BDF_FULL_NAME, BDF_FACE_NAME: dst := @info.full_name;
+        BDF_WEIGHT_NAME: dst := @info.style;
       else
         continue;
       end;
 
-      info[idx] := String(PAnsiChar(@strings[properties[i].value]));
+      dst^ := String(PAnsiChar(@strings[properties[i].value]));
     end;
 end;
 
@@ -190,8 +190,7 @@ begin
 
   BDF_FillEmpty(info);
 
-  info[IDX_FORMAT] := 'PCF';
-  info[IDX_NUM_FONTS] := '1';
+  info.format := 'PCF';
 end;
 
 

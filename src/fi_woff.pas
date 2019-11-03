@@ -123,8 +123,7 @@ begin
           has_layout_tables or IsLayoutTable(dir.tag));
     end;
 
-  info[IDX_FORMAT] := GetFormatSting(header.flavor, has_layout_tables);
-  info[IDX_NUM_FONTS] := '1';
+  info.format := GetFormatSting(header.flavor, has_layout_tables);
 end;
 
 

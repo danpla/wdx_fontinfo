@@ -11,8 +11,7 @@ uses
   fi_common,
   fi_info_reader,
   fi_sfnt_common,
-  classes,
-  sysutils;
+  classes;
 
 
 implementation
@@ -51,7 +50,7 @@ begin
   stream.Seek(header.first_font_offset, soBeginning);
   GetCommonInfo(stream, info);
 
-  info[IDX_NUM_FONTS] := IntToStr(header.num_fonts);
+  info.num_fonts := header.num_fonts;
 end;
 
 

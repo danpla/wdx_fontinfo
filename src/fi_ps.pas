@@ -144,7 +144,7 @@ var
   p: SizeInt;
   s,
   key: string;
-  idx: TFieldIndex;
+  dst: pstring;
   num_found: longint = 0;
 begin
   repeat
@@ -180,13 +180,13 @@ begin
 
       key := Copy(s, 2, p - 2);
       case key of
-        'FontType': idx := IDX_FORMAT;
-        'FontName': idx := IDX_PS_NAME;
-        'version': idx := IDX_VERSION;
-        'Notice': idx := IDX_COPYRIGHT;
-        'FullName': idx := IDX_FULL_NAME;
-        'FamilyName': idx := IDX_FAMILY;
-        'Weight': idx := IDX_STYLE;
+        'FontType': dst := @info.format;
+        'FontName': dst := @info.ps_name;
+        'version': dst := @info.version;
+        'Notice': dst := @info.copyright;
+        'FullName': dst := @info.full_name;
+        'FamilyName': dst := @info.family;
+        'Weight': dst := @info.style;
       else
         continue;
       end;
@@ -198,25 +198,23 @@ begin
         // String
         begin
           inc(p);
-          info[idx] := UnEscape(Copy(s, p, RPos(')', s) - p));
+          dst^ := UnEscape(Copy(s, p, RPos(')', s) - p));
         end
       else
         // Literal name, number, etc.
         begin
           if s[p] = '/' then
             inc(p);
-          info[idx] := Copy(s, p, PosEx(' ', s, p) - p);
+          dst^ := Copy(s, p, PosEx(' ', s, p) - p);
         end;
 
       inc(num_found);
     end;
 
-  if info[IDX_FORMAT] <> '' then
-    info[IDX_FORMAT] := 'PS ' + info[IDX_FORMAT];
+  if info.format <> '' then
+    info.format := 'PS ' + info.format;
 
-  info[IDX_STYLE] := ExtractStyle(
-    info[IDX_FULL_NAME], info[IDX_FAMILY], info[IDX_STYLE]);
-  info[IDX_NUM_FONTS] := '1';
+  info.style := ExtractStyle(info.full_name, info.family, info.style);
 end;
 
 
@@ -240,7 +238,8 @@ end;
 
 
 initialization
-  RegisterReader(@GetPSInfo, ['.ps','.pfa','.pfb','.pt3','.t11','.t42']);
+  RegisterReader(
+    @GetPSInfo, ['.ps','.pfa','.pfb','.pt3','.t11','.t42']);
 
 
 end.

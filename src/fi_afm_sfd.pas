@@ -48,8 +48,8 @@ var
   s_len: SizeInt;
   key: string;
   p: SizeInt;
+  dst: pstring;
   num_found: longint;
-  idx: TFieldIndex;
 begin
   repeat
     if not line_reader.ReadLine(s) then
@@ -67,8 +67,8 @@ begin
   while s[p + 1] = ' ' do
     inc(p);
 
-  info[IDX_FORMAT] := FONT_IDENT[font_format].name +
-                      Copy(s, p, Length(s) - p + 1);
+  info.format := FONT_IDENT[font_format].name +
+    Copy(s, p, Length(s) - p + 1);
 
   i := 1;
   num_found := 0;
@@ -93,13 +93,13 @@ begin
         key := Copy(s, 1, p - 1);
 
       case key of
-        'FontName': idx := IDX_PS_NAME;
-        'FullName': idx := IDX_FULL_NAME;
-        'FamilyName': idx := IDX_FAMILY;
-        'Weight': idx := IDX_STYLE;
-        'Version': idx := IDX_VERSION;
-        'Copyright': idx := IDX_COPYRIGHT;  // SFD
-        'Notice': idx := IDX_COPYRIGHT;  // AFM
+        'FontName': dst := @info.ps_name;
+        'FullName': dst := @info.full_name;
+        'FamilyName': dst := @info.family;
+        'Weight': dst := @info.style;
+        'Version': dst := @info.version;
+        'Copyright': dst := @info.copyright;  // SFD
+        'Notice': dst := @info.copyright;  // AFM
       else
         continue;
       end;
@@ -109,7 +109,7 @@ begin
       until s[p] <> ' ';
 
       s_len := Length(s);
-      if (idx = IDX_COPYRIGHT) and
+      if (dst = @info.copyright) and
          (font_format = AFM) and
          (s[p] = '(') and
          (s[s_len] = ')') then
@@ -118,13 +118,11 @@ begin
           dec(s_len);
         end;
 
-      info[idx] := Copy(s, p, s_len - (p - 1));
+      dst^ := Copy(s, p, s_len - (p - 1));
       inc(num_found);
     end;
 
-  info[IDX_STYLE] := ExtractStyle(
-    info[IDX_FULL_NAME], info[IDX_FAMILY], info[IDX_STYLE]);
-  info[IDX_NUM_FONTS] := '1';
+  info.style := ExtractStyle(info.full_name, info.family, info.style);
 end;
 
 

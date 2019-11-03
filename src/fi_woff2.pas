@@ -230,7 +230,6 @@ var
   i: longint;
   has_layout_tables: boolean = FALSE;
   version: longword;
-  num_fonts: word;
   collection_font_entry: TWOFF2ColectionFontEntry;
   table_dir_indices: array of word;
   decompressed_data: TBytes;
@@ -276,8 +275,8 @@ begin
   if header.flavor = COLLECTION_SIGNATURE then
     begin
       stream.Seek(SizeOf(longword), soCurrent);  // TTC version
-      num_fonts := Read255UShort(stream);
-      if num_fonts = 0 then
+      info.num_fonts := Read255UShort(stream);
+      if info.num_fonts = 0 then
         raise EStreamError.Create('WOFF2 collection has no fonts');
 
       collection_font_entry := ReadWoff2CollectionFontEntry(
@@ -287,13 +286,12 @@ begin
       table_dir_indices := collection_font_entry.table_dir_indices;
 
       // We only need the first font.
-      for i := 1 to num_fonts - 1 do
+      for i := 1 to info.num_fonts - 1 do
         ReadWoff2CollectionFontEntry(stream, header.num_tables);
     end
   else
     begin
       version := header.flavor;
-      num_fonts := 1;
 
       SetLength(table_dir_indices, Length(table_dir));
       for i := 0 to High(table_dir_indices) do
@@ -317,8 +315,7 @@ begin
     decompressed_data_stream.Free;
   end;
 
-  info[IDX_FORMAT] := GetFormatSting(version, has_layout_tables);
-  info[IDX_NUM_FONTS] := IntToStr(num_fonts);
+  info.format := GetFormatSting(version, has_layout_tables);
 end;
 
 
