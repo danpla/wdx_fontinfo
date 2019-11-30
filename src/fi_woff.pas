@@ -114,13 +114,12 @@ begin
           'uncompressed size (%u)',
           [dir.comp_length, TableTagToString(dir.tag), dir.orig_length]);
 
-      if dir.tag = TAG_NAME then
-        ReadTable(
-          stream, info, @NameReader, dir.offset,
-          compression, dir.orig_length)
-      else
-        has_layout_tables := (
-          has_layout_tables or IsLayoutTable(dir.tag));
+      ReadTable(
+        stream, info,
+        dir.tag, dir.offset, compression, dir.orig_length);
+
+      has_layout_tables := (
+        has_layout_tables or IsLayoutTable(dir.tag));
     end;
 
   info.format := GetFormatSting(header.flavor, has_layout_tables);

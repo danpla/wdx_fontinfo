@@ -44,20 +44,19 @@ function GetFormatSting(
 
 
 type
-  TTableReader = procedure(stream: TStream; var info: TFontInfo);
-
   TTableCompression = (
     NO_COMPRESSION,
     ZLIB
     );
 
 // uncompressed_size is ignored if compression is NO_COMPRESSION
-procedure ReadTable(stream: TStream; var info: TFontInfo;
-                    reader: TTableReader; offset: longword;
-                    compression: TTableCompression;
-                    uncompressed_size: longword = 0);
-
-procedure NameReader(stream: TStream; var info: TFontInfo);
+procedure ReadTable(
+  stream: TStream;
+  var info: TFontInfo;
+  tag: longword;
+  offset: longword;
+  compression: TTableCompression;
+  uncompressed_size: longword = 0);
 
 {
   Common parser for TTF, TTC, OTF, OTC, and EOT.
@@ -109,16 +108,31 @@ begin
 end;
 
 
-procedure ReadTable(stream: TStream; var info: TFontInfo;
-                    reader: TTableReader; offset: longword;
-                    compression: TTableCompression;
-                    uncompressed_size: longword);
+type
+  TTableReader = procedure(stream: TStream; var info: TFontInfo);
+
+
+function FindTableReader(tag: longword): TTableReader; forward;
+
+
+procedure ReadTable(
+  stream: TStream;
+  var info: TFontInfo;
+  tag: longword;
+  offset: longword;
+  compression: TTableCompression;
+  uncompressed_size: longword);
 var
+  reader: TTableReader;
   start: int64;
   decompressed_data: TBytes;
   zs: TDecompressionStream;
   bs: TBytesStream;
 begin
+  reader := FindTableReader(tag);
+  if reader = NIL then
+    exit;
+
   start := stream.Position;
   stream.Seek(offset, soBeginning);
 
@@ -173,7 +187,7 @@ type
     offset: word;
   end;
 
-procedure NameReader(stream: TStream; var info: TFontInfo);
+procedure ReadNameTable(stream: TStream; var info: TFontInfo);
 var
   start: int64;
   naming_table: TNamingTable;
@@ -276,6 +290,27 @@ begin
 end;
 
 
+const
+  TABLE_READERS: array [0..0] of record
+    tag: longword;
+    reader: TTableReader;
+  end = (
+    (tag: TAG_NAME; reader: @ReadNameTable)
+  );
+
+
+function FindTableReader(tag: longword): TTableReader;
+var
+  i: SizeInt;
+begin
+  for i := 0 to High(TABLE_READERS) do
+    if TABLE_READERS[i].tag = tag then
+      exit(TABLE_READERS[i].reader);
+
+  result := NIL;
+end;
+
+
 // Format-specific stuff
 
 type
@@ -338,13 +373,12 @@ begin
         end;
       {$ENDIF}
 
-      if dir.tag = TAG_NAME then
-        ReadTable(
-          stream, info, @NameReader, font_offset + dir.offset,
-          NO_COMPRESSION)
-      else
-        has_layout_tables := (
-          has_layout_tables or IsLayoutTable(dir.tag));
+      ReadTable(
+        stream, info, dir.tag, font_offset + dir.offset,
+        NO_COMPRESSION);
+
+      has_layout_tables := (
+        has_layout_tables or IsLayoutTable(dir.tag));
     end;
 
   info.format := GetFormatSting(

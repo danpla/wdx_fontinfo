@@ -304,13 +304,14 @@ begin
 
   try
     for i := 0 to High(table_dir_indices) do
-      if table_dir[i].tag = TAG_NAME then
+      begin
         ReadTable(
-          decompressed_data_stream, info, @NameReader,
-          table_dir[i].offset, NO_COMPRESSION)
-      else
+          decompressed_data_stream, info,
+          table_dir[i].tag, table_dir[i].offset, NO_COMPRESSION);
+
         has_layout_tables := (
           has_layout_tables or IsLayoutTable(table_dir[i].tag));
+      end;
   finally
     decompressed_data_stream.Free;
   end;
