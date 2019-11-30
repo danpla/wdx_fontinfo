@@ -86,7 +86,7 @@ type
   TWOFF2TableDir = array of TWOFF2TableDirEntry;
 
 
-function Woff2TagIdxToTag(tag_idx: longword): longword;
+function WOFF2TagIdxToTag(tag_idx: longword): longword;
 begin
   case tag_idx of
     25: result := TAG_BASE;
@@ -103,7 +103,7 @@ begin
 end;
 
 
-function ReadWoff2TableDir(
+function ReadWOFF2TableDir(
   stream: TStream; num_tables: longint): TWOFF2TableDir;
 var
   i: longint;
@@ -123,7 +123,7 @@ begin
       if flags and $3f = $3f then
         tag := stream.ReadDWordLE
       else
-        tag := Woff2TagIdxToTag(flags and $3f);
+        tag := WOFF2TagIdxToTag(flags and $3f);
 
       result[i].tag := tag;
       result[i].offset := offset;
@@ -151,7 +151,7 @@ type
   end;
 
 
-function ReadWoff2CollectionFontEntry(
+function ReadWOFF2CollectionFontEntry(
   stream: TStream; num_tables: word): TWOFF2ColectionFontEntry;
 var
   i: longint;
@@ -268,7 +268,7 @@ begin
 
   stream.Seek(SizeOf(word) * 2 + SizeOf(longword) * 5, soCurrent);
 
-  table_dir := ReadWoff2TableDir(stream, header.num_tables);
+  table_dir := ReadWOFF2TableDir(stream, header.num_tables);
   with table_dir[header.num_tables - 1] do
     uncompressed_size := offset + transformed_len;
 
@@ -279,7 +279,7 @@ begin
       if info.num_fonts = 0 then
         raise EStreamError.Create('WOFF2 collection has no fonts');
 
-      collection_font_entry := ReadWoff2CollectionFontEntry(
+      collection_font_entry := ReadWOFF2CollectionFontEntry(
         stream, header.num_tables);
 
       version := collection_font_entry.flavor;
@@ -287,7 +287,7 @@ begin
 
       // We only need the first font.
       for i := 1 to info.num_fonts - 1 do
-        ReadWoff2CollectionFontEntry(stream, header.num_tables);
+        ReadWOFF2CollectionFontEntry(stream, header.num_tables);
     end
   else
     begin
