@@ -140,13 +140,13 @@ begin
 end;
 
 
-procedure GetAFMInfo(stream: TStream; var info: TFontInfo); inline;
+procedure GetAFMInfo(stream: TStream; var info: TFontInfo);
 begin
   GetCommonInfo(stream, info, AFM);
 end;
 
 
-procedure GetSFDInfo(stream: TStream; var info: TFontInfo); inline;
+procedure GetSFDInfo(stream: TStream; var info: TFontInfo);
 begin
   GetCommonInfo(stream, info, SFD);
 end;
