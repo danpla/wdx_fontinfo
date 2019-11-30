@@ -16,6 +16,7 @@ uses
   fi_utils,
   classes,
   strutils,
+  streamex,
   sysutils;
 
 
@@ -68,7 +69,7 @@ begin
 
   stream.Seek(FACE_OFFSET_POS, soBeginning);
   stream.Seek(stream.ReadDWordLE, soBeginning);
-  info.full_name := stream.ReadPChar;
+  info.full_name := ReadPChar(stream);
 
   // Strip style if font uses PS name as a Full Name.
   p := RPos('-', info.full_name);
@@ -79,7 +80,7 @@ begin
 
   stream.Seek(DRIVER_INFO_OFFSET_POS, soBeginning);
   stream.Seek(stream.ReadDWordLE, soBeginning);
-  info.ps_name := stream.ReadPChar;
+  info.ps_name := ReadPChar(stream);
 
   info.format := 'PFM';
 end;

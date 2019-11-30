@@ -14,9 +14,9 @@ uses
   fi_common,
   fi_info_reader,
   fi_bdf,
-  fi_utils,
   classes,
   math,
+  streamex,
   sysutils;
 
 

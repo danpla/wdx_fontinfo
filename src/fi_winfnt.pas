@@ -15,6 +15,7 @@ uses
   fi_info_reader,
   fi_utils,
   classes,
+  streamex,
   sysutils;
 
 
@@ -122,7 +123,7 @@ begin
   stream.Seek(
     start + SizeUInt(@TFNTHeader(NIL^).face_name_offset), soBeginning);
   stream.Seek(start + stream.ReadDWordLE, soBeginning);
-  info.family := stream.ReadPChar;
+  info.family := ReadPChar(stream);
 
   if (weight = 400) and not italic then
     info.full_name := info.family

@@ -7,15 +7,9 @@ unit fi_utils;
 interface
 
 uses
-  classes,
-  streamex,
-  sysutils;
+  classes;
 
-type
-  TStreamHeplerEx = class helper (TStreamHelper) for TStream
-    function ReadPChar: string;
-  end;
-
+function ReadPChar(stream: TStream): string;
 
 procedure SwapUnicode(var s: UnicodeString);
 
@@ -23,14 +17,14 @@ procedure SwapUnicode(var s: UnicodeString);
 implementation
 
 
-function TStreamHeplerEx.ReadPChar: string;
+function ReadPChar(stream: TStream): string;
 var
   b: byte;
 begin
   result := '';
   while TRUE do
     begin
-      b := ReadByte;
+      b := stream.ReadByte;
       if b = 0 then
         break;
 
