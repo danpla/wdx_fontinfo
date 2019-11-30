@@ -28,11 +28,13 @@ var
   b: byte;
 begin
   result := '';
-  b := ReadByte;
-  while b <> 0 do
+  while TRUE do
     begin
-      result := result + char(b);
       b := ReadByte;
+      if b = 0 then
+        break;
+
+      result := result + char(b);
     end;
 end;
 
