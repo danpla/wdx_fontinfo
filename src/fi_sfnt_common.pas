@@ -155,7 +155,7 @@ const
   LANGUAGE_ID_WIN_ENGLISH_US = $0409;
   ENCODING_ID_WIN_UCS2 = 1;
 
-  VERSION_STR = 'Version ';
+  VERSION_PREFIX = 'Version ';
 
 type
   TNamingTable = packed record
@@ -266,12 +266,12 @@ begin
 
   // Strip "Version "
   if (info.version <> '')
-      and AnsiStartsStr(VERSION_STR, info.version) then
+      and AnsiStartsStr(VERSION_PREFIX, info.version) then
     begin
       info.version := Copy(
         info.version,
-        Length(VERSION_STR) + 1,
-        Length(info.version) - Length(VERSION_STR));
+        Length(VERSION_PREFIX) + 1,
+        Length(info.version) - Length(VERSION_PREFIX));
     end;
 end;
 
