@@ -9,7 +9,17 @@ uses
   strutils;
 
 type
+  TGenericFamily = (
+    GENERIC_FAMILY_UNKNOWN,
+    GENERIC_FAMILY_SANS,
+    GENERIC_FAMILY_SERIF,
+    GENERIC_FAMILY_MONO,
+    GENERIC_FAMILY_SCRIPT,
+    GENERIC_FAMILY_DISPLAY
+  );
+
   TFontInfo = record
+    generic_family: TGenericFamily;
     family,
     style,
     full_name,

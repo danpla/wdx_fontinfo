@@ -22,6 +22,13 @@ Binaries for Windows and 64-bit Linux are available on the
 
 ## Available fields
 
+* Generic Family
+    * "Sans"
+    * "Serif"
+    * "Mono"
+    * "Script"
+    * "Display"
+    * Empty string in case the generic family is unknown.
 * Family
 * Style
 * Full Name
@@ -37,7 +44,7 @@ Binaries for Windows and 64-bit Linux are available on the
 * Designer URL
 * License
 * License URL
-* Format. Can be one of following:
+* Format
     * "TT" — "plain" TrueType
     * "OT PS" — PostSript flavored OpenType
     * "OT TT" — TrueType flavored OpenType
@@ -51,7 +58,7 @@ Binaries for Windows and 64-bit Linux are available on the
     * "PCF"
     * "FNT {version}" (both for FNT and FON)
     * "SFD {version}"
-* Number of Fonts — number of fonts in TTC, OTC or WOFF2. Always 1 for all
+* Number of Fonts — number of fonts in TTC, OTC, or WOFF2. Always 1 for all
   other formats.
 
 
