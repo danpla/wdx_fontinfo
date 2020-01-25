@@ -16,9 +16,10 @@ uses
   fi_panose,
   fi_utils,
   classes,
-  zstream,
+  streamex,
   strutils,
-  sysutils;
+  sysutils,
+  zstream;
 
 const
   TAG_BASE = $42415345;
@@ -294,13 +295,19 @@ end;
 
 procedure ReadOS2Table(stream: TStream; var info: TFontInfo);
 const
+  WEIGHT_OFFSET = SizeOf(word) * 2;
   PANOSE_OFFSET = SizeOf(word) * 16;
 var
+  start: int64;
   panose: TPanose;
 begin
-  stream.Seek(PANOSE_OFFSET, soCurrent);
-  stream.ReadBuffer(panose, SizeOf(panose));
+  start := stream.Position;
 
+  stream.Seek(start + WEIGHT_OFFSET, soBeginning);
+  info.weight := stream.ReadWordBE;
+
+  stream.Seek(start + PANOSE_OFFSET, soBeginning);
+  stream.ReadBuffer(panose, SizeOf(panose));
   GetPanoseInfo(@panose, info);
 end;
 
