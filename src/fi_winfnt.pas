@@ -112,7 +112,7 @@ begin
 
   if italic then
     begin
-      if weight = 400 then
+      if weight = FONT_WEIGHT_REGULAR then
         info.style := 'Italic'
       else
         info.style := GetWeightName(weight) + ' Italic';
@@ -125,7 +125,7 @@ begin
   stream.Seek(start + stream.ReadDWordLE, soBeginning);
   info.family := ReadPChar(stream);
 
-  if (weight = 400) and not italic then
+  if (weight = FONT_WEIGHT_REGULAR) and not italic then
     info.full_name := info.family
   else
     info.full_name := info.family + ' ' + info.style;

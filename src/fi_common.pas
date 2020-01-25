@@ -36,11 +36,15 @@ type
     license,
     license_url,
     format: string;
+    weight: word;
     num_fonts: longint;
   end;
 
   PFontInfo = ^TFontInfo;
 
+
+const
+  FONT_WEIGHT_REGULAR = 400;
 
 function GetWeightName(weight: word): string;
 
@@ -72,7 +76,7 @@ begin
     begin
       if weight > 1000 then
         // Map to Regular
-        weight := 399
+        weight := FONT_WEIGHT_REGULAR - 1
       else
         dec(weight);
     end;

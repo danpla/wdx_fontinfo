@@ -82,6 +82,7 @@ type
     IDX_LICENSE,
     IDX_LICENSE_URL,
     IDX_FORMAT,
+    IDX_WEIGHT,
     IDX_NUM_FONTS
   );
 
@@ -109,6 +110,7 @@ const
     (name: 'License';         field_type: FT_STRING),
     (name: 'License URL';     field_type: FT_STRING),
     (name: 'Format';          field_type: FT_STRING),
+    (name: 'Weight';          field_type: FT_NUMERIC_32),
     (name: 'Number of Fonts'; field_type: FT_NUMERIC_32)
     );
 
@@ -218,6 +220,8 @@ begin
       result := Put(info^.license_url, FieldValue, MaxLen);
     IDX_FORMAT:
       result := Put(info^.format, FieldValue, MaxLen);
+    IDX_WEIGHT:
+      result := Put(info^.weight, FieldValue);
     IDX_NUM_FONTS:
       result := Put(info^.num_fonts, FieldValue);
   else
@@ -247,6 +251,7 @@ begin
       license := '';
       license_url := '';
       format := '';
+      weight := FONT_WEIGHT_REGULAR;
       num_fonts := 1;
     end;
 end;
