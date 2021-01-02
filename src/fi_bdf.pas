@@ -29,10 +29,7 @@ const
   BDF_WEIGHT_NAME = 'WEIGHT_NAME';
 
 {
-  Fill empty fields with information from existing ones:
-    IDX_FAMILY
-    IDX_STYLE
-    IDX_FULL_NAME
+  Fill empty family, style, and full_name with information from existing fields.
 }
 procedure BDF_FillEmpty(var info: TFontInfo);
 
