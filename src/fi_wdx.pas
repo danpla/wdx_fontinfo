@@ -1,7 +1,7 @@
 {
   Font info WDX plugin.
 
-  Copyright (c) 2015-2020 Daniel Plakhotich
+  Copyright (c) 2015-2021 Daniel Plakhotich
 
   This software is provided 'as-is', without any express or implied
   warranty. In no event will the authors be held liable for any damages
