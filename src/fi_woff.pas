@@ -75,7 +75,7 @@ begin
 
   if header.length <> stream.Size then
     raise EStreamError.CreateFmt(
-      'Size in WOFF header (%u) does not match the file size (%u)',
+      'Size in WOFF header (%u) does not match the file size (%d)',
       [header.length, stream.Size]);
 
   if header.num_tables = 0 then

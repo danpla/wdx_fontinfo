@@ -57,7 +57,7 @@ begin
     raise EStreamError.Create('Not a PFM font');
   if header.size <> stream.Size then
     raise EStreamError.CreateFmt(
-      'Size in PFM header (%u) does not match the file size (%u)',
+      'Size in PFM header (%u) does not match the file size (%d)',
       [header.size, stream.Size]);
 
   SetLength(copyright, MAX_COPYRIGHT_LEN);

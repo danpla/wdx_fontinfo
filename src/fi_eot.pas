@@ -79,14 +79,14 @@ procedure GetEOTInfo(stream: TStream; var info: TFontInfo);
 var
   eot_size,
   font_data_size,
-  flags: longword;
+  flags,
   magic,
   font_offset: longword;
 begin
   eot_size := stream.ReadDWordLE;
   if eot_size <> stream.Size then
     raise EStreamError.CreateFmt(
-      'Size in EOT header (%u) does not match the file size (%u)',
+      'Size in EOT header (%u) does not match the file size (%d)',
       [eot_size, stream.Size]);
 
   font_data_size := stream.ReadDWordLE;

@@ -165,7 +165,7 @@ begin
     index := Read255UShort(stream);
     if index >= num_tables then
       raise EStreamError.CreateFmt(
-        'Table directory index %d at offset %u'
+        'Table directory index %d at offset %d'
         + ' is out of bounds [0, %u)',
         [i, stream.Position, num_tables]);
 
@@ -255,7 +255,7 @@ begin
 
   if header.length <> stream.Size then
     raise EStreamError.CreateFmt(
-      'Size in WOFF2 header (%u) does not match the file size (%u)',
+      'Size in WOFF2 header (%u) does not match the file size (%d)',
       [header.length, stream.Size]);
 
   if header.num_tables = 0 then
