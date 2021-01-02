@@ -74,10 +74,28 @@ Binaries for Windows and 64-bit Linux are available on the
   other formats.
 
 
-## Compilation
+## Building
 
-Ensure you have [FPC](https://www.freepascal.org/) version 2.6 or newer
-and then run `compile` script.
+* Get [FPC](https://www.freepascal.org/) version 2.6 or newer.
+* Create a directory for temporary files, for example, `units_tmp`.
+* Run `fpc src/fi_wdx.pas @compile.cfg -FUunits_tmp`.
+
+If you want to build 64-bit version on Windows, invoke `ppcrossx64`
+instead of `fpc`.
+
+### Building with WOFF2 support
+
+ *   Download the latest brotli source from https://github.com/google/brotli
+     and follow the building instructions.
+
+ *   Put `libbrotlicommon-static` and `libbrotlidec-static` in a separate
+     directory, for example `libs32` or `libs64`, depending on the target.
+
+ *   Compile in the usual way, but append `-dENABLE_WOFF2` and `-Fl`
+     followed by the directory with libraries (`-Fllibs32` or
+     `-Fllibs64`). For example:
+
+         fpc src/fi_wdx.pas @compile.cfg -FUunits_tmp -dENABLE_WOFF2 -Fllibs64
 
 
 ## Links

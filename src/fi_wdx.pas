@@ -42,7 +42,9 @@ uses
   fi_ttf_otf,
   fi_winfnt,
   fi_woff,
+  {$IFDEF ENABLE_WOFF2}
   fi_woff2,
+  {$ENDIF}
   wdxplugin,
   classes,
   zstream,
