@@ -3,7 +3,7 @@
 Font info WDX plugin for [Total][Total Commander]
 and [Double][Double Commander] Commanders.
 
-Binaries for Windows and 64-bit Linux are available on the
+Binaries for Windows, Linux, and macOS are available on the
 [Releases](https://github.com/danpla/wdx_fontinfo/releases/latest) page.
 
 
@@ -61,7 +61,7 @@ Binaries for Windows and 64-bit Linux are available on the
 * Create a directory for temporary files, for example, `units_tmp`.
 * Run `fpc src/fi_wdx.pas @compile.cfg -FUunits_tmp`.
 
-If you want to build 64-bit version on Windows, invoke `ppcrossx64`
+To build 64-bit version on Windows, add `-Px86_64` or invoke `ppcrossx64`
 instead of `fpc`.
 
 ### Building with WOFF2 support
