@@ -66,8 +66,8 @@ instead of `fpc`.
 
 ### Building with WOFF2 support
 
- *   Download the latest brotli source from https://github.com/google/brotli
-     and follow the building instructions.
+ *   Download the latest stable source of the brotli library and
+     follow the building instructions.
 
  *   Put `libbrotlicommon-static` and `libbrotlidec-static` in a separate
      directory, for example `libs32` or `libs64`, depending on the target.
