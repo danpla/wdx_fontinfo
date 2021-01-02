@@ -13,7 +13,6 @@ interface
 uses
   fi_common,
   fi_info_reader,
-  fi_panose,
   fi_utils,
   classes,
   streamex,
@@ -30,7 +29,6 @@ const
   TAG_NAME = $6e616d65;
   TAG_GLYF = $676c7966;
   TAG_LOCA = $6c6f6361;
-  TAG_OS2  = $4F532F32;
 
   TTF_MAGIC1 = $00010000;
   TTF_MAGIC2 = $00020000;
@@ -293,32 +291,12 @@ begin
 end;
 
 
-procedure ReadOS2Table(stream: TStream; var info: TFontInfo);
 const
-  WEIGHT_OFFSET = SizeOf(word) * 2;
-  PANOSE_OFFSET = SizeOf(word) * 16;
-var
-  start: int64;
-  panose: TPanose;
-begin
-  start := stream.Position;
-
-  stream.Seek(start + WEIGHT_OFFSET, soBeginning);
-  info.weight := stream.ReadWordBE;
-
-  stream.Seek(start + PANOSE_OFFSET, soBeginning);
-  stream.ReadBuffer(panose, SizeOf(panose));
-  GetPanoseInfo(@panose, info);
-end;
-
-
-const
-  TABLE_READERS: array [0..1] of record
+  TABLE_READERS: array [0..0] of record
     tag: longword;
     reader: TTableReader;
   end = (
-    (tag: TAG_NAME; reader: @ReadNameTable),
-    (tag: TAG_OS2;  reader: @ReadOS2Table)
+    (tag: TAG_NAME; reader: @ReadNameTable)
   );
 
 

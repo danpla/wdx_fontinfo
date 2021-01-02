@@ -67,7 +67,6 @@ end;
 
 type
   TFieldIndex = (
-    IDX_GENERIC_FAMILY,
     IDX_FAMILY,
     IDX_STYLE,
     IDX_FULL_NAME,
@@ -84,7 +83,6 @@ type
     IDX_LICENSE,
     IDX_LICENSE_URL,
     IDX_FORMAT,
-    IDX_WEIGHT,
     IDX_NUM_FONTS
   );
 
@@ -95,7 +93,6 @@ type
 
 const
   FieldInfo: array [TFieldIndex] of TFieldInfo = (
-    (name: 'Generic Family';  field_type: FT_STRING),
     (name: 'Family';          field_type: FT_STRING),
     (name: 'Style';           field_type: FT_STRING),
     (name: 'Full Name';       field_type: FT_STRING),
@@ -112,7 +109,6 @@ const
     (name: 'License';         field_type: FT_STRING),
     (name: 'License URL';     field_type: FT_STRING),
     (name: 'Format';          field_type: FT_STRING),
-    (name: 'Weight';          field_type: FT_NUMERIC_32),
     (name: 'Number of Fonts'; field_type: FT_NUMERIC_32)
     );
 
@@ -161,25 +157,6 @@ end;
 
 
 function Put(
-  generic_family: TGenericFamily;
-  FieldValue: PByte;
-  MaxLen: Integer): Integer;
-const
-  GENERIC_FAMILY_NAME: array[TGenericFamily] of string = (
-    '',
-    'Sans',
-    'Serif',
-    'Mono',
-    'Script',
-    'Display'
-  );
-begin
-  result := Put(
-    GENERIC_FAMILY_NAME[generic_family], FieldValue, MaxLen);
-end;
-
-
-function Put(
   const info: PFontInfo;
   field_index: TFieldIndex;
   FieldValue: PByte;
@@ -188,8 +165,6 @@ begin
   Assert(info <> NIL);
 
   case field_index of
-    IDX_GENERIC_FAMILY:
-      result := Put(info^.generic_family, FieldValue, MaxLen);
     IDX_FAMILY:
       result := Put(info^.family, FieldValue, MaxLen);
     IDX_STYLE:
@@ -222,8 +197,6 @@ begin
       result := Put(info^.license_url, FieldValue, MaxLen);
     IDX_FORMAT:
       result := Put(info^.format, FieldValue, MaxLen);
-    IDX_WEIGHT:
-      result := Put(info^.weight, FieldValue);
     IDX_NUM_FONTS:
       result := Put(info^.num_fonts, FieldValue);
   else
@@ -236,7 +209,6 @@ procedure Reset(out info: TFontInfo);
 begin
   with info do
     begin
-      generic_family := GENERIC_FAMILY_UNKNOWN;
       family := '';
       style := '';
       full_name := '';
@@ -253,7 +225,6 @@ begin
       license := '';
       license_url := '';
       format := '';
-      weight := FONT_WEIGHT_REGULAR;
       num_fonts := 1;
     end;
 end;

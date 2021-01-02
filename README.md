@@ -22,13 +22,6 @@ Binaries for Windows and 64-bit Linux are available on the
 
 ## Available fields
 
-* Generic Family
-    * "Sans"
-    * "Serif"
-    * "Mono"
-    * "Script"
-    * "Display"
-    * Empty string in case the generic family is unknown.
 * Family
 * Style
 * Full Name
@@ -58,18 +51,6 @@ Binaries for Windows and 64-bit Linux are available on the
     * "PCF"
     * "FNT {version}" (both for FNT and FON)
     * "SFD {version}"
-* Weight — a number between 1 and 1000 describing visual weight of the
-    font (degree of blackness or thickness of strokes). The common
-    values are:
-    * 100 — Thin
-    * 200 — ExtraLight
-    * 300 — Light
-    * 400 — Regular
-    * 500 — Medium
-    * 600 — SemiBold
-    * 700 — Bold
-    * 800 — ExtraBold
-    * 900 — Black
 * Number of Fonts — number of fonts in TTC, OTC, or WOFF2. Always 1 for all
   other formats.
 
