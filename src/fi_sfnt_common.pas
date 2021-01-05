@@ -277,7 +277,12 @@ begin
         16: dst := @info.family;  // Typographic Family
         17: dst := @info.style;  // Typographic Subfamily
       else
-        break;
+        // We can only break early in case of Windows platform id.
+        // There are fonts (like Trattatello.ttf) where mostly
+        // non-standard Macintosh names (name id >= 256) are followed
+        // by standard Windows names.
+        if name_rec.platform_id >= PLATFORM_ID_WIN then
+          break;
       end;
 
       offset := stream.Position;
