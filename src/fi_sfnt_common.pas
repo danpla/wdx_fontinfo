@@ -166,8 +166,13 @@ end;
 // "name" table
 
 const
+  PLATFORM_ID_MAC = 1;
   PLATFORM_ID_WIN = 3;
+
+  LANGUAGE_ID_MAC_ENGLISH = 0;
   LANGUAGE_ID_WIN_ENGLISH_US = $0409;
+
+  ENCODING_ID_MAC_ROMAN = 0;
   ENCODING_ID_WIN_UCS2 = 1;
 
   VERSION_PREFIX = 'Version ';
@@ -232,16 +237,25 @@ begin
         end;
       {$ENDIF}
 
-      // Entries in the Name Record are always sorted so that we can
-      // stop parsing immediately after we finished reading the needed
-      // record.
-      if (name_rec.platform_id < PLATFORM_ID_WIN) or
-          (name_rec.language_id < LANGUAGE_ID_WIN_ENGLISH_US) then
-        continue
-      else if (name_rec.platform_id > PLATFORM_ID_WIN) or
-          (name_rec.encoding_id > ENCODING_ID_WIN_UCS2) or
-          (name_rec.language_id > LANGUAGE_ID_WIN_ENGLISH_US) then
-        break;
+      case name_rec.platform_id of
+        PLATFORM_ID_MAC:
+          if (name_rec.encoding_id <> ENCODING_ID_MAC_ROMAN) or
+              (name_rec.language_id <> LANGUAGE_ID_MAC_ENGLISH) then
+            continue;
+        PLATFORM_ID_WIN:
+          // Entries in the Name Record are sorted by ids so we can
+          // stop parsing after we finished reading all needed
+          // records.
+          if (name_rec.encoding_id > ENCODING_ID_WIN_UCS2) or
+              (name_rec.language_id > LANGUAGE_ID_WIN_ENGLISH_US) then
+            break
+          else if (name_rec.encoding_id <> ENCODING_ID_WIN_UCS2) or
+              (name_rec.language_id <> LANGUAGE_ID_WIN_ENGLISH_US) then
+            continue;
+        else
+          if name_rec.platform_id > PLATFORM_ID_WIN then
+            break;
+      end;
 
       case name_rec.name_id of
         0:  dst := @info.copyright;
@@ -269,12 +283,22 @@ begin
       offset := stream.Position;
       stream.Seek(storage_offset + name_rec.offset, soBeginning);
 
-      SetLength(name, name_rec.length div SizeOf(WideChar));
-      stream.ReadBuffer(name[1], name_rec.length);
-      {$IFDEF ENDIAN_LITTLE}
-      SwapUnicode(name);
-      {$ENDIF}
-      dst^ := UTF8Encode(name);
+      case name_rec.platform_id of
+        PLATFORM_ID_MAC:
+          begin
+            SetLength(dst^, name_rec.length);
+            stream.ReadBuffer(dst^[1], name_rec.length);
+          end;
+        PLATFORM_ID_WIN:
+          begin
+            SetLength(name, name_rec.length div SizeOf(WideChar));
+            stream.ReadBuffer(name[1], name_rec.length);
+            {$IFDEF ENDIAN_LITTLE}
+            SwapUnicode(name);
+            {$ENDIF}
+            dst^ := UTF8Encode(name);
+          end;
+      end;
 
       stream.Seek(offset, soBeginning);
     end;
