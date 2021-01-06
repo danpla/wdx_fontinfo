@@ -18,7 +18,6 @@
   2. Altered source versions must be plainly marked as such, and must not be
   misrepresented as being the original software.
   3. This notice may not be removed or altered from any source distribution.
-
 }
 
 {$MODE OBJFPC}
@@ -59,7 +58,7 @@ var
 begin
   s := 'EXT="GZ"';
   for ext in GetSupportedExtensions() do
-    s:= s + '|EXT="' + UpperCase(Copy(ext, 2, Length(ext) - 1)) + '"';
+    s := s + '|EXT="' + UpperCase(Copy(ext, 2, Length(ext) - 1)) + '"';
 
   StrPLCopy(DetectString, s, MaxLen);
 end;

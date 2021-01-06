@@ -170,7 +170,6 @@ begin
         [i, stream.Position, num_tables]);
 
     result.table_dir_indices[i] := index;
-
   end;
 end;
 
