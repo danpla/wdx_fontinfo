@@ -281,7 +281,9 @@ begin
         // non-standard Macintosh names (name id >= 256) are followed
         // by standard Windows names.
         if name_rec.platform_id >= PLATFORM_ID_WIN then
-          break;
+          break
+        else
+          continue;
       end;
 
       offset := stream.Position;
