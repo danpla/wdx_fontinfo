@@ -252,8 +252,7 @@ begin
               (name_rec.language_id <> LANGUAGE_ID_WIN_ENGLISH_US) then
             continue;
         else
-          if name_rec.platform_id > PLATFORM_ID_WIN then
-            break;
+          continue;
       end;
 
       case name_rec.name_id of
