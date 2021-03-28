@@ -252,6 +252,9 @@ begin
               (name_rec.language_id <> LANGUAGE_ID_WIN_ENGLISH_US) then
             continue;
         else
+          // We don't break in case id > PLATFORM_ID_WIN so that we
+          // can read old buggy TTFs produced by the AllType program.
+          // The first record in such fonts has random number as id.
           continue;
       end;
 
