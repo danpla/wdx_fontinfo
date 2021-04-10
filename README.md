@@ -66,17 +66,17 @@ instead of `fpc`.
 
 ### Building with WOFF2 support
 
- *   Download the latest stable source of the brotli library and
-     follow the building instructions.
+  * Download the latest stable source of the brotli library and
+    follow its building instructions.
 
- *   Put `libbrotlicommon-static` and `libbrotlidec-static` in a separate
-     directory, for example `libs32` or `libs64`, depending on the target.
+  * Put `libbrotlicommon-static` and `libbrotlidec-static` in a separate
+    directory, for example `libs32` or `libs64`, depending on the target.
 
- *   Compile in the usual way, but append `-dENABLE_WOFF2` and `-Fl`
-     followed by the directory with libraries (`-Fllibs32` or
-     `-Fllibs64`). For example:
+  * Compile in the usual way, but append `-dENABLE_WOFF2` and `-Fl`
+    followed by the directory with libraries (`-Fllibs32` or
+    `-Fllibs64`). For example:
 
-         fpc src/fi_wdx.pas @compile.cfg -FUunits_tmp -dENABLE_WOFF2 -Fllibs64
+        fpc src/fi_wdx.pas @compile.cfg -FUunits_tmp -dENABLE_WOFF2 -Fllibs64
 
 
 [Total Commander]: http://www.ghisler.com/
