@@ -15,7 +15,6 @@ uses
   fi_info_reader,
   fi_utils,
   classes,
-  strutils,
   sysutils,
   zstream;
 
@@ -174,8 +173,6 @@ const
   ENCODING_ID_MAC_ROMAN = 0;
   ENCODING_ID_WIN_UCS2 = 1;
 
-  VERSION_PREFIX = 'Version ';
-
 type
   TNamingTable = packed record
     format,
@@ -309,16 +306,6 @@ begin
       end;
 
       stream.Seek(offset, soBeginning);
-    end;
-
-  // Strip "Version "
-  if (info.version <> '')
-      and AnsiStartsStr(VERSION_PREFIX, info.version) then
-    begin
-      info.version := Copy(
-        info.version,
-        Length(VERSION_PREFIX) + 1,
-        Length(info.version) - Length(VERSION_PREFIX));
     end;
 end;
 

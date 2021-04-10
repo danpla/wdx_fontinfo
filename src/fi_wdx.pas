@@ -46,9 +46,9 @@ uses
   {$ENDIF}
   wdxplugin,
   classes,
-  zstream,
-  sysutils;
-
+  strutils,
+  sysutils,
+  zstream;
 
 procedure ContentGetDetectString(
   DetectString: PAnsiChar; MaxLen: Integer); dcpcall;
@@ -242,6 +242,8 @@ function ContentGetValue(
   FieldValue: PByte;
   MaxLen,
   Flags: Integer): Integer; dcpcall;
+const
+  VERSION_PREFIX = 'Version ';
 var
   FileName_str,
   ext: string;
@@ -306,6 +308,14 @@ begin
       except
         on EStreamError do
           exit(FT_FILEERROR);
+      end;
+
+      if AnsiStartsText(VERSION_PREFIX, info_cache.version) then
+      begin
+        info_cache.version := Copy(
+          info_cache.version,
+          Length(VERSION_PREFIX) + 1,
+          Length(info_cache.version) - Length(VERSION_PREFIX));
       end;
 
       last_file_name := FileName_str;
