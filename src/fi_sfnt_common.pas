@@ -293,6 +293,7 @@ begin
           begin
             SetLength(dst^, name_rec.length);
             stream.ReadBuffer(dst^[1], name_rec.length);
+            dst^ := MacOSRomanToUTF8(dst^);
           end;
         PLATFORM_ID_WIN:
           begin
