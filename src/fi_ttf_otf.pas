@@ -24,7 +24,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetOTFInfo, ['.ttf', '.otf']);
+  RegisterReader(@GetOTFInfo, ['.ttf', '.otf', '.otb']);
 
 
 end.
