@@ -121,7 +121,7 @@ begin
               inc(dst, SizeOf(REPLACEMENT_UTF8));
             end;
         end
-      else if (byte(src^) in PRINTABLE_ASCII) then
+      else if byte(src^) in PRINTABLE_ASCII then
         begin
           case src^ of
             't': dst^ := ' ';

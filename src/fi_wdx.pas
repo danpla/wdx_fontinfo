@@ -132,7 +132,7 @@ end;
 function Put(
   const str: string; FieldValue: PByte; MaxLen: Integer): Integer;
 begin
-  if (str = '') then
+  if str = '' then
     exit(FT_FIELDEMPTY);
 
   {$IFDEF WINDOWS}
@@ -311,12 +311,10 @@ begin
       end;
 
       if AnsiStartsText(VERSION_PREFIX, info_cache.version) then
-      begin
         info_cache.version := Copy(
           info_cache.version,
           Length(VERSION_PREFIX) + 1,
           Length(info_cache.version) - Length(VERSION_PREFIX));
-      end;
 
       last_file_name := FileName_str;
     end;
