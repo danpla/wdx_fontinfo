@@ -47,10 +47,10 @@ begin
   stream.ReadBuffer(header, SizeOf(header));
   {$IFDEF ENDIAN_BIG}
   with header do
-    begin
-      version := SwapEndian(version);
-      size := SwapEndian(size);
-    end;
+  begin
+    version := SwapEndian(version);
+    size := SwapEndian(size);
+  end;
   {$ENDIF}
 
   if header.version <> PFM_VERSION then

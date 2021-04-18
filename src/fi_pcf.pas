@@ -99,44 +99,44 @@ begin
   strings[strings_len - 1] := #0;
 
   for i := 0 to num_properties - 1 do
-    begin
-      if properties[i].is_string = 0 then
-        continue;
+  begin
+    if properties[i].is_string = 0 then
+      continue;
 
-      {$IFDEF ENDIAN_BIG}
-      if not big_endian then
-      {$ELSE}
-      if big_endian then
-      {$ENDIF}
-        with properties[i] do
-          begin
-            name_offset := SwapEndian(name_offset);
-            value := SwapEndian(value);
-          end;
-
-      if not InRange(properties[i].name_offset, 0, strings_len) then
-        raise EStreamError.CreateFmt(
-          'The PCF property %d name offset is out of bounds [0..%d]',
-          [i + 1, strings_len]);
-
-      if not InRange(properties[i].value, 0, strings_len) then
-        raise EStreamError.CreateFmt(
-          'The PCF property %d ("%s") value offset is out of bounds [0..%d]',
-          [i + 1, PAnsiChar(@strings[properties[i].name_offset]), strings_len]);
-
-      case String(PAnsiChar(@strings[properties[i].name_offset])) of
-        BDF_COPYRIGHT: dst := @info.copyright;
-        BDF_FAMILY_NAME: dst := @info.family;
-        BDF_FONT: dst := @info.ps_name;
-        BDF_FOUNDRY: dst := @info.manufacturer;
-        BDF_FULL_NAME, BDF_FACE_NAME: dst := @info.full_name;
-        BDF_WEIGHT_NAME: dst := @info.style;
-      else
-        continue;
+    {$IFDEF ENDIAN_BIG}
+    if not big_endian then
+    {$ELSE}
+    if big_endian then
+    {$ENDIF}
+      with properties[i] do
+      begin
+        name_offset := SwapEndian(name_offset);
+        value := SwapEndian(value);
       end;
 
-      dst^ := String(PAnsiChar(@strings[properties[i].value]));
+    if not InRange(properties[i].name_offset, 0, strings_len) then
+      raise EStreamError.CreateFmt(
+        'The PCF property %d name offset is out of bounds [0..%d]',
+        [i + 1, strings_len]);
+
+    if not InRange(properties[i].value, 0, strings_len) then
+      raise EStreamError.CreateFmt(
+        'The PCF property %d ("%s") value offset is out of bounds [0..%d]',
+        [i + 1, PAnsiChar(@strings[properties[i].name_offset]), strings_len]);
+
+    case String(PAnsiChar(@strings[properties[i].name_offset])) of
+      BDF_COPYRIGHT: dst := @info.copyright;
+      BDF_FAMILY_NAME: dst := @info.family;
+      BDF_FONT: dst := @info.ps_name;
+      BDF_FOUNDRY: dst := @info.manufacturer;
+      BDF_FULL_NAME, BDF_FACE_NAME: dst := @info.full_name;
+      BDF_WEIGHT_NAME: dst := @info.style;
+    else
+      continue;
     end;
+
+    dst^ := String(PAnsiChar(@strings[properties[i].value]));
+  end;
 end;
 
 
@@ -150,10 +150,10 @@ begin
 
   {$IFDEF ENDIAN_BIG}
   with toc do
-    begin
-      version := SwapEndian(version);
-      count := SwapEndian(count);
-    end;
+  begin
+    version := SwapEndian(version);
+    count := SwapEndian(count);
+  end;
   {$ENDIF}
 
   if toc.version <> PCF_FILE_VERSION then
@@ -163,30 +163,30 @@ begin
     raise EStreamError.Create('PCF has no tables');
 
   for i := 0 to toc.count - 1 do
+  begin
+    stream.ReadBuffer(toc_rec, SizeOf(toc_rec));
+
+    {$IFDEF ENDIAN_BIG}
+    with toc_rec do
     begin
-      stream.ReadBuffer(toc_rec, SizeOf(toc_rec));
-
-      {$IFDEF ENDIAN_BIG}
-      with toc_rec do
-        begin
-          type_ := SwapEndian(type_);
-          format := SwapEndian(format);
-          size := SwapEndian(size);
-          ofset := SwapEndian(ofset);
-        end;
-      {$ENDIF}
-
-      if toc_rec.type_ = PCF_PROPERTIES then
-        begin
-          if toc_rec.format and PCF_FORMAT_MASK <> PCF_DEFAULT_FORMAT then
-            raise EStreamError.Create(
-              'The PCF TOC has a non-default format for the properties table');
-
-          stream.Seek(toc_rec.offset, soBeginning);
-          ReadProperties(stream, info);
-          break;
-        end;
+      type_ := SwapEndian(type_);
+      format := SwapEndian(format);
+      size := SwapEndian(size);
+      ofset := SwapEndian(ofset);
     end;
+    {$ENDIF}
+
+    if toc_rec.type_ = PCF_PROPERTIES then
+    begin
+      if toc_rec.format and PCF_FORMAT_MASK <> PCF_DEFAULT_FORMAT then
+        raise EStreamError.Create(
+          'The PCF TOC has a non-default format for the properties table');
+
+      stream.Seek(toc_rec.offset, soBeginning);
+      ReadProperties(stream, info);
+      break;
+    end;
+  end;
 
   BDF_FillEmpty(info);
 

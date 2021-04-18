@@ -61,13 +61,13 @@ begin
 
   {$IFDEF ENDIAN_LITTLE}
   with header do
-    begin
-      signature := SwapEndian(signature);
-      flavor := SwapEndian(flavor);
-      length := SwapEndian(length);
-      num_tables := SwapEndian(num_tables);
-      reserved := SwapEndian(reserved);
-    end;
+  begin
+    signature := SwapEndian(signature);
+    flavor := SwapEndian(flavor);
+    length := SwapEndian(length);
+    num_tables := SwapEndian(num_tables);
+    reserved := SwapEndian(reserved);
+  end;
   {$ENDIF}
 
   if header.signature <> WOFF_SIGNATURE then
@@ -89,38 +89,38 @@ begin
   stream.Seek(SizeOf(word) * 2 + SizeOf(longword) * 6, soCurrent);
 
   for i := 0 to header.num_tables - 1 do
+  begin
+    stream.ReadBuffer(dir, SizeOf(dir));
+    // Skip origChecksum.
+    stream.Seek(SizeOf(longword), soCurrent);
+
+    {$IFDEF ENDIAN_LITTLE}
+    with dir do
     begin
-      stream.ReadBuffer(dir, SizeOf(dir));
-      // Skip origChecksum.
-      stream.Seek(SizeOf(longword), soCurrent);
-
-      {$IFDEF ENDIAN_LITTLE}
-      with dir do
-        begin
-          tag := SwapEndian(tag);
-          offset := SwapEndian(offset);
-          comp_length := SwapEndian(comp_length);
-          orig_length := SwapEndian(orig_length);
-        end;
-      {$ENDIF}
-
-      if dir.comp_length < dir.orig_length then
-        compression := ZLIB
-      else if dir.comp_length = dir.orig_length then
-        compression := NO_COMPRESSION
-      else
-        raise EStreamError.CreateFmt(
-          'Compressed size (%u) of the "%s" WOFF table is greater than ' +
-          'uncompressed size (%u)',
-          [dir.comp_length, TableTagToString(dir.tag), dir.orig_length]);
-
-      ReadTable(
-        stream, info,
-        dir.tag, dir.offset, compression, dir.orig_length);
-
-      has_layout_tables := (
-        has_layout_tables or IsLayoutTable(dir.tag));
+      tag := SwapEndian(tag);
+      offset := SwapEndian(offset);
+      comp_length := SwapEndian(comp_length);
+      orig_length := SwapEndian(orig_length);
     end;
+    {$ENDIF}
+
+    if dir.comp_length < dir.orig_length then
+      compression := ZLIB
+    else if dir.comp_length = dir.orig_length then
+      compression := NO_COMPRESSION
+    else
+      raise EStreamError.CreateFmt(
+        'Compressed size (%u) of the "%s" WOFF table is greater than ' +
+        'uncompressed size (%u)',
+        [dir.comp_length, TableTagToString(dir.tag), dir.orig_length]);
+
+    ReadTable(
+      stream, info,
+      dir.tag, dir.offset, compression, dir.orig_length);
+
+    has_layout_tables := (
+      has_layout_tables or IsLayoutTable(dir.tag));
+  end;
 
   info.format := GetFormatSting(header.flavor, has_layout_tables);
 end;

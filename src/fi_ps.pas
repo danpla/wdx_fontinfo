@@ -68,72 +68,70 @@ begin
   src := PChar(s);
   dst := PChar(result);
   while src^ <> #0 do
+  begin
+    // We skip non-printable characters; non-ASCII values are not allowed
+    // by the specification (they should always be escaped).
+    if not (byte(src^) in PRINTABLE_ASCII) then
     begin
-      // We skip non-printable characters; non-ASCII values are not allowed
-      // by the specification (they should always be escaped).
-      if not (byte(src^) in PRINTABLE_ASCII) then
-        begin
-          inc(src);
-          continue;
-        end;
-
-      if src^ <> '\' then
-        begin
-          dst^ := src^;
-          inc(src);
-          inc(dst);
-          continue;
-        end;
-
-      // A backslash is always ignored
       inc(src);
-
-      if src^ in OCTAL_DIGITS then
-        begin
-          decimal := 0;
-          oct_len := 0;
-
-          repeat
-            decimal := (decimal shl 3) or (byte(src^) - byte('0'));
-            inc(src);
-            inc(oct_len);
-          until (oct_len = MAX_OCTAL_DIGITS) or not (src^ in OCTAL_DIGITS);
-
-          if decimal in PRINTABLE_ASCII then
-            begin
-              dst^ := char(decimal);
-              inc(dst);
-            end
-          // If decimal value is >= 64, we guaranteed to have 4 free
-          // bytes in dst (skipped backslash + 3 octal digits) to insert
-          // a UTF-8 encoded character.
-          else if decimal = COPYRIGHT then
-            begin
-              Move(COPYRIGHT_UTF8, dst^, SizeOf(COPYRIGHT_UTF8));
-              inc(dst, SizeOf(COPYRIGHT_UTF8));
-            end
-          // We don't handle any non-ASCII symbols except a copyright sign,
-          // because they can be in any possible code page (although most
-          // of the fonts I've seen used Mac OS Roman).
-          else if decimal > MAX_ASCII then
-            begin
-              Move(REPLACEMENT_UTF8, dst^, SizeOf(REPLACEMENT_UTF8));
-              inc(dst, SizeOf(REPLACEMENT_UTF8));
-            end;
-        end
-      else if byte(src^) in PRINTABLE_ASCII then
-        begin
-          case src^ of
-            't': dst^ := ' ';
-          else
-            if not (src^ in ['b', 'f', 'n', 'r']) then
-              dst^ := src^;
-          end;
-
-          inc(src);
-          inc(dst);
-        end;
+      continue;
     end;
+
+    if src^ <> '\' then
+    begin
+      dst^ := src^;
+      inc(src);
+      inc(dst);
+      continue;
+    end;
+
+    // A backslash is always ignored
+    inc(src);
+
+    if src^ in OCTAL_DIGITS then
+    begin
+      decimal := 0;
+      oct_len := 0;
+
+      repeat
+        decimal := (decimal shl 3) or (byte(src^) - byte('0'));
+        inc(src);
+        inc(oct_len);
+      until (oct_len = MAX_OCTAL_DIGITS) or not (src^ in OCTAL_DIGITS);
+
+      if decimal in PRINTABLE_ASCII then
+      begin
+        dst^ := char(decimal);
+        inc(dst);
+      end
+      // If decimal value is >= 64, we guaranteed to have 4 free
+      // bytes in dst (skipped backslash + 3 octal digits) to insert
+      // a UTF-8 encoded character.
+      else if decimal = COPYRIGHT then
+      begin
+        Move(COPYRIGHT_UTF8, dst^, SizeOf(COPYRIGHT_UTF8));
+        inc(dst, SizeOf(COPYRIGHT_UTF8));
+      end
+      // We don't handle any non-ASCII symbols except a copyright sign,
+      // because they can be in any possible code page (although most
+      // of the fonts I've seen used Mac OS Roman).
+      else if decimal > MAX_ASCII then
+      begin
+        Move(REPLACEMENT_UTF8, dst^, SizeOf(REPLACEMENT_UTF8));
+        inc(dst, SizeOf(REPLACEMENT_UTF8));
+      end;
+    end
+    else if byte(src^) in PRINTABLE_ASCII then
+    begin
+      if src^ = 't' then
+        dst^ := ' '
+      else if not (src^ in ['b', 'f', 'n', 'r']) then
+        dst^ := src^;
+
+      inc(src);
+      inc(dst);
+    end;
+  end;
 
   SetLength(result, dst - PChar(result));
 end;
@@ -155,61 +153,61 @@ begin
   until s <> '';
 
   if not (
-     (AnsiStartsStr(PS_MAGIC1, s) or
-      AnsiStartsStr(PS_MAGIC2, s) or
-      AnsiStartsStr(PS_MAGIC3, s) or
-      AnsiStartsStr(PS_MAGIC4, s))) then
+      AnsiStartsStr(PS_MAGIC1, s)
+      or AnsiStartsStr(PS_MAGIC2, s)
+      or AnsiStartsStr(PS_MAGIC3, s)
+      or AnsiStartsStr(PS_MAGIC4, s)) then
     raise EStreamError.Create('Not a PostScript font');
 
   while (num_found < NUM_FIELDS) and line_reader.ReadLine(s) do
-    begin
-      s := Trim(s);
+  begin
+    s := Trim(s);
 
-      if s = '' then
-        continue;
+    if s = '' then
+      continue;
 
-      if s[1] <> '/' then
-        if s = 'currentdict end' then
-          break
-        else
-          continue;
-
-      p := PosSetEx([' ', '(', '/'], s, 3);
-      if p = 0 then
-        continue;
-
-      key := Copy(s, 2, p - 2);
-      case key of
-        'FontType': dst := @info.format;
-        'FontName': dst := @info.ps_name;
-        'version': dst := @info.version;
-        'Notice': dst := @info.copyright;
-        'FullName': dst := @info.full_name;
-        'FamilyName': dst := @info.family;
-        'Weight': dst := @info.style;
+    if s[1] <> '/' then
+      if s = 'currentdict end' then
+        break
       else
         continue;
-      end;
 
-      while s[p] = ' ' do
-        inc(p);
+    p := PosSetEx([' ', '(', '/'], s, 3);
+    if p = 0 then
+      continue;
 
-      if s[p] = '(' then
-        // String
-        begin
-          inc(p);
-          dst^ := UnEscape(Copy(s, p, RPos(')', s) - p));
-        end
-      else
-        // Literal name, number, etc.
-        begin
-          if s[p] = '/' then
-            inc(p);
-          dst^ := Copy(s, p, PosEx(' ', s, p) - p);
-        end;
-
-      inc(num_found);
+    key := Copy(s, 2, p - 2);
+    case key of
+      'FontType': dst := @info.format;
+      'FontName': dst := @info.ps_name;
+      'version': dst := @info.version;
+      'Notice': dst := @info.copyright;
+      'FullName': dst := @info.full_name;
+      'FamilyName': dst := @info.family;
+      'Weight': dst := @info.style;
+    else
+      continue;
     end;
+
+    while s[p] = ' ' do
+      inc(p);
+
+    if s[p] = '(' then
+    // String
+    begin
+      inc(p);
+      dst^ := UnEscape(Copy(s, p, RPos(')', s) - p));
+    end
+    else
+    // Literal name, number, etc.
+    begin
+      if s[p] = '/' then
+        inc(p);
+      dst^ := Copy(s, p, PosEx(' ', s, p) - p);
+    end;
+
+    inc(num_found);
+  end;
 
   if info.format <> '' then
     info.format := 'PS ' + info.format;

@@ -33,12 +33,12 @@ begin
 
   {$IFDEF ENDIAN_LITTLE}
   with header do
-    begin
-      signature := SwapEndian(signature);
-      version := SwapEndian(version);
-      num_fonts := SwapEndian(num_fonts);
-      first_font_offset := SwapEndian(first_font_offset);
-    end;
+  begin
+    signature := SwapEndian(signature);
+    version := SwapEndian(version);
+    num_fonts := SwapEndian(num_fonts);
+    first_font_offset := SwapEndian(first_font_offset);
+  end;
   {$ENDIF}
 
   if header.signature <> COLLECTION_SIGNATURE then

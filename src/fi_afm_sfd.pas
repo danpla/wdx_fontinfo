@@ -72,55 +72,55 @@ begin
 
   i := 1;
   num_found := 0;
-  while (
-      (num_found < NUM_FIELDS)
-      and (i <= MAX_LINES)
-      and line_reader.ReadLine(s)) do
-    begin
-      s := Trim(s);
-      if s = '' then
-        continue;
+  while
+    (num_found < NUM_FIELDS)
+    and (i <= MAX_LINES)
+    and line_reader.ReadLine(s) do
+  begin
+    s := Trim(s);
+    if s = '' then
+      continue;
 
-      p := Pos(' ', s);
-      if p = 0 then
-        continue;
+    p := Pos(' ', s);
+    if p = 0 then
+      continue;
 
-      inc(i);
+    inc(i);
 
-      if font_format = SFD then
-        key := Copy(s, 1, p - 2)  // Skip colon
-      else
-        key := Copy(s, 1, p - 1);
+    if font_format = SFD then
+      key := Copy(s, 1, p - 2)  // Skip colon
+    else
+      key := Copy(s, 1, p - 1);
 
-      case key of
-        'FontName': dst := @info.ps_name;
-        'FullName': dst := @info.full_name;
-        'FamilyName': dst := @info.family;
-        'Weight': dst := @info.style;
-        'Version': dst := @info.version;
-        'Copyright': dst := @info.copyright;  // SFD
-        'Notice': dst := @info.copyright;  // AFM
-      else
-        continue;
-      end;
-
-      repeat
-        inc(p);
-      until s[p] <> ' ';
-
-      s_len := Length(s);
-      if (dst = @info.copyright) and
-         (font_format = AFM) and
-         (s[p] = '(') and
-         (s[s_len] = ')') then
-        begin
-          inc(p);
-          dec(s_len);
-        end;
-
-      dst^ := Copy(s, p, s_len - (p - 1));
-      inc(num_found);
+    case key of
+      'FontName': dst := @info.ps_name;
+      'FullName': dst := @info.full_name;
+      'FamilyName': dst := @info.family;
+      'Weight': dst := @info.style;
+      'Version': dst := @info.version;
+      'Copyright': dst := @info.copyright;  // SFD
+      'Notice': dst := @info.copyright;  // AFM
+    else
+      continue;
     end;
+
+    repeat
+      inc(p);
+    until s[p] <> ' ';
+
+    s_len := Length(s);
+    if (dst = @info.copyright)
+      and (font_format = AFM)
+      and (s[p] = '(')
+      and (s[s_len] = ')') then
+    begin
+      inc(p);
+      dec(s_len);
+    end;
+
+    dst^ := Copy(s, p, s_len - (p - 1));
+    inc(num_found);
+  end;
 
   info.style := ExtractStyle(info.full_name, info.family, info.style);
 end;

@@ -88,13 +88,13 @@ begin
 
   SetLength(readers[i].extensions, Length(extensions));
   for j := 0 to High(extensions) do
-    begin
-      {$IFOPT C+}
-      Assert(
-        IsValidExtension(extensions[j]), 'Invalid extension ' + extensions[j]);
-      {$ENDIF}
-      readers[i].extensions[j] := extensions[j];
-    end;
+  begin
+    {$IFOPT C+}
+    Assert(
+      IsValidExtension(extensions[j]), 'Invalid extension ' + extensions[j]);
+    {$ENDIF}
+    readers[i].extensions[j] := extensions[j];
+  end;
 
   readers[i].reader := reader;
 end;
@@ -107,13 +107,13 @@ begin
   SetLength(result, 0);
 
   for i := 0 to High(readers) do
-    begin
-      j := Length(result);
-      SetLength(result, j + Length(readers[i].extensions));
+  begin
+    j := Length(result);
+    SetLength(result, j + Length(readers[i].extensions));
 
-      for k := 0 to High(readers[i].extensions) do
-        result[j + k] := readers[i].extensions[k];
-    end;
+    for k := 0 to High(readers[i].extensions) do
+      result[j + k] := readers[i].extensions[k];
+  end;
 end;
 
 

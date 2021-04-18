@@ -36,39 +36,39 @@ var
 begin
   i := 1;
   num_found := 0;
-  while (
-      (num_found < NUM_FIELDS)
-      and (i <= MAX_LINES)
-      and line_reader.ReadLine(s)) do
-    begin
-      s := Trim(s);
-      if s = '' then
-        continue;
+  while
+    (num_found < NUM_FIELDS)
+    and (i <= MAX_LINES)
+    and line_reader.ReadLine(s) do
+  begin
+    s := Trim(s);
+    if s = '' then
+      continue;
 
-      p := Pos(' ', s);
-      if p = 0 then
-        raise EStreamError.CreateFmt(
-          'INF has no space in line "%s"', [s]);
+    p := Pos(' ', s);
+    if p = 0 then
+      raise EStreamError.CreateFmt(
+        'INF has no space in line "%s"', [s]);
 
-      inc(i);
+    inc(i);
 
-      key := Copy(s, 1, p - 1);
-      case key of
-        'FontName': dst := @info.ps_name;
-        'FullName': dst := @info.full_name;
-        'FamilyName': dst := @info.family;
-        'Version': dst := @info.version;
-      else
-        continue;
-      end;
-
-      repeat
-        inc(p);
-      until s[p] <> ' ';
-
-      dst^ := Copy(s, p + 1, Length(s) - p - 1);  // Skipping brackets
-      inc(num_found);
+    key := Copy(s, 1, p - 1);
+    case key of
+      'FontName': dst := @info.ps_name;
+      'FullName': dst := @info.full_name;
+      'FamilyName': dst := @info.family;
+      'Version': dst := @info.version;
+    else
+      continue;
     end;
+
+    repeat
+      inc(p);
+    until s[p] <> ' ';
+
+    dst^ := Copy(s, p + 1, Length(s) - p - 1);  // Skipping brackets
+    inc(num_found);
+  end;
 
   if num_found = 0 then
     raise EStreamError.Create(

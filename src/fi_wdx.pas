@@ -207,25 +207,25 @@ end;
 procedure Reset(out info: TFontInfo);
 begin
   with info do
-    begin
-      family := '';
-      style := '';
-      full_name := '';
-      ps_name := '';
-      version := '';
-      copyright := '';
-      unique_id := '';
-      trademark := '';
-      manufacturer := '';
-      designer := '';
-      description := '';
-      vendor_url := '';
-      designer_url := '';
-      license := '';
-      license_url := '';
-      format := '';
-      num_fonts := 1;
-    end;
+  begin
+    family := '';
+    style := '';
+    full_name := '';
+    ps_name := '';
+    version := '';
+    copyright := '';
+    unique_id := '';
+    trademark := '';
+    manufacturer := '';
+    designer := '';
+    description := '';
+    vendor_url := '';
+    designer_url := '';
+    license := '';
+    license_url := '';
+    format := '';
+    num_fonts := 1;
+  end;
 end;
 
 
@@ -258,66 +258,66 @@ begin
   FileName_str := string(FileName);
 
   if last_file_name <> FileName_str then
+  begin
+    if Flags and CONTENT_DELAYIFSLOW <> 0 then
+      exit(FT_DELAYED);
+
+    ext := LowerCase(ExtractFileExt(FileName_str));
+
+    if ext = '.gz' then
     begin
-      if Flags and CONTENT_DELAYIFSLOW <> 0 then
-        exit(FT_DELAYED);
+      gzipped := TRUE;
+      ext := LowerCase(ExtractFileExt(
+        Copy(
+          FileName_str, 1, Length(FileName_str) - Length(ext))));
+    end;
 
-      ext := LowerCase(ExtractFileExt(FileName_str));
+    reader := FindReader(ext);
+    if reader = NIL then
+      exit(FT_FILEERROR);
 
-      if ext = '.gz' then
-        begin
-          gzipped := TRUE;
-          ext := LowerCase(ExtractFileExt(
-            Copy(
-              FileName_str, 1, Length(FileName_str) - Length(ext))));
-        end;
+    try
+      if gzipped then
+      begin
+        {
+          TGZFileStream is wrapper for gzio from paszlib, which
+          uses Reset. With the default mode (fmOpenReadWrite) we
+          will not be able to open files with read-only access on
+          Unix-like systems, like gzipped PCFs from
+          /usr/share/fonts/X11/misc/.
 
-      reader := FindReader(ext);
-      if reader = NIL then
-        exit(FT_FILEERROR);
+          The issue was fixed in FPC 3.1.1 (rev. 32490, bug
+          28917).
+        }
+        last_file_mode := FileMode;
+        FileMode := fmOpenRead;
+        stream := TGZFileStream.Create(FileName, gzOpenRead);
+        FileMode := last_file_mode;
+      end
+      else
+        stream := TFileStream.Create(
+          FileName, fmOpenRead or fmShareDenyNone);
+
+      Reset(info_cache);
 
       try
-        if gzipped then
-          begin
-            {
-              TGZFileStream is wrapper for gzio from paszlib, which
-              uses Reset. With the default mode (fmOpenReadWrite) we
-              will not be able to open files with read-only access on
-              Unix-like systems, like gzipped PCFs from
-              /usr/share/fonts/X11/misc/.
-
-              The issue was fixed in FPC 3.1.1 (rev. 32490, bug
-              28917).
-            }
-            last_file_mode := FileMode;
-            FileMode := fmOpenRead;
-            stream := TGZFileStream.Create(FileName, gzOpenRead);
-            FileMode := last_file_mode;
-          end
-        else
-          stream := TFileStream.Create(
-            FileName, fmOpenRead or fmShareDenyNone);
-
-        Reset(info_cache);
-
-        try
-          reader(stream, info_cache);
-        finally
-          stream.Free;
-        end;
-      except
-        on EStreamError do
-          exit(FT_FILEERROR);
+        reader(stream, info_cache);
+      finally
+        stream.Free;
       end;
-
-      if AnsiStartsText(VERSION_PREFIX, info_cache.version) then
-        info_cache.version := Copy(
-          info_cache.version,
-          Length(VERSION_PREFIX) + 1,
-          Length(info_cache.version) - Length(VERSION_PREFIX));
-
-      last_file_name := FileName_str;
+    except
+      on EStreamError do
+        exit(FT_FILEERROR);
     end;
+
+    if AnsiStartsText(VERSION_PREFIX, info_cache.version) then
+      info_cache.version := Copy(
+        info_cache.version,
+        Length(VERSION_PREFIX) + 1,
+        Length(info_cache.version) - Length(VERSION_PREFIX));
+
+    last_file_name := FileName_str;
+  end;
 
   result := Put(
     @info_cache, TFieldIndex(FieldIndex), FieldValue, MaxLen);

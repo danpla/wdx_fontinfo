@@ -24,14 +24,15 @@ var
   b: byte;
 begin
   result := '';
-  while TRUE do
-    begin
-      b := stream.ReadByte;
-      if b = 0 then
-        break;
 
-      result := result + char(b);
-    end;
+  while TRUE do
+  begin
+    b := stream.ReadByte;
+    if b = 0 then
+      break;
+
+    result := result + char(b);
+  end;
 end;
 
 
@@ -188,13 +189,13 @@ begin
   result := '';
 
   for c in s do
-    begin
-      b := byte(c);
-      if b <= MAX_ASCII then
-        result := result + c
-      else
-        result := result + MAC_OS_ROMAN_TO_UTF8[b - (MAX_ASCII + 1)];
-    end;
+  begin
+    b := byte(c);
+    if b <= MAX_ASCII then
+      result := result + c
+    else
+      result := result + MAC_OS_ROMAN_TO_UTF8[b - (MAX_ASCII + 1)];
+  end;
 end;
 
 

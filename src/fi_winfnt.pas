@@ -111,12 +111,12 @@ begin
   weight := stream.ReadWordLE;
 
   if italic then
-    begin
-      if weight = FONT_WEIGHT_REGULAR then
-        info.style := 'Italic'
-      else
-        info.style := GetWeightName(weight) + ' Italic';
-    end
+  begin
+    if weight = FONT_WEIGHT_REGULAR then
+      info.style := 'Italic'
+    else
+      info.style := GetWeightName(weight) + ' Italic';
+  end
   else
     info.style := GetWeightName(weight);
 
@@ -160,7 +160,8 @@ begin
 
   size_shift := stream.ReadWordLE;
 
-  repeat
+  while TRUE do
+  begin
     // Read TYPEINFO tables
     type_id := stream.ReadWordLE;
     if type_id = END_TYPES then
@@ -168,16 +169,16 @@ begin
 
     count := stream.ReadWordLE;
     if type_id = RT_FONT then
-      begin
-        if count = 0 then
-          raise EStreamError.Create('RT_FONT TYPEINFO is empty');
+    begin
+      if count = 0 then
+        raise EStreamError.Create('RT_FONT TYPEINFO is empty');
 
-        stream.Seek(TYPEINFO_RESERVED_SIZE, soCurrent);
-        break;
-      end;
+      stream.Seek(TYPEINFO_RESERVED_SIZE, soCurrent);
+      break;
+    end;
 
     stream.Seek(TYPEINFO_RESERVED_SIZE + count * NAMEINFO_SIZE, soCurrent);
-  until FALSE;
+  end;
 
   stream.Seek(stream.ReadWordLE shl size_shift, soBeginning);
   GetFNTInfo(stream, info);
@@ -194,32 +195,32 @@ var
 begin
   magic := stream.ReadWordLE;
   if magic = MZ_MAGIC then
+  begin
+    stream.Seek(HEADER_OFFSET_POS - SizeOf(magic), soCurrent);
+    // This field named as e_lfanew in some docs
+    header_offset := stream.ReadWordLE;
+
+    stream.Seek(header_offset, soBeginning);
+    exe_format := stream.ReadWordLE;
+    if exe_format = NE_MAGIC then
     begin
-      stream.Seek(HEADER_OFFSET_POS - SizeOf(magic), soCurrent);
-      // This field named as e_lfanew in some docs
-      header_offset := stream.ReadWordLE;
-
-      stream.Seek(header_offset, soBeginning);
-      exe_format := stream.ReadWordLE;
-      if exe_format = NE_MAGIC then
-        begin
-          ReadFNTFromNE(stream, info);
-          exit;
-        end;
-
-      if exe_format = PE_MAGIC then
-        raise EStreamError.Create('PE executables are not supported yet');
-
-      raise EStreamError.CreateFmt(
-        'Unsupported executable format 0x%.2x', [exe_format]);
-    end;
-
-  if (magic = FNT_V1) or (magic = FNT_V2) or (magic = FNT_V3) then
-    begin
-      stream.Seek(-SizeOf(magic), soCurrent);
-      GetFNTInfo(stream, info);
+      ReadFNTFromNE(stream, info);
       exit;
     end;
+
+    if exe_format = PE_MAGIC then
+      raise EStreamError.Create('PE executables are not supported yet');
+
+    raise EStreamError.CreateFmt(
+      'Unsupported executable format 0x%.2x', [exe_format]);
+  end;
+
+  if (magic = FNT_V1) or (magic = FNT_V2) or (magic = FNT_V3) then
+  begin
+    stream.Seek(-SizeOf(magic), soCurrent);
+    GetFNTInfo(stream, info);
+    exit;
+  end;
 
   raise EstreamError.Create('Not a Windows font');
 end;

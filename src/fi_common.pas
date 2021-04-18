@@ -62,13 +62,13 @@ const NAMES: array [0..9] of string = (
   );
 begin
   if weight > 0 then
-    begin
-      if weight > 1000 then
-        // Map to Regular
-        weight := FONT_WEIGHT_REGULAR - 1
-      else
-        dec(weight);
-    end;
+  begin
+    if weight > 1000 then
+      // Map to Regular
+      weight := FONT_WEIGHT_REGULAR - 1
+    else
+      dec(weight);
+  end;
 
   result := NAMES[weight div 100];
 end;
@@ -89,9 +89,9 @@ begin
   if weight <> '' then
     result := weight;
 
-  if (full_name = '') or
-     (family_name = '') or
-     not AnsiStartsStr(family_name, full_name) then
+  if (full_name = '')
+      or (family_name = '')
+      or not AnsiStartsStr(family_name, full_name) then
     exit;
 
   style_start := Length(family_name) + 1;

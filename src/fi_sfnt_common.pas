@@ -139,22 +139,22 @@ begin
     NO_COMPRESSION:
       reader(stream, info);
     ZLIB:
-      begin
-        zs := TDecompressionStream.Create(stream);
-        try
-          SetLength(decompressed_data, uncompressed_size);
-          zs.ReadBuffer(decompressed_data[0], uncompressed_size);
-        finally
-          zs.Free;
-        end;
-
-        bs := TBytesStream.Create(decompressed_data);
-        try
-          reader(bs, info);
-        finally
-          bs.Free;
-        end;
+    begin
+      zs := TDecompressionStream.Create(stream);
+      try
+        SetLength(decompressed_data, uncompressed_size);
+        zs.ReadBuffer(decompressed_data[0], uncompressed_size);
+      finally
+        zs.Free;
       end;
+
+      bs := TBytesStream.Create(decompressed_data);
+      try
+        reader(bs, info);
+      finally
+        bs.Free;
+      end;
+    end;
   end;
 
   stream.Seek(start, soBeginning);
@@ -205,11 +205,11 @@ begin
 
   {$IFDEF ENDIAN_LITTLE}
   with naming_table do
-    begin
-      format := SwapEndian(format);
-      count := SwapEndian(count);
-      string_offset := SwapEndian(string_offset);
-    end;
+  begin
+    format := SwapEndian(format);
+    count := SwapEndian(count);
+    string_offset := SwapEndian(string_offset);
+  end;
   {$ENDIF}
 
   if naming_table.count = 0 then
@@ -218,96 +218,96 @@ begin
   storage_offset := start + naming_table.string_offset;
 
   for i := 0 to naming_table.count - 1 do
+  begin
+    stream.ReadBuffer(name_rec, SizeOf(name_rec));
+
+    {$IFDEF ENDIAN_LITTLE}
+    with name_rec do
     begin
-      stream.ReadBuffer(name_rec, SizeOf(name_rec));
-
-      {$IFDEF ENDIAN_LITTLE}
-      with name_rec do
-        begin
-          platform_id := SwapEndian(platform_id);
-          encoding_id := SwapEndian(encoding_id);
-          language_id := SwapEndian(language_id);
-          name_id := SwapEndian(name_id);
-          length := SwapEndian(length);
-          offset := SwapEndian(offset);
-        end;
-      {$ENDIF}
-
-      case name_rec.platform_id of
-        PLATFORM_ID_MAC:
-          if (name_rec.encoding_id <> ENCODING_ID_MAC_ROMAN) or
-              (name_rec.language_id <> LANGUAGE_ID_MAC_ENGLISH) then
-            continue;
-        PLATFORM_ID_WIN:
-          // Entries in the Name Record are sorted by ids so we can
-          // stop parsing after we finished reading all needed
-          // records.
-          if (name_rec.encoding_id > ENCODING_ID_WIN_UCS2) or
-              (name_rec.language_id > LANGUAGE_ID_WIN_ENGLISH_US) then
-            break
-          else if (name_rec.encoding_id <> ENCODING_ID_WIN_UCS2) or
-              (name_rec.language_id <> LANGUAGE_ID_WIN_ENGLISH_US) then
-            continue;
-        else
-          // We don't break in case id > PLATFORM_ID_WIN so that we
-          // can read old buggy TTFs produced by the AllType program.
-          // The first record in such fonts has random number as id.
-          continue;
-      end;
-
-      case name_rec.name_id of
-        0:  dst := @info.copyright;
-        1:  dst := @info.family;
-        2:  dst := @info.style;
-        3:  dst := @info.unique_id;
-        4:  dst := @info.full_name;
-        5:  dst := @info.version;
-        6:  dst := @info.ps_name;
-        7:  dst := @info.trademark;
-        8:  dst := @info.manufacturer;
-        9:  dst := @info.designer;
-        10: dst := @info.description;
-        11: dst := @info.vendor_url;
-        12: dst := @info.designer_url;
-        13: dst := @info.license;
-        14: dst := @info.license_url;
-        15: continue;  // Reserved
-        16: dst := @info.family;  // Typographic Family
-        17: dst := @info.style;  // Typographic Subfamily
-      else
-        // We can only break early in case of Windows platform id.
-        // There are fonts (like Trattatello.ttf) where mostly
-        // non-standard Macintosh names (name id >= 256) are followed
-        // by standard Windows names.
-        if name_rec.platform_id >= PLATFORM_ID_WIN then
-          break
-        else
-          continue;
-      end;
-
-      offset := stream.Position;
-      stream.Seek(storage_offset + name_rec.offset, soBeginning);
-
-      case name_rec.platform_id of
-        PLATFORM_ID_MAC:
-          begin
-            SetLength(dst^, name_rec.length);
-            stream.ReadBuffer(dst^[1], name_rec.length);
-            dst^ := MacOSRomanToUTF8(dst^);
-          end;
-        PLATFORM_ID_WIN:
-          begin
-            SetLength(name, name_rec.length div SizeOf(WideChar));
-            stream.ReadBuffer(name[1], name_rec.length);
-            {$IFDEF ENDIAN_LITTLE}
-            SwapUnicode(name);
-            {$ENDIF}
-            dst^ := UTF8Encode(name);
-          end;
-      end;
-
-      stream.Seek(offset, soBeginning);
+      platform_id := SwapEndian(platform_id);
+      encoding_id := SwapEndian(encoding_id);
+      language_id := SwapEndian(language_id);
+      name_id := SwapEndian(name_id);
+      length := SwapEndian(length);
+      offset := SwapEndian(offset);
     end;
+    {$ENDIF}
+
+    case name_rec.platform_id of
+      PLATFORM_ID_MAC:
+        if (name_rec.encoding_id <> ENCODING_ID_MAC_ROMAN)
+            or (name_rec.language_id <> LANGUAGE_ID_MAC_ENGLISH) then
+          continue;
+      PLATFORM_ID_WIN:
+        // Entries in the Name Record are sorted by ids so we can
+        // stop parsing after we finished reading all needed
+        // records.
+        if (name_rec.encoding_id > ENCODING_ID_WIN_UCS2)
+            or (name_rec.language_id > LANGUAGE_ID_WIN_ENGLISH_US) then
+          break
+        else if (name_rec.encoding_id <> ENCODING_ID_WIN_UCS2)
+            or (name_rec.language_id <> LANGUAGE_ID_WIN_ENGLISH_US) then
+          continue;
+      else
+        // We don't break in case id > PLATFORM_ID_WIN so that we
+        // can read old buggy TTFs produced by the AllType program.
+        // The first record in such fonts has random number as id.
+        continue;
+    end;
+
+    case name_rec.name_id of
+      0:  dst := @info.copyright;
+      1:  dst := @info.family;
+      2:  dst := @info.style;
+      3:  dst := @info.unique_id;
+      4:  dst := @info.full_name;
+      5:  dst := @info.version;
+      6:  dst := @info.ps_name;
+      7:  dst := @info.trademark;
+      8:  dst := @info.manufacturer;
+      9:  dst := @info.designer;
+      10: dst := @info.description;
+      11: dst := @info.vendor_url;
+      12: dst := @info.designer_url;
+      13: dst := @info.license;
+      14: dst := @info.license_url;
+      15: continue;  // Reserved
+      16: dst := @info.family;  // Typographic Family
+      17: dst := @info.style;  // Typographic Subfamily
+    else
+      // We can only break early in case of Windows platform id.
+      // There are fonts (like Trattatello.ttf) where mostly
+      // non-standard Macintosh names (name id >= 256) are followed
+      // by standard Windows names.
+      if name_rec.platform_id >= PLATFORM_ID_WIN then
+        break
+      else
+        continue;
+    end;
+
+    offset := stream.Position;
+    stream.Seek(storage_offset + name_rec.offset, soBeginning);
+
+    case name_rec.platform_id of
+      PLATFORM_ID_MAC:
+      begin
+        SetLength(dst^, name_rec.length);
+        stream.ReadBuffer(dst^[1], name_rec.length);
+        dst^ := MacOSRomanToUTF8(dst^);
+      end;
+      PLATFORM_ID_WIN:
+      begin
+        SetLength(name, name_rec.length div SizeOf(WideChar));
+        stream.ReadBuffer(name[1], name_rec.length);
+        {$IFDEF ENDIAN_LITTLE}
+        SwapUnicode(name);
+        {$ENDIF}
+        dst^ := UTF8Encode(name);
+      end;
+    end;
+
+    stream.Seek(offset, soBeginning);
+  end;
 end;
 
 
@@ -362,17 +362,17 @@ begin
 
   {$IFDEF ENDIAN_LITTLE}
   with offset_table do
-    begin
-      version := SwapEndian(version);
-      num_tables := SwapEndian(num_tables);
-    end;
+  begin
+    version := SwapEndian(version);
+    num_tables := SwapEndian(num_tables);
+  end;
   {$ENDIF}
 
-  if (offset_table.version <> TTF_MAGIC1) and
-     (offset_table.version <> TTF_MAGIC2) and
-     (offset_table.version <> TTF_MAGIC3) and
-     (offset_table.version <> TTF_MAGIC4) and
-     (offset_table.version <> OTF_MAGIC) then
+  if (offset_table.version <> TTF_MAGIC1)
+      and (offset_table.version <> TTF_MAGIC2)
+      and (offset_table.version <> TTF_MAGIC3)
+      and (offset_table.version <> TTF_MAGIC4)
+      and (offset_table.version <> OTF_MAGIC) then
     raise EStreamError.Create('Not a SFNT-based font');
 
   if offset_table.num_tables = 0 then
@@ -381,26 +381,26 @@ begin
   stream.Seek(SizeOf(word) * 3, soCurrent);
 
   for i := 0 to offset_table.num_tables - 1 do
+  begin
+    stream.ReadBuffer(dir, SizeOf(dir));
+
+    {$IFDEF ENDIAN_LITTLE}
+    with dir do
     begin
-      stream.ReadBuffer(dir, SizeOf(dir));
-
-      {$IFDEF ENDIAN_LITTLE}
-      with dir do
-        begin
-          tag := SwapEndian(tag);
-          checksumm := SwapEndian(checksumm);
-          offset := SwapEndian(offset);
-          length := SwapEndian(length);
-        end;
-      {$ENDIF}
-
-      ReadTable(
-        stream, info, dir.tag, font_offset + dir.offset,
-        NO_COMPRESSION);
-
-      has_layout_tables := (
-        has_layout_tables or IsLayoutTable(dir.tag));
+      tag := SwapEndian(tag);
+      checksumm := SwapEndian(checksumm);
+      offset := SwapEndian(offset);
+      length := SwapEndian(length);
     end;
+    {$ENDIF}
+
+    ReadTable(
+      stream, info, dir.tag, font_offset + dir.offset,
+      NO_COMPRESSION);
+
+    has_layout_tables := (
+      has_layout_tables or IsLayoutTable(dir.tag));
+  end;
 
   info.format := GetFormatSting(
     offset_table.version, has_layout_tables);

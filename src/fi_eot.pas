@@ -100,40 +100,39 @@ begin
   flags := stream.ReadDWordLE;
 
   stream.Seek(
-    SizeOf(TEOTHeader.panose) +
-    SizeOf(TEOTHeader.charset) +
-    SizeOf(TEOTHeader.italic) +
-    SizeOf(TEOTHeader.weight) +
-    SizeOf(TEOTHeader.fs_type),
+    SizeOf(TEOTHeader.panose)
+    + SizeOf(TEOTHeader.charset)
+    + SizeOf(TEOTHeader.italic)
+    + SizeOf(TEOTHeader.weight)
+    + SizeOf(TEOTHeader.fs_type),
     soCurrent);
 
   magic := stream.ReadWordLE;
   if magic <> EOT_MAGIC then
     raise EStreamError.Create('Not an EOT font');
 
-  if (flags and TTEMBED_TTCOMPRESSED = 0) and
-     (flags and TTEMBED_XORENCRYPTDATA = 0) then
-    begin
-      font_offset := eot_size - font_data_size;
-      stream.Seek(font_offset, soBeginning);
+  if (flags and TTEMBED_TTCOMPRESSED = 0)
+    and (flags and TTEMBED_XORENCRYPTDATA = 0) then
+  begin
+    font_offset := eot_size - font_data_size;
+    stream.Seek(font_offset, soBeginning);
 
-      GetCommonInfo(stream, info, font_offset);
-
-      exit;
-    end;
+    GetCommonInfo(stream, info, font_offset);
+    exit;
+  end;
 
   stream.Seek(
-    SizeOf(TEOTHeader.unicode_range1) +
-    SizeOf(TEOTHeader.unicode_range2) +
-    SizeOf(TEOTHeader.unicode_range3) +
-    SizeOf(TEOTHeader.unicode_range4) +
-    SizeOf(TEOTHeader.code_page_range1) +
-    SizeOf(TEOTHeader.code_page_range2) +
-    SizeOf(TEOTHeader.checksum_adjustment) +
-    SizeOf(TEOTHeader.reserved1) +
-    SizeOf(TEOTHeader.reserved2) +
-    SizeOf(TEOTHeader.reserved3) +
-    SizeOf(TEOTHeader.reserved4),
+    SizeOf(TEOTHeader.unicode_range1)
+    + SizeOf(TEOTHeader.unicode_range2)
+    + SizeOf(TEOTHeader.unicode_range3)
+    + SizeOf(TEOTHeader.unicode_range4)
+    + SizeOf(TEOTHeader.code_page_range1)
+    + SizeOf(TEOTHeader.code_page_range2)
+    + SizeOf(TEOTHeader.checksum_adjustment)
+    + SizeOf(TEOTHeader.reserved1)
+    + SizeOf(TEOTHeader.reserved2)
+    + SizeOf(TEOTHeader.reserved3)
+    + SizeOf(TEOTHeader.reserved4),
     soCurrent);
 
   info.family := ReadField(stream, 'FamilyName');

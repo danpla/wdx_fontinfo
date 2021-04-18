@@ -30,25 +30,25 @@ var
 begin
   result := 0;
   for i := 0 to 4 do
-    begin
-      b := stream.ReadByte;
+  begin
+    b := stream.ReadByte;
 
-      // Leading zeros are invalid.
-      if (i = 0) and (b = $80) then
-        raise EStreamError.Create('Base128 Leading zeros');
+    // Leading zeros are invalid.
+    if (i = 0) and (b = $80) then
+      raise EStreamError.Create('Base128 Leading zeros');
 
-      // If any of the top seven bits are set then we're about to overflow.
-      if result and $FE000000 <> 0 then
-        raise EStreamError.Create('Base128 Overflow');
+    // If any of the top seven bits are set then we're about to overflow.
+    if result and $FE000000 <> 0 then
+      raise EStreamError.Create('Base128 Overflow');
 
-      result := (result shl 7) or (b and $7F);
+    result := (result shl 7) or (b and $7F);
 
-      // Spin until most significant bit of data byte is false.
-      if b and $80 = 0 then
-        exit(result);
-    end;
+    // Spin until the most significant bit of data byte is false.
+    if b and $80 = 0 then
+      exit(result);
+  end;
 
-    raise EStreamError.Create('Base128 exceeds 5 bytes');
+  raise EStreamError.Create('Base128 exceeds 5 bytes');
 end;
 
 
@@ -118,29 +118,29 @@ begin
 
   offset := 0;
   for i := 0 to num_tables - 1 do
+  begin
+    flags := stream.ReadByte;
+    if flags and $3f = $3f then
+      tag := stream.ReadDWordLE
+    else
+      tag := WOFF2TagIdxToTag(flags and $3f);
+
+    result[i].tag := tag;
+    result[i].offset := offset;
+    result[i].original_len := ReadUIntBase128(stream);
+    result[i].transformed_len := result[i].original_len;
+
+    transform_version := (flags shr 6) and $03;
+    if (tag = TAG_GLYF) or (tag = TAG_LOCA) then
     begin
-      flags := stream.ReadByte;
-      if flags and $3f = $3f then
-        tag := stream.ReadDWordLE
-      else
-        tag := WOFF2TagIdxToTag(flags and $3f);
-
-      result[i].tag := tag;
-      result[i].offset := offset;
-      result[i].original_len := ReadUIntBase128(stream);
-      result[i].transformed_len := result[i].original_len;
-
-      transform_version := (flags shr 6) and $03;
-      if (tag = TAG_GLYF) or (tag = TAG_LOCA) then
-        begin
-          if transform_version = 0 then
-            result[i].transformed_len := ReadUIntBase128(stream);
-        end
-      else if transform_version <> 0 then
+      if transform_version = 0 then
         result[i].transformed_len := ReadUIntBase128(stream);
+    end
+    else if transform_version <> 0 then
+      result[i].transformed_len := ReadUIntBase128(stream);
 
-      inc(offset, result[i].transformed_len);
-    end;
+    inc(offset, result[i].transformed_len);
+  end;
 end;
 
 
@@ -238,15 +238,15 @@ begin
 
   {$IFDEF ENDIAN_LITTLE}
   with header do
-    begin
-      signature := SwapEndian(signature);
-      flavor := SwapEndian(flavor);
-      length := SwapEndian(length);
-      num_tables := SwapEndian(num_tables);
-      reserved := SwapEndian(reserved);
-      total_sfnt_size := SwapEndian(total_sfnt_size);
-      total_compressed_size := SwapEndian(total_compressed_size);
-    end;
+  begin
+    signature := SwapEndian(signature);
+    flavor := SwapEndian(flavor);
+    length := SwapEndian(length);
+    num_tables := SwapEndian(num_tables);
+    reserved := SwapEndian(reserved);
+    total_sfnt_size := SwapEndian(total_sfnt_size);
+    total_compressed_size := SwapEndian(total_compressed_size);
+  end;
   {$ENDIF}
 
   if header.signature <> WOFF2_SIGNATURE then
@@ -272,30 +272,30 @@ begin
     uncompressed_size := offset + transformed_len;
 
   if header.flavor = COLLECTION_SIGNATURE then
-    begin
-      stream.Seek(SizeOf(longword), soCurrent);  // TTC version
-      info.num_fonts := Read255UShort(stream);
-      if info.num_fonts = 0 then
-        raise EStreamError.Create('WOFF2 collection has no fonts');
+  begin
+    stream.Seek(SizeOf(longword), soCurrent);  // TTC version
+    info.num_fonts := Read255UShort(stream);
+    if info.num_fonts = 0 then
+      raise EStreamError.Create('WOFF2 collection has no fonts');
 
-      collection_font_entry := ReadWOFF2CollectionFontEntry(
-        stream, header.num_tables);
+    collection_font_entry := ReadWOFF2CollectionFontEntry(
+      stream, header.num_tables);
 
-      version := collection_font_entry.flavor;
-      table_dir_indices := collection_font_entry.table_dir_indices;
+    version := collection_font_entry.flavor;
+    table_dir_indices := collection_font_entry.table_dir_indices;
 
-      // We only need the first font.
-      for i := 1 to info.num_fonts - 1 do
-        ReadWOFF2CollectionFontEntry(stream, header.num_tables);
-    end
+    // We only need the first font.
+    for i := 1 to info.num_fonts - 1 do
+      ReadWOFF2CollectionFontEntry(stream, header.num_tables);
+  end
   else
-    begin
-      version := header.flavor;
+  begin
+    version := header.flavor;
 
-      SetLength(table_dir_indices, Length(table_dir));
-      for i := 0 to High(table_dir_indices) do
-        table_dir_indices[i] := i;
-    end;
+    SetLength(table_dir_indices, Length(table_dir));
+    for i := 0 to High(table_dir_indices) do
+      table_dir_indices[i] := i;
+  end;
 
   decompressed_data := DecompressWOFF2Data(
     stream, header.total_compressed_size, uncompressed_size);
@@ -303,14 +303,14 @@ begin
 
   try
     for i := 0 to High(table_dir_indices) do
-      begin
-        ReadTable(
-          decompressed_data_stream, info,
-          table_dir[i].tag, table_dir[i].offset, NO_COMPRESSION);
+    begin
+      ReadTable(
+        decompressed_data_stream, info,
+        table_dir[i].tag, table_dir[i].offset, NO_COMPRESSION);
 
-        has_layout_tables := (
-          has_layout_tables or IsLayoutTable(table_dir[i].tag));
-      end;
+      has_layout_tables := (
+        has_layout_tables or IsLayoutTable(table_dir[i].tag));
+    end;
   finally
     decompressed_data_stream.Free;
   end;

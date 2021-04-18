@@ -87,60 +87,60 @@ begin
 
   i := 1;
   num_found := 0;
-  while (
-      (num_found < NUM_FIELDS)
-      and (i <= MAX_LINES)
-      and line_reader.ReadLine(s)) do
-    begin
-      s := Trim(s);
+  while
+    (num_found < NUM_FIELDS)
+    and (i <= MAX_LINES)
+    and line_reader.ReadLine(s) do
+  begin
+    s := Trim(s);
 
-      case s of
-        '': continue;
-        'ENDPROPERTIES': break;
-      end;
-
-      if AnsiStartsStr('COMMENT', s) then
-        continue;
-
-      p := Pos(' ', s);
-      if p = 0 then
-        {
-          Assuming that global info goes before glyphs, all lines
-          (except comments, which can be empty) should be key-value
-          pairs separated by spaces.
-        }
-        raise EStreamError.CreateFmt('BDF has no space in line "%s"', [s]);
-
-      inc(i);
-
-      key := Copy(s, 1, p - 1);
-      case key of
-        BDF_COPYRIGHT: dst := @info.copyright;
-        BDF_FAMILY_NAME: dst := @info.family;
-        BDF_FONT: dst := @info.ps_name;
-        BDF_FOUNDRY: dst := @info.manufacturer;
-        BDF_FULL_NAME, BDF_FACE_NAME: dst := @info.full_name;
-        BDF_WEIGHT_NAME: dst := @info.style;
-        'CHARS': break;
-      else
-        continue;
-      end;
-
-      repeat
-        inc(p);
-      until s[p] <> ' ';
-
-      s_len := Length(s);
-
-      if (s[p] = '"') and (s[s_len] = '"') then
-        begin
-          inc(p);
-          dec(s_len);
-        end;
-
-      dst^ := Copy(s, p, s_len - (p - 1));
-      inc(num_found);
+    case s of
+      '': continue;
+      'ENDPROPERTIES': break;
     end;
+
+    if AnsiStartsStr('COMMENT', s) then
+      continue;
+
+    p := Pos(' ', s);
+    if p = 0 then
+      {
+        Assuming that global info goes before glyphs, all lines
+        (except comments, which can be empty) should be key-value
+        pairs separated by spaces.
+      }
+      raise EStreamError.CreateFmt('BDF has no space in line "%s"', [s]);
+
+    inc(i);
+
+    key := Copy(s, 1, p - 1);
+    case key of
+      BDF_COPYRIGHT: dst := @info.copyright;
+      BDF_FAMILY_NAME: dst := @info.family;
+      BDF_FONT: dst := @info.ps_name;
+      BDF_FOUNDRY: dst := @info.manufacturer;
+      BDF_FULL_NAME, BDF_FACE_NAME: dst := @info.full_name;
+      BDF_WEIGHT_NAME: dst := @info.style;
+      'CHARS': break;
+    else
+      continue;
+    end;
+
+    repeat
+      inc(p);
+    until s[p] <> ' ';
+
+    s_len := Length(s);
+
+    if (s[p] = '"') and (s[s_len] = '"') then
+    begin
+      inc(p);
+      dec(s_len);
+    end;
+
+    dst^ := Copy(s, p, s_len - (p - 1));
+    inc(num_found);
+  end;
 
   BDF_FillEmpty(info);
 end;
