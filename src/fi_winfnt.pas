@@ -188,6 +188,9 @@ begin
 
   stream.Seek(stream.ReadWordLE shl size_shift, soBeginning);
   GetFNTInfo(stream, info);
+
+  // We don't set font_count as TFontInfo.num_fonts, since multiple
+  // FNTs in FON are normally different sizes of the same font.
 end;
 
 
