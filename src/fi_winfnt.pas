@@ -149,7 +149,8 @@ var
   res_table_offset: int64;
   size_shift: word;
   type_id,
-  count: word;
+  item_count: word;
+  font_count: word = 0;
 begin
   start := stream.Position - SizeOf(word);
 
@@ -167,18 +168,23 @@ begin
     if type_id = END_TYPES then
       break;
 
-    count := stream.ReadWordLE;
+    item_count := stream.ReadWordLE;
     if type_id = RT_FONT then
     begin
-      if count = 0 then
+      if item_count = 0 then
         raise EStreamError.Create('RT_FONT TYPEINFO is empty');
 
+      font_count := item_count;
       stream.Seek(TYPEINFO_RESERVED_SIZE, soCurrent);
       break;
     end;
 
-    stream.Seek(TYPEINFO_RESERVED_SIZE + count * NAMEINFO_SIZE, soCurrent);
+    stream.Seek(
+      TYPEINFO_RESERVED_SIZE + item_count * NAMEINFO_SIZE, soCurrent);
   end;
+
+  if font_count = 0 then
+    raise EStreamError.Create('No RT_FONT entries in file');
 
   stream.Seek(stream.ReadWordLE shl size_shift, soBeginning);
   GetFNTInfo(stream, info);
