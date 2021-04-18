@@ -306,7 +306,7 @@ begin
     begin
       ReadTable(
         decompressed_data_stream, info,
-        table_dir[i].tag, table_dir[i].offset, NO_COMPRESSION);
+        table_dir[i].tag, table_dir[i].offset);
 
       has_layout_tables := (
         has_layout_tables or IsLayoutTable(table_dir[i].tag));

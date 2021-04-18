@@ -15,7 +15,8 @@ uses
   fi_info_reader,
   fi_sfnt_common,
   classes,
-  sysutils;
+  sysutils,
+  zstream;
 
 
 implementation
@@ -49,13 +50,55 @@ type
     // origChecksum: longword;
   end;
 
+
+procedure ReadWOFFTable(
+  stream: TStream; var info: TFontInfo; dir: TWOFFTableDirEntry);
+var
+  start: int64;
+  zs: TDecompressionStream;
+  decompressed_data: TBytes;
+  decompressed_data_stream: TBytesStream;
+begin
+  if dir.comp_length > dir.orig_length then
+    raise EStreamError.CreateFmt(
+      'Compressed size (%u) of the "%s" WOFF table is greater than ' +
+      'uncompressed size (%u)',
+      [dir.comp_length, TableTagToString(dir.tag), dir.orig_length]);
+
+  if dir.comp_length = dir.orig_length then
+  begin
+    ReadTable(stream, info, dir.tag, dir.offset);
+    exit;
+  end;
+
+  start := stream.Position;
+  stream.Seek(dir.offset, soBeginning);
+
+  zs := TDecompressionStream.Create(stream);
+  try
+    SetLength(decompressed_data, dir.orig_length);
+    zs.ReadBuffer(decompressed_data[0], dir.orig_length);
+  finally
+    zs.Free;
+  end;
+
+  stream.Seek(start, soBeginning);
+
+  decompressed_data_stream := TBytesStream.Create(decompressed_data);
+  try
+    ReadTable(decompressed_data_stream, info, dir.tag, 0);
+  finally
+    decompressed_data_stream.Free;
+  end;
+end;
+
+
 procedure GetWOFFInfo(stream: TStream; var info: TFontInfo);
 var
   header: TWOFFHeader;
   i: longint;
   dir: TWOFFTableDirEntry;
   has_layout_tables: boolean = FALSE;
-  compression: TTableCompression;
 begin
   stream.ReadBuffer(header, SizeOf(header));
 
@@ -104,19 +147,7 @@ begin
     end;
     {$ENDIF}
 
-    if dir.comp_length < dir.orig_length then
-      compression := ZLIB
-    else if dir.comp_length = dir.orig_length then
-      compression := NO_COMPRESSION
-    else
-      raise EStreamError.CreateFmt(
-        'Compressed size (%u) of the "%s" WOFF table is greater than ' +
-        'uncompressed size (%u)',
-        [dir.comp_length, TableTagToString(dir.tag), dir.orig_length]);
-
-    ReadTable(
-      stream, info,
-      dir.tag, dir.offset, compression, dir.orig_length);
+    ReadWOFFTable(stream, info, dir);
 
     has_layout_tables := (
       has_layout_tables or IsLayoutTable(dir.tag));

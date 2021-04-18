@@ -15,8 +15,8 @@ uses
   fi_info_reader,
   fi_utils,
   classes,
-  sysutils,
-  zstream;
+  strutils,
+  sysutils;
 
 const
   TAG_BASE = $42415345;
@@ -39,23 +39,10 @@ const
 function TableTagToString(tag: longword): string;
 function IsLayoutTable(tag: longword): boolean;
 function GetFormatSting(
-    sign: longword; has_layout_tables: boolean): string;
+  sign: longword; has_layout_tables: boolean): string;
 
-
-type
-  TTableCompression = (
-    NO_COMPRESSION,
-    ZLIB
-    );
-
-// uncompressed_size is ignored if compression is NO_COMPRESSION
 procedure ReadTable(
-  stream: TStream;
-  var info: TFontInfo;
-  tag: longword;
-  offset: longword;
-  compression: TTableCompression;
-  uncompressed_size: longword = 0);
+  stream: TStream; var info: TFontInfo; tag, offset: longword);
 
 {
   Common parser for TTF, TTC, OTF, OTC, and EOT.
@@ -115,18 +102,10 @@ function FindTableReader(tag: longword): TTableReader; forward;
 
 
 procedure ReadTable(
-  stream: TStream;
-  var info: TFontInfo;
-  tag: longword;
-  offset: longword;
-  compression: TTableCompression;
-  uncompressed_size: longword);
+  stream: TStream; var info: TFontInfo; tag, offset: longword);
 var
   reader: TTableReader;
   start: int64;
-  decompressed_data: TBytes;
-  zs: TDecompressionStream;
-  bs: TBytesStream;
 begin
   reader := FindTableReader(tag);
   if reader = NIL then
@@ -135,27 +114,7 @@ begin
   start := stream.Position;
   stream.Seek(offset, soBeginning);
 
-  case compression of
-    NO_COMPRESSION:
-      reader(stream, info);
-    ZLIB:
-    begin
-      zs := TDecompressionStream.Create(stream);
-      try
-        SetLength(decompressed_data, uncompressed_size);
-        zs.ReadBuffer(decompressed_data[0], uncompressed_size);
-      finally
-        zs.Free;
-      end;
-
-      bs := TBytesStream.Create(decompressed_data);
-      try
-        reader(bs, info);
-      finally
-        bs.Free;
-      end;
-    end;
-  end;
+  reader(stream, info);
 
   stream.Seek(start, soBeginning);
 end;
@@ -394,9 +353,7 @@ begin
     end;
     {$ENDIF}
 
-    ReadTable(
-      stream, info, dir.tag, font_offset + dir.offset,
-      NO_COMPRESSION);
+    ReadTable(stream, info, dir.tag, font_offset + dir.offset);
 
     has_layout_tables := (
       has_layout_tables or IsLayoutTable(dir.tag));
