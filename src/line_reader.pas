@@ -13,13 +13,9 @@ type
   TLineReader = class
   private
     FStream: TStream;
-    FBuffer: string;
-    FBufferFill,
-    FBufferPos: SizeInt;
-    FHitEof,
-    FWasCr: boolean;
-
-    procedure DoReadLine(var s: string);
+    FBuf: string;
+    FBufFill,
+    FBufPos: SizeInt;
   public
     constructor Create(Stream: TStream);
     function ReadLine(out s: string): boolean;
@@ -27,73 +23,6 @@ type
 
 
 implementation
-
-
-const
-  BUFFER_SIZE = 1024;
-  CR = #13;
-  LF = #10;
-
-
-procedure TLineReader.DoReadLine(var s: string);
-var
-  i,
-  BreakPos: SizeInt;
-  c: char;
-begin
-  Assert(not FHitEof);
-  Assert(s = '');
-
-  while (TRUE) do
-    begin
-      if FBufferPos > FBufferFill then
-        begin
-          FBufferFill := FStream.read(FBuffer[1], BUFFER_SIZE);
-          if FBufferFill = 0 then
-            begin
-              FHitEof := TRUE;
-              break;
-            end;
-
-          FBufferPos := 1;
-        end;
-
-      BreakPos := 0;
-      for i := FBufferPos to FBufferFill do
-        if FBuffer[i] in [LF, CR] then
-          begin
-            BreakPos := i;
-            break;
-          end;
-
-      if BreakPos = 0 then
-        begin
-          FWasCr := FALSE;
-
-          s := s + Copy(FBuffer, FBufferPos, FBufferFill - (FBufferPos - 1));
-          FBufferPos := FBufferFill + 1;
-        end
-      else
-        begin
-          c := FBuffer[BreakPos];
-          if (FWasCr and (c = LF)
-              and ((BreakPos = 0) or (FBuffer[BreakPos - 1] = CR))) then
-            begin
-              // Ignore LF of CRLF sequence.
-              FWasCr := FALSE;
-              Assert(BreakPos = FBufferPos);
-              inc(FBufferPos);
-              continue;
-            end;
-
-          FWasCr := c = CR;
-
-          s := s + Copy(FBuffer, FBufferPos, BreakPos - (FBufferPos - 1));
-          FBufferPos := BreakPos + 1;
-          break;
-        end;
-    end;
-end;
 
 
 constructor TLineReader.Create(Stream: TStream);
@@ -104,20 +33,65 @@ begin
     raise EArgumentException.Create('Stream is NIL');
   FStream := Stream;
 
-  SetLength(FBuffer, BUFFER_SIZE);
-  FBufferPos := 1;
+  SetLength(FBuf, 1024);
+  FBufFill := 0;
+  FBufPos := 1;
 end;
 
 
 function TLineReader.ReadLine(out s: string): boolean;
+const
+  CR = #13;
+  LF = #10;
+var
+  WasCr: boolean;
+  i,
+  PartEnd: SizeInt;
 begin
   s := '';
-  if FHitEof then
-    exit(FALSE);
+  WasCr := (FBufPos > 1) and (FBuf[FBufPos - 1] = CR);
 
-  DoReadLine(s);
+  while TRUE do
+  begin
+    Assert(FBufPos <= FBufFill + 1);
+    if FBufPos = FBufFill + 1 then
+    begin
+      FBufFill := FStream.read(FBuf[1], Length(FBuf));
+      FBufPos := 1;
 
-  result := (s <> '') or not FHitEof;
+      if FBufFill = 0 then
+        break;
+    end;
+
+    if WasCr then
+    begin
+      WasCr := FALSE;
+      if FBuf[FBufPos] = LF then
+      begin
+        inc(FBufPos);
+        continue;
+      end;
+    end;
+
+    PartEnd := FBufFill + 1;
+    for i := FBufPos to FBufFill do
+      if (FBuf[i] = CR) or (FBuf[i] = LF) then
+      begin
+        PartEnd := i;
+        break;
+      end;
+
+    s := s + Copy(FBuf, FBufPos, PartEnd - FBufPos);
+    FBufPos := PartEnd;
+
+    if FBufPos < FBufFill + 1 then
+    begin
+      inc(FBufPos);
+      break;
+    end;
+  end;
+
+  result := (s <> '') or (FBufFill > 0);
 end;
 
 
