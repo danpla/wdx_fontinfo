@@ -15,7 +15,6 @@ uses
   fi_info_reader,
   fi_utils,
   classes,
-  strutils,
   sysutils;
 
 const
