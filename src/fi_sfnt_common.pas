@@ -191,6 +191,9 @@ begin
     end;
     {$ENDIF}
 
+    if name_rec.length = 0 then
+      continue;
+
     case name_rec.platform_id of
       PLATFORM_ID_MAC:
         if (name_rec.encoding_id <> ENCODING_ID_MAC_ROMAN)
