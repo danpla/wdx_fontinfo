@@ -89,14 +89,14 @@ type
 function WOFF2TagIdxToTag(tag_idx: longword): longword;
 begin
   case tag_idx of
+    5:  result := TAG_NAME;
+    10: result := TAG_GLYF;
+    11: result := TAG_LOCA;
     25: result := TAG_BASE;
     26: result := TAG_GDEF;
     27: result := TAG_GPOS;
     28: result := TAG_GSUB;
     30: result := TAG_JSTF;
-    5:  result := TAG_NAME;
-    10: result := TAG_GLYF;
-    11: result := TAG_LOCA;
   else
     result := 0;
   end;
