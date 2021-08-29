@@ -1,55 +1,85 @@
 
+1.1.1 (2021-08-29)
+==================
+
+* Added support for reading TTFs designed for Macintosh
+* Added ".otb" (OpenType Bitmap) to the list of supported extensions
+* "Version" prefix is now stripped from the version string for all
+  font formats and regardless of letter case
+* Fixed reading of buggy TTFs produced by AllType
+* Fixed empty Style field for TTFs with empty Typographic Subfamily
+  (name id 17)
+
+
 1.1.0 (2021-01-03)
-  • Support for WOFF2
+==================
+
+* Support for WOFF2
 
 
 1.0.0 (2017-12-30)
-  • The Number of Fonts column is now integer instead of string
-  • Support for INF, PS Type 11, and Windows' FNT/FON
-  • More common weight names (like "SemiBold" instead of "Semi-bold")
-  • Fixed displaying of non-ASCII characters on Windows
-  • BDF, PS, AFM, SFD: "Style" now extracted from FullName and FamilyName
-  • BDF: "FACE_NAME" is added as an alternative for FullName
-  • BDF, PCF: If "Family", "Style", or "Full Name" field is empty, it will be
-    filled using information from existing fields
-  • Partially implemented WPF font selection model for SFNT fonts
-  • "Version " is now stripped from the version string in SFNT fonts
-  • The plugin can now read most of fonts in gzip archives, not only PCF
+==================
+
+* "Number of Fonts" is now integer instead of string
+* Support for INF, PS Type 11, and Windows' FNT/FON
+* More common weight names (like "SemiBold" instead of "Semi-bold")
+* Fixed displaying of non-ASCII characters on Windows
+* BDF, PS, AFM, SFD: "Style" now extracted from FullName and
+  FamilyName
+* BDF: "FACE_NAME" is added as an alternative for FullName
+* BDF, PCF: If "Family", "Style", or "Full Name" field is empty, it
+  will be filled with information from existing fields
+* Partially implemented WPF font selection model for SFNT fonts
+* "Version " is now stripped from the version string in SFNT fonts
+* The plugin can now read most of fonts in gzip archives, not only PCF
 
 
 0.7.3 (2016-01-08)
-  • Fixed reading of font collections
-  • Fixed empty "Number of Fonts" field for compressed EOT
+==================
+
+* Fixed reading of font collections
+* Fixed empty "Number of Fonts" field for compressed EOT
 
 
 0.7.2 (2015-12-23)
-  • Support for reading "name" table from uncompressed EOTs (so-called EOT-Lite)
-  • "Format" for PS fonts changed from "PS T {type}" to "PS {type}"
-  • Fixed reading of .pcf.gz on Unix-like systems when a file has no writing
-    permissions (like fonts from /usr/share/fonts/X11)
-  • Fixed reading of "symbolic" fonts
+==================
+
+* Support for reading "name" table from uncompressed EOTs (EOT-Lite)
+* "Format" for PS fonts changed from "PS T {type}" to "PS {type}"
+* Fixed reading of .pcf.gz on Unix-like systems when a file has no
+  writing permissions (like fonts from /usr/share/fonts/X11)
+* Fixed reading of "symbolic" fonts
 
 
 0.7.1 (2015-08-04)
-  • Fixed closing files when signature doesn't match (PS, BDF)
-  • Tiny performance improvements
+==================
+
+* Fixed closing files when signature doesn't match (PS, BDF)
+* Tiny performance improvements
 
 
 0.7.0 (2015-06-04)
-  • Support for BDF and PCX
-  • Fixed empty "Number of Fonts" field
-  • Fixed detection of .t42 fonts
+==================
+* Support for BDF and PCX
+* Fixed empty "Number of Fonts" field
+* Fixed detection of .t42 fonts
 
 
 0.6.0 (2015-05-27)
-  • Support for AFM and PFB
-  • Small performance improvements
+==================
+
+* Support for AFM and PFB
+* Small performance improvements
 
 
 0.5.0 (2015-05-24)
-  • Support for PostScript fonts
-  • FontForge’s Spline Font Database support
+==================
+
+* Support for PostScript fonts
+* FontForge’s Spline Font Database support
 
 
 0.4.0 (2015-05-22)
-  Initial release.
+==================
+
+Initial release.
