@@ -1,5 +1,5 @@
 {
-  X11 PCF bitmap fonts
+  Portable Compiled Format
 }
 
 {$MODE OBJFPC}

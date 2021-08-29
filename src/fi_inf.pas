@@ -1,5 +1,5 @@
 {
-  INF (INFormation)
+  INF
 }
 
 {$MODE OBJFPC}

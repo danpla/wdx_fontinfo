@@ -1,5 +1,5 @@
 {
-  BDF (Bitmap Distribution Format)
+  Bitmap Distribution Format
 }
 
 {$MODE OBJFPC}
