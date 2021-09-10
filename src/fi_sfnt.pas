@@ -6,7 +6,7 @@
 {$H+}
 {$INLINE ON}
 
-unit fi_sfnt_common;
+unit fi_sfnt;
 
 interface
 

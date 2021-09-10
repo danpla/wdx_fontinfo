@@ -14,7 +14,7 @@ uses
   brotli,
   fi_common,
   fi_info_reader,
-  fi_sfnt_common,
+  fi_sfnt,
   classes,
   streamex,
   sysutils;
