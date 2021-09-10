@@ -305,8 +305,10 @@ begin
     for i := 0 to High(table_dir_indices) do
     begin
       ReadTable(
-        decompressed_data_stream, info,
-        table_dir[i].tag, table_dir[i].offset);
+        FindTableReader(table_dir[i].tag),
+        decompressed_data_stream,
+        info,
+        table_dir[i].offset);
 
       has_layout_tables := (
         has_layout_tables or IsLayoutTable(table_dir[i].tag));

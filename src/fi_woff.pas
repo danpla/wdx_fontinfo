@@ -54,11 +54,16 @@ type
 procedure ReadWOFFTable(
   stream: TStream; var info: TFontInfo; dir: TWOFFTableDirEntry);
 var
+  reader: TTableReader;
   start: int64;
   zs: TDecompressionStream;
   decompressed_data: TBytes;
   decompressed_data_stream: TBytesStream;
 begin
+  reader := FindTableReader(dir.tag);
+  if reader = NIL then
+    exit;
+
   if dir.comp_length > dir.orig_length then
     raise EStreamError.CreateFmt(
       'Compressed size (%u) of the "%s" WOFF table is greater than ' +
@@ -67,7 +72,7 @@ begin
 
   if dir.comp_length = dir.orig_length then
   begin
-    ReadTable(stream, info, dir.tag, dir.offset);
+    ReadTable(reader, stream, info, dir.offset);
     exit;
   end;
 
@@ -86,7 +91,7 @@ begin
 
   decompressed_data_stream := TBytesStream.Create(decompressed_data);
   try
-    ReadTable(decompressed_data_stream, info, dir.tag, 0);
+    ReadTable(reader, decompressed_data_stream, info, 0);
   finally
     decompressed_data_stream.Free;
   end;

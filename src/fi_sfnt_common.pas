@@ -40,8 +40,20 @@ function IsLayoutTable(tag: longword): boolean;
 function GetFormatSting(
   sign: longword; has_layout_tables: boolean): string;
 
+type
+  TTableReader = procedure(stream: TStream; var info: TFontInfo);
+
+function FindTableReader(tag: longword): TTableReader;
+
+{
+  Helper for TTableReader that restores the initial stream position
+  after reading at the given offset. Does nothing if reader is NIL.
+}
 procedure ReadTable(
-  stream: TStream; var info: TFontInfo; tag, offset: longword);
+  reader: TTableReader;
+  stream: TStream;
+  var info: TFontInfo;
+  offset: longword);
 
 {
   Common parser for TTF, TTC, OTF, OTC, and EOT.
@@ -93,20 +105,14 @@ begin
 end;
 
 
-type
-  TTableReader = procedure(stream: TStream; var info: TFontInfo);
-
-
-function FindTableReader(tag: longword): TTableReader; forward;
-
-
 procedure ReadTable(
-  stream: TStream; var info: TFontInfo; tag, offset: longword);
-var
   reader: TTableReader;
+  stream: TStream;
+  var info: TFontInfo;
+  offset: longword);
+var
   start: int64;
 begin
-  reader := FindTableReader(tag);
   if reader = NIL then
     exit;
 
@@ -355,7 +361,11 @@ begin
     end;
     {$ENDIF}
 
-    ReadTable(stream, info, dir.tag, font_offset + dir.offset);
+    ReadTable(
+      FindTableReader(dir.tag),
+      stream,
+      info,
+      font_offset + dir.offset);
 
     has_layout_tables := (
       has_layout_tables or IsLayoutTable(dir.tag));
