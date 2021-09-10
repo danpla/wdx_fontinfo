@@ -13,7 +13,7 @@ interface
 uses
   fi_common,
   fi_info_reader,
-  fi_sfnt_common,
+  fi_sfnt,
   classes,
   streamex;
 
@@ -117,7 +117,7 @@ begin
     font_offset := eot_size - font_data_size;
     stream.Seek(font_offset, soBeginning);
 
-    GetCommonInfo(stream, info, font_offset);
+    SFNT_GetCommonInfo(stream, info, font_offset);
     exit;
   end;
 

@@ -41,14 +41,14 @@ begin
   end;
   {$ENDIF}
 
-  if header.signature <> COLLECTION_SIGNATURE then
+  if header.signature <> SFNT_COLLECTION_SIGN then
     raise EStreamError.Create('Not a font collection');
 
   if header.num_fonts = 0 then
     raise EStreamError.Create('Collection has no fonts');
 
   stream.Seek(header.first_font_offset, soBeginning);
-  GetCommonInfo(stream, info);
+  SFNT_GetCommonInfo(stream, info);
 
   info.num_fonts := header.num_fonts;
 end;

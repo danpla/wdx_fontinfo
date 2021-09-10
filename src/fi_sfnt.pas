@@ -18,39 +18,40 @@ uses
   sysutils;
 
 const
-  TAG_BASE = $42415345;
-  TAG_GDEF = $47444546;
-  TAG_GPOS = $47504f53;
-  TAG_GSUB = $47535542;
-  TAG_JSTF = $4a535446;
-  TAG_NAME = $6e616d65;
-  TAG_GLYF = $676c7966;
-  TAG_LOCA = $6c6f6361;
+  SFNT_TAG_BASE = $42415345;
+  SFNT_TAG_GDEF = $47444546;
+  SFNT_TAG_GPOS = $47504f53;
+  SFNT_TAG_GSUB = $47535542;
+  SFNT_TAG_JSTF = $4a535446;
+  SFNT_TAG_NAME = $6e616d65;
+  SFNT_TAG_GLYF = $676c7966;
+  SFNT_TAG_LOCA = $6c6f6361;
 
-  TTF_MAGIC1 = $00010000;
-  TTF_MAGIC2 = $00020000;
-  TTF_MAGIC3 = $74727565; // 'true'
-  TTF_MAGIC4 = $74797031; // 'typ1'
-  OTF_MAGIC = $4f54544f; // 'OTTO'
+  SFNT_TTF_SIGN1 = $00010000;
+  SFNT_TTF_SIGN2 = $00020000;
+  SFNT_TTF_SIGN3 = $74727565; // 'true'
+  SFNT_TTF_SIGN4 = $74797031; // 'typ1'
+  SFNT_OTF_SIGN = $4f54544f; // 'OTTO'
 
-  COLLECTION_SIGNATURE = $74746366; // 'ttcf'
+  SFNT_COLLECTION_SIGN = $74746366; // 'ttcf'
 
-function TableTagToString(tag: longword): string;
-function IsLayoutTable(tag: longword): boolean;
-function GetFormatSting(
+function SFNT_TagToString(tag: longword): string;
+function SFNT_IsLayoutTable(tag: longword): boolean;
+function SFNT_GetFormatSting(
   sign: longword; has_layout_tables: boolean): string;
 
 type
-  TTableReader = procedure(stream: TStream; var info: TFontInfo);
+  TSFNTTableReader = procedure(stream: TStream; var info: TFontInfo);
 
-function FindTableReader(tag: longword): TTableReader;
+function SFNT_FindTableReader(tag: longword): TSFNTTableReader;
 
 {
-  Helper for TTableReader that restores the initial stream position
-  after reading at the given offset. Does nothing if reader is NIL.
+  Helper for TSFNTTableReader that restores the initial stream
+  position after reading at the given offset. Does nothing if reader
+  is NIL.
 }
-procedure ReadTable(
-  reader: TTableReader;
+procedure SFNT_ReadTable(
+  reader: TSFNTTableReader;
   stream: TStream;
   var info: TFontInfo;
   offset: longword);
@@ -61,13 +62,13 @@ procedure ReadTable(
   font_offset is necessary for EOT since its EMBEDDEDFONT structure
   is not treated as part of the font data.
 }
-procedure GetCommonInfo(
+procedure SFNT_GetCommonInfo(
   stream: TStream; var info: TFontInfo; font_offset: longword = 0);
 
 implementation
 
 
-function TableTagToString(tag: longword): string;
+function SFNT_TagToString(tag: longword): string;
 begin
   SetLength(result, SizeOf(tag));
   {$IFDEF ENDIAN_LITTLE}
@@ -78,14 +79,14 @@ begin
 end;
 
 
-function IsLayoutTable(tag: longword): boolean;
+function SFNT_IsLayoutTable(tag: longword): boolean;
 begin
   case tag of
-    TAG_BASE,
-    TAG_GDEF,
-    TAG_GPOS,
-    TAG_GSUB,
-    TAG_JSTF:
+    SFNT_TAG_BASE,
+    SFNT_TAG_GDEF,
+    SFNT_TAG_GPOS,
+    SFNT_TAG_GSUB,
+    SFNT_TAG_JSTF:
       result := TRUE;
   else
     result := FALSE;
@@ -93,10 +94,10 @@ begin
 end;
 
 
-function GetFormatSting(
+function SFNT_GetFormatSting(
   sign: longword; has_layout_tables: boolean): string;
 begin
-  if sign = OTF_MAGIC then
+  if sign = SFNT_OTF_SIGN then
     result := 'OT PS'
   else if has_layout_tables then
     result := 'OT TT'
@@ -105,8 +106,8 @@ begin
 end;
 
 
-procedure ReadTable(
-  reader: TTableReader;
+procedure SFNT_ReadTable(
+  reader: TSFNTTableReader;
   stream: TStream;
   var info: TFontInfo;
   offset: longword);
@@ -118,9 +119,7 @@ begin
 
   start := stream.Position;
   stream.Seek(offset, soBeginning);
-
   reader(stream, info);
-
   stream.Seek(start, soBeginning);
 end;
 
@@ -281,13 +280,13 @@ end;
 const
   TABLE_READERS: array [0..0] of record
     tag: longword;
-    reader: TTableReader;
+    reader: TSFNTTableReader;
   end = (
-    (tag: TAG_NAME; reader: @ReadNameTable)
+    (tag: SFNT_TAG_NAME; reader: @ReadNameTable)
   );
 
 
-function FindTableReader(tag: longword): TTableReader;
+function SFNT_FindTableReader(tag: longword): TSFNTTableReader;
 var
   i: SizeInt;
 begin
@@ -317,7 +316,7 @@ type
     length: longword;
   end;
 
-procedure GetCommonInfo(
+procedure SFNT_GetCommonInfo(
   stream: TStream; var info: TFontInfo; font_offset: longword);
 var
   offset_table: TOffsetTable;
@@ -335,11 +334,11 @@ begin
   end;
   {$ENDIF}
 
-  if (offset_table.version <> TTF_MAGIC1)
-      and (offset_table.version <> TTF_MAGIC2)
-      and (offset_table.version <> TTF_MAGIC3)
-      and (offset_table.version <> TTF_MAGIC4)
-      and (offset_table.version <> OTF_MAGIC) then
+  if (offset_table.version <> SFNT_TTF_SIGN1)
+      and (offset_table.version <> SFNT_TTF_SIGN2)
+      and (offset_table.version <> SFNT_TTF_SIGN3)
+      and (offset_table.version <> SFNT_TTF_SIGN4)
+      and (offset_table.version <> SFNT_OTF_SIGN) then
     raise EStreamError.Create('Not a SFNT-based font');
 
   if offset_table.num_tables = 0 then
@@ -361,17 +360,17 @@ begin
     end;
     {$ENDIF}
 
-    ReadTable(
-      FindTableReader(dir.tag),
+    SFNT_ReadTable(
+      SFNT_FindTableReader(dir.tag),
       stream,
       info,
       font_offset + dir.offset);
 
     has_layout_tables := (
-      has_layout_tables or IsLayoutTable(dir.tag));
+      has_layout_tables or SFNT_IsLayoutTable(dir.tag));
   end;
 
-  info.format := GetFormatSting(
+  info.format := SFNT_GetFormatSting(
     offset_table.version, has_layout_tables);
 end;
 

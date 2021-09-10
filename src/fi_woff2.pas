@@ -89,14 +89,14 @@ type
 function WOFF2TagIdxToTag(tag_idx: longword): longword;
 begin
   case tag_idx of
-    5:  result := TAG_NAME;
-    10: result := TAG_GLYF;
-    11: result := TAG_LOCA;
-    25: result := TAG_BASE;
-    26: result := TAG_GDEF;
-    27: result := TAG_GPOS;
-    28: result := TAG_GSUB;
-    30: result := TAG_JSTF;
+    5:  result := SFNT_TAG_NAME;
+    10: result := SFNT_TAG_GLYF;
+    11: result := SFNT_TAG_LOCA;
+    25: result := SFNT_TAG_BASE;
+    26: result := SFNT_TAG_GDEF;
+    27: result := SFNT_TAG_GPOS;
+    28: result := SFNT_TAG_GSUB;
+    30: result := SFNT_TAG_JSTF;
   else
     result := 0;
   end;
@@ -131,7 +131,7 @@ begin
     result[i].transformed_len := result[i].original_len;
 
     transform_version := (flags shr 6) and $03;
-    if (tag = TAG_GLYF) or (tag = TAG_LOCA) then
+    if (tag = SFNT_TAG_GLYF) or (tag = SFNT_TAG_LOCA) then
     begin
       if transform_version = 0 then
         result[i].transformed_len := ReadUIntBase128(stream);
@@ -200,7 +200,7 @@ end;
 
 
 const
-  WOFF2_SIGNATURE = $774F4632; // 'wOF2'
+  WOFF2_SIGN = $774F4632; // 'wOF2'
 
 type
   TWOFF2Header = packed record
@@ -249,7 +249,7 @@ begin
   end;
   {$ENDIF}
 
-  if header.signature <> WOFF2_SIGNATURE then
+  if header.signature <> WOFF2_SIGN then
     raise EStreamError.Create('Not a WOFF2 font');
 
   if header.length <> stream.Size then
@@ -271,7 +271,7 @@ begin
   with table_dir[header.num_tables - 1] do
     uncompressed_size := offset + transformed_len;
 
-  if header.flavor = COLLECTION_SIGNATURE then
+  if header.flavor = SFNT_COLLECTION_SIGN then
   begin
     stream.Seek(SizeOf(longword), soCurrent);  // TTC version
     info.num_fonts := Read255UShort(stream);
@@ -304,20 +304,20 @@ begin
   try
     for i := 0 to High(table_dir_indices) do
     begin
-      ReadTable(
-        FindTableReader(table_dir[i].tag),
+      SFNT_ReadTable(
+        SFNT_FindTableReader(table_dir[i].tag),
         decompressed_data_stream,
         info,
         table_dir[i].offset);
 
       has_layout_tables := (
-        has_layout_tables or IsLayoutTable(table_dir[i].tag));
+        has_layout_tables or SFNT_IsLayoutTable(table_dir[i].tag));
     end;
   finally
     decompressed_data_stream.Free;
   end;
 
-  info.format := GetFormatSting(version, has_layout_tables);
+  info.format := SFNT_GetFormatSting(version, has_layout_tables);
 end;
 
 

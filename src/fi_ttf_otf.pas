@@ -19,7 +19,7 @@ implementation
 
 procedure GetOTFInfo(stream: TStream; var info: TFontInfo);
 begin
-  GetCommonInfo(stream, info);
+  SFNT_GetCommonInfo(stream, info);
 end;
 
 

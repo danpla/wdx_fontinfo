@@ -23,7 +23,7 @@ implementation
 
 
 const
-  WOFF_SIGNATURE = $774f4646; // 'wOFF'
+  WOFF_SIGN = $774f4646; // 'wOFF'
 
 type
   TWOFFHeader = packed record
@@ -54,25 +54,25 @@ type
 procedure ReadWOFFTable(
   stream: TStream; var info: TFontInfo; dir: TWOFFTableDirEntry);
 var
-  reader: TTableReader;
+  reader: TSFNTTableReader;
   start: int64;
   zs: TDecompressionStream;
   decompressed_data: TBytes;
   decompressed_data_stream: TBytesStream;
 begin
-  reader := FindTableReader(dir.tag);
+  reader := SFNT_FindTableReader(dir.tag);
   if reader = NIL then
     exit;
 
   if dir.comp_length > dir.orig_length then
     raise EStreamError.CreateFmt(
-      'Compressed size (%u) of the "%s" WOFF table is greater than ' +
-      'uncompressed size (%u)',
-      [dir.comp_length, TableTagToString(dir.tag), dir.orig_length]);
+      'Compressed size (%u) of the "%s" WOFF table is greater than '
+      + 'uncompressed size (%u)',
+      [dir.comp_length, SFNT_TagToString(dir.tag), dir.orig_length]);
 
   if dir.comp_length = dir.orig_length then
   begin
-    ReadTable(reader, stream, info, dir.offset);
+    SFNT_ReadTable(reader, stream, info, dir.offset);
     exit;
   end;
 
@@ -91,7 +91,7 @@ begin
 
   decompressed_data_stream := TBytesStream.Create(decompressed_data);
   try
-    ReadTable(reader, decompressed_data_stream, info, 0);
+    SFNT_ReadTable(reader, decompressed_data_stream, info, 0);
   finally
     decompressed_data_stream.Free;
   end;
@@ -118,7 +118,7 @@ begin
   end;
   {$ENDIF}
 
-  if header.signature <> WOFF_SIGNATURE then
+  if header.signature <> WOFF_SIGN then
     raise EStreamError.Create('Not a WOFF font');
 
   if header.length <> stream.Size then
@@ -155,10 +155,11 @@ begin
     ReadWOFFTable(stream, info, dir);
 
     has_layout_tables := (
-      has_layout_tables or IsLayoutTable(dir.tag));
+      has_layout_tables or SFNT_IsLayoutTable(dir.tag));
   end;
 
-  info.format := GetFormatSting(header.flavor, has_layout_tables);
+  info.format := SFNT_GetFormatSting(
+    header.flavor, has_layout_tables);
 end;
 
 
