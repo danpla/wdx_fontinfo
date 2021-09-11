@@ -66,7 +66,7 @@ begin
   if dir.comp_length > dir.orig_length then
     raise EStreamError.CreateFmt(
       'Compressed size (%u) of the "%s" WOFF table is greater than '
-      + 'uncompressed size (%u)',
+      + 'decompressed size (%u)',
       [dir.comp_length, SFNT_TagToString(dir.tag), dir.orig_length]);
 
   if dir.comp_length = dir.orig_length then

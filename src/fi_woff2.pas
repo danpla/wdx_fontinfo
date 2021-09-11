@@ -175,25 +175,25 @@ end;
 
 function DecompressWOFF2Data(
   stream: TStream;
-  compressed_size, uncompressed_size: longword): TBytes;
+  compressed_size, decompressed_size: longword): TBytes;
 var
   compressed_data: TBytes;
-  brotli_uncompressed_size: SizeUInt;
+  brotli_decompressed_size: SizeUInt;
   brotli_decoder_result: TBrotliDecoderResult;
 begin
   SetLength(compressed_data, compressed_size);
   stream.ReadBuffer(compressed_data[0], compressed_size);
-  SetLength(result, uncompressed_size);
+  SetLength(result, decompressed_size);
 
-  brotli_uncompressed_size := uncompressed_size;
+  brotli_decompressed_size := decompressed_size;
   brotli_decoder_result := BrotliDecoderDecompress(
     compressed_size,
     Pointer(compressed_data),
-    @brotli_uncompressed_size,
+    @brotli_decompressed_size,
     Pointer(result));
 
   if (brotli_decoder_result <> BROTLI_DECODER_RESULT_SUCCESS)
-      or (brotli_uncompressed_size <> uncompressed_size) then
+      or (brotli_decompressed_size <> decompressed_size) then
     raise EStreamError.Create('WOFF2 brotli decompression failure');
 end;
 
@@ -224,7 +224,7 @@ procedure GetWOFF2Info(stream: TStream; var info: TFontInfo);
 var
   header: TWOFF2Header;
   table_dir: TWOFF2TableDir;
-  uncompressed_size: longword;
+  decompressed_size: longword;
   i: longint;
   has_layout_tables: boolean = FALSE;
   version: longword;
@@ -268,7 +268,7 @@ begin
 
   table_dir := ReadWOFF2TableDir(stream, header.num_tables);
   with table_dir[header.num_tables - 1] do
-    uncompressed_size := offset + transformed_len;
+    decompressed_size := offset + transformed_len;
 
   if header.flavor = SFNT_COLLECTION_SIGN then
   begin
@@ -297,7 +297,7 @@ begin
   end;
 
   decompressed_data := DecompressWOFF2Data(
-    stream, header.total_compressed_size, uncompressed_size);
+    stream, header.total_compressed_size, decompressed_size);
   decompressed_data_stream := TBytesStream.Create(decompressed_data);
 
   try

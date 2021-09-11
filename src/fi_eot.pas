@@ -139,7 +139,7 @@ begin
   info.version := ReadField(stream, 'VersionName');
   info.full_name := ReadField(stream, 'FullName');
 
-  // Currently we can't uncompress EOT to determine SFNT format.
+  // Currently we can't decompress EOT to determine SFNT format.
   info.format := 'EOT';
 end;
 
