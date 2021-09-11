@@ -1,7 +1,6 @@
 
 {$MODE OBJFPC}
 {$H+}
-{$INLINE ON}
 
 unit fi_ttf_otf;
 

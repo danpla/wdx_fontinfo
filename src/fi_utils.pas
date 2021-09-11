@@ -1,6 +1,5 @@
 {$MODE OBJFPC}
 {$H+}
-{$INLINE ON}
 
 unit fi_utils;
 
