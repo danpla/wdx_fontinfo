@@ -180,7 +180,8 @@ begin
       'FontType': dst := @info.format;
       'FontName': dst := @info.ps_name;
       'version': dst := @info.version;
-      'Notice': dst := @info.copyright;
+      // CFF format allows "Copyright" in addition to "Notice".
+      'Notice', 'Copyright': dst := @info.copyright;
       'FullName': dst := @info.full_name;
       'FamilyName': dst := @info.family;
       'Weight': dst := @info.style;
