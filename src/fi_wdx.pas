@@ -276,6 +276,9 @@ begin
     if reader = NIL then
       exit(FT_FILEERROR);
 
+    last_file_name := FileName_str;
+    Reset(info_cache);
+
     try
       if gzipped then
       begin
@@ -298,8 +301,6 @@ begin
         stream := TFileStream.Create(
           FileName, fmOpenRead or fmShareDenyNone);
 
-      Reset(info_cache);
-
       try
         reader(stream, info_cache);
       finally
@@ -315,8 +316,6 @@ begin
         info_cache.version,
         Length(VERSION_PREFIX) + 1,
         Length(info_cache.version) - Length(VERSION_PREFIX));
-
-    last_file_name := FileName_str;
   end;
 
   result := Put(
