@@ -12,8 +12,7 @@ page.
 
 ## Supported formats
 
-* TrueType and TrueType Collections
-* OpenType and OpenType Collections
+* TrueType, OpenType, and their collections
 * Web Open Font Format 1 & 2 (WOFF, WOFF2)
 * Embedded OpenType (EOT)
 * PostScript Type 0, 1, 3, 11, etc., possibly with AFM, PFM, and INF
