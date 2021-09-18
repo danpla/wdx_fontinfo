@@ -23,7 +23,7 @@ type
   TFontFormat = (
     AFM,
     SFD
-    );
+  );
 
 const
   FONT_IDENT: array [TFontFormat] of record

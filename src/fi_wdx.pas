@@ -109,7 +109,7 @@ const
     (name: 'License URL';     field_type: FT_STRING),
     (name: 'Format';          field_type: FT_STRING),
     (name: 'Number of Fonts'; field_type: FT_NUMERIC_32)
-    );
+  );
 
 
 function ContentGetSupportedField(
@@ -283,14 +283,12 @@ begin
       if gzipped then
       begin
         {
-          TGZFileStream is wrapper for gzio from paszlib, which
-          uses Reset. With the default mode (fmOpenReadWrite) we
-          will not be able to open files with read-only access on
-          Unix-like systems, like gzipped PCFs from
-          /usr/share/fonts/X11/misc/.
+          TGZFileStream is wrapper for gzio from paszlib, which uses
+          Reset. With the default mode (fmOpenReadWrite) we will not
+          be able to open files with read-only access on Unix-like
+          systems, like gzipped PCFs from /usr/share/fonts/X11/misc/.
 
-          The issue was fixed in FPC 3.1.1 (rev. 32490, bug
-          28917).
+          The issue was fixed in FPC 3.1.1 (rev. 32490, bug 28917).
         }
         last_file_mode := FileMode;
         FileMode := fmOpenRead;
