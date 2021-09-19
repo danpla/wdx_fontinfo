@@ -289,8 +289,11 @@ begin
         }
         last_file_mode := FileMode;
         FileMode := fmOpenRead;
-        stream := TGZFileStream.Create(FileName, gzOpenRead);
-        FileMode := last_file_mode;
+        try
+          stream := TGZFileStream.Create(FileName, gzOpenRead);
+        finally
+          FileMode := last_file_mode;
+        end;
       end
       else
         stream := TFileStream.Create(
