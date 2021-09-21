@@ -20,11 +20,12 @@ uses
 
 const
   BDF_COPYRIGHT = 'COPYRIGHT';
+  BDF_FACE_NAME = 'FACE_NAME';
   BDF_FAMILY_NAME = 'FAMILY_NAME';
   BDF_FONT = 'FONT';
+  BDF_FONT_VERSION = 'FONT_VERSION';
   BDF_FOUNDRY = 'FOUNDRY';
   BDF_FULL_NAME = 'FULL_NAME';
-  BDF_FACE_NAME = 'FACE_NAME';
   BDF_WEIGHT_NAME = 'WEIGHT_NAME';
 
 {
@@ -38,7 +39,7 @@ implementation
 const
   BDF_SIGN = 'STARTFONT';
 
-  NUM_FIELDS = 6;
+  NUM_FIELDS = 7;
   MAX_LINES = 30;
 
 
@@ -117,6 +118,7 @@ begin
       BDF_COPYRIGHT: dst := @info.copyright;
       BDF_FAMILY_NAME: dst := @info.family;
       BDF_FONT: dst := @info.ps_name;
+      BDF_FONT_VERSION: dst := @info.version;
       BDF_FOUNDRY: dst := @info.manufacturer;
       BDF_FULL_NAME, BDF_FACE_NAME: dst := @info.full_name;
       BDF_WEIGHT_NAME: dst := @info.style;

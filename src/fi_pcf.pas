@@ -127,6 +127,7 @@ begin
       BDF_COPYRIGHT: dst := @info.copyright;
       BDF_FAMILY_NAME: dst := @info.family;
       BDF_FONT: dst := @info.ps_name;
+      BDF_FONT_VERSION: dst := @info.version;
       BDF_FOUNDRY: dst := @info.manufacturer;
       BDF_FULL_NAME, BDF_FACE_NAME: dst := @info.full_name;
       BDF_WEIGHT_NAME: dst := @info.style;
