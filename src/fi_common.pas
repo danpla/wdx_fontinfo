@@ -29,8 +29,6 @@ type
     num_fonts: longint;
   end;
 
-  PFontInfo = ^TFontInfo;
-
 
 const
   FONT_WEIGHT_REGULAR = 400;
