@@ -248,7 +248,6 @@ var
   FileName_str,
   ext: string;
   gzipped: boolean = FALSE;
-  last_file_mode: byte;
   stream: TStream;
   reader: TInfoReader;
 begin
@@ -278,23 +277,7 @@ begin
 
     try
       if gzipped then
-      begin
-        {
-          TGZFileStream is wrapper for gzio from paszlib, which uses
-          Reset. With the default mode (fmOpenReadWrite) we will not
-          be able to open files with read-only access on Unix-like
-          systems, like gzipped PCFs from /usr/share/fonts/X11/misc/.
-
-          The issue was fixed in FPC 3.1.1 (rev. 32490, bug 28917).
-        }
-        last_file_mode := FileMode;
-        FileMode := fmOpenRead;
-        try
-          stream := TGZFileStream.Create(FileName, gzOpenRead);
-        finally
-          FileMode := last_file_mode;
-        end;
-      end
+        stream := TGZFileStream.Create(FileName, gzOpenRead)
       else
         stream := TFileStream.Create(
           FileName, fmOpenRead or fmShareDenyNone);

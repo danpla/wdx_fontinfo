@@ -59,7 +59,7 @@ page.
 
 ## Building
 
-Get [FPC](https://www.freepascal.org/) version 2.6 or newer and run
+Get [FPC](https://www.freepascal.org/) version 3.1.1 or newer and run
 `fpc src/fi_wdx.pas @compile.cfg`.
 
 To build 64-bit version on Windows, add `-Px86_64` or invoke
