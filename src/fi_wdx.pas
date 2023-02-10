@@ -201,26 +201,8 @@ end;
 
 procedure Reset(out info: TFontInfo);
 begin
-  with info do
-  begin
-    family := '';
-    style := '';
-    full_name := '';
-    ps_name := '';
-    version := '';
-    copyright := '';
-    unique_id := '';
-    trademark := '';
-    manufacturer := '';
-    designer := '';
-    description := '';
-    vendor_url := '';
-    designer_url := '';
-    license := '';
-    license_url := '';
-    format := '';
-    num_fonts := 1;
-  end;
+  info := Default(TFontInfo);
+  info.num_fonts := 1;
 end;
 
 
