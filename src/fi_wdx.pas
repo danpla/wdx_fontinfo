@@ -263,7 +263,6 @@ begin
 end;
 
 
-// Cache
 var
   lastFileName: string;
   infoCache: TFontInfo;
@@ -292,11 +291,6 @@ begin
       exit(FT_DELAYED);
 
     infoCacheValid := ReadFontInfo(FileNameStr, infoCache);
-
-    // Save the file name before returning a potential FT_FILEERROR so
-    // that we don't query the same file again in case of the previous
-    // attempt failed. It also avoids printing printing the same error
-    // message several times (for each column) in DEBUG mode.
     lastFileName := FileNameStr;
   end;
 
