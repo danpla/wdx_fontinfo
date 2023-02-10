@@ -224,10 +224,69 @@ begin
 end;
 
 
+function ReadFontInfo(const file_name: string; var info: TFontInfo): boolean;
+const
+  VERSION_PREFIX = 'Version ';
+var
+  ext: string;
+  gzipped: boolean = FALSE;
+  stream: TStream;
+  reader: TInfoReader;
+begin
+  ext := LowerCase(ExtractFileExt(file_name));
+
+  if ext = '.gz' then
+  begin
+    gzipped := TRUE;
+    ext := LowerCase(ExtractFileExt(
+      Copy(file_name, 1, Length(file_name) - Length(ext))));
+  end;
+
+  reader := FindReader(ext);
+  if reader = NIL then
+    exit(FALSE);
+
+  try
+    if gzipped then
+      stream := TGZFileStream.Create(file_name, gzOpenRead)
+    else
+      stream := TFileStream.Create(
+        file_name, fmOpenRead or fmShareDenyNone);
+
+    Reset(info);
+
+    try
+      reader(stream, info);
+    finally
+      stream.Free;
+    end;
+  except
+    on E: EStreamError do
+    begin
+      {$IFDEF DEBUG}
+      WriteLn(StdErr, 'fontinfo "', file_name, '": ', E.Message);
+      {$ENDIF}
+
+      exit(FALSE);
+    end;
+  end;
+
+  if AnsiStartsText(VERSION_PREFIX, info.version) then
+    info.version := Copy(
+      info.version,
+      Length(VERSION_PREFIX) + 1,
+      Length(info.version) - Length(VERSION_PREFIX));
+
+  result := TRUE;
+end;
+
+
 // Cache
 var
   last_file_name: string;
   info_cache: TFontInfo;
+  // info_cache_valid is TRUE if TFontInfo was loaded without errors
+  info_cache_valid: boolean;
 
 
 function ContentGetValue(
@@ -237,14 +296,8 @@ function ContentGetValue(
   FieldValue: PByte;
   MaxLen,
   Flags: Integer): Integer; dcpcall;
-const
-  VERSION_PREFIX = 'Version ';
 var
-  FileName_str,
-  ext: string;
-  gzipped: boolean = FALSE;
-  stream: TStream;
-  reader: TInfoReader;
+  FileName_str: string;
 begin
   if FieldIndex > Ord(High(TFieldIndex)) then
     exit(FT_NOSUCHFIELD);
@@ -256,56 +309,17 @@ begin
     if Flags and CONTENT_DELAYIFSLOW <> 0 then
       exit(FT_DELAYED);
 
-    ext := LowerCase(ExtractFileExt(FileName_str));
+    info_cache_valid := ReadFontInfo(FileName_str, info_cache);
 
-    if ext = '.gz' then
-    begin
-      gzipped := TRUE;
-      ext := LowerCase(ExtractFileExt(
-        Copy(
-          FileName_str, 1, Length(FileName_str) - Length(ext))));
-    end;
-
-    reader := FindReader(ext);
-    if reader = NIL then
-      exit(FT_FILEERROR);
-
-    try
-      if gzipped then
-        stream := TGZFileStream.Create(FileName, gzOpenRead)
-      else
-        stream := TFileStream.Create(
-          FileName, fmOpenRead or fmShareDenyNone);
-
-      Reset(info_cache);
-
-      try
-        reader(stream, info_cache);
-      finally
-        stream.Free;
-      end;
-    except
-      on E: EStreamError do
-       begin
-        {$IFDEF DEBUG}
-        WriteLn(StdErr, 'fontinfo "', FileName_str, '": ', E.Message);
-        {$ENDIF}
-
-        // info_cache is currently either clear or partially filled,
-        // and thus no longer relevant for the last_file_name file.
-        last_file_name := '';
-        exit(FT_FILEERROR);
-      end;
-    end;
-
-    if AnsiStartsText(VERSION_PREFIX, info_cache.version) then
-      info_cache.version := Copy(
-        info_cache.version,
-        Length(VERSION_PREFIX) + 1,
-        Length(info_cache.version) - Length(VERSION_PREFIX));
-
+    // Save the file name before returning a potential FT_FILEERROR so
+    // that we don't query the same file again in case of the previous
+    // attempt failed. It also avoids printing printing the same error
+    // message several times (for each column) in DEBUG mode.
     last_file_name := FileName_str;
   end;
+
+  if not info_cache_valid then
+    exit(FT_FILEERROR);
 
   result := Put(
     info_cache, TFieldIndex(FieldIndex), FieldValue, MaxLen);
