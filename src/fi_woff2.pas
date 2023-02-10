@@ -1,9 +1,4 @@
-{
-  Web Open Font Format 2.0
-}
-
-{$MODE OBJFPC}
-{$H+}
+// Web Open Font Format 2.0
 
 unit fi_woff2;
 

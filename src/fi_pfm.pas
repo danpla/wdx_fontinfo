@@ -1,9 +1,4 @@
-{
-  Printer Font Metrics
-}
-
-{$MODE OBJFPC}
-{$H+}
+// Printer Font Metrics
 
 unit fi_pfm;
 

@@ -1,6 +1,3 @@
-{$MODE OBJFPC}
-{$H+}
-
 unit line_reader;
 
 interface

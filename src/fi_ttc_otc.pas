@@ -1,7 +1,3 @@
-
-{$MODE OBJFPC}
-{$H+}
-
 unit fi_ttc_otc;
 
 interface

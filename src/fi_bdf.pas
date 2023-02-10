@@ -1,9 +1,4 @@
-{
-  Bitmap Distribution Format
-}
-
-{$MODE OBJFPC}
-{$H+}
+//  Bitmap Distribution Format
 
 unit fi_bdf;
 

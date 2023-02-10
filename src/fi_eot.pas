@@ -1,9 +1,4 @@
-{
-  Embedded OpenType
-}
-
-{$MODE OBJFPC}
-{$H+}
+// Embedded OpenType
 
 unit fi_eot;
 

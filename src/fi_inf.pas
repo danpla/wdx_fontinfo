@@ -1,10 +1,3 @@
-{
-  INF
-}
-
-{$MODE OBJFPC}
-{$H+}
-
 unit fi_inf;
 
 interface

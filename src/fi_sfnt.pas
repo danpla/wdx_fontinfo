@@ -1,9 +1,4 @@
-{
-  Common stuff for SFNT-based fonts
-}
-
-{$MODE OBJFPC}
-{$H+}
+// Common stuff for SFNT-based fonts
 
 unit fi_sfnt;
 

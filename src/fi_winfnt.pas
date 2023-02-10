@@ -1,9 +1,4 @@
-{
-  Windows' FNT/FON
-}
-
-{$MODE OBJFPC}
-{$H+}
+// Windows' FNT/FON
 
 unit fi_winfnt;
 

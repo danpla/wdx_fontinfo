@@ -1,9 +1,4 @@
-{
-  Adobe Font Metrics and FontForge's Spline Font Database
-}
-
-{$MODE OBJFPC}
-{$H+}
+// Adobe Font Metrics and FontForge's Spline Font Database
 
 unit fi_afm_sfd;
 

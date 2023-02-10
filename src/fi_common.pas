@@ -1,6 +1,3 @@
-{$MODE OBJFPC}
-{$H+}
-
 unit fi_common;
 
 interface

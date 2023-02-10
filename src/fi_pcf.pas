@@ -1,9 +1,4 @@
-{
-  Portable Compiled Format
-}
-
-{$MODE OBJFPC}
-{$H+}
+// Portable Compiled Format
 
 unit fi_pcf;
 

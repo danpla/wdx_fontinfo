@@ -1,9 +1,4 @@
-{
-  PostScript-based fonts
-}
-
-{$MODE OBJFPC}
-{$H+}
+// PostScript-based fonts
 
 unit fi_ps;
 
