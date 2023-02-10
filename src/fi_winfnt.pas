@@ -36,40 +36,40 @@ const
 type
   TFNTHeader = packed record
     version: word;
-    file_size: longword;
+    fileSize: longword;
     copyright: array [0..MAX_COPYRIGHT_LEN - 1] of char;
-    font_type,
-    point_size,
+    fontType,
+    pointSize,
     vres,
     hres,
     ascent,
-    internal_leading,
-    external_leading: word;
+    internalLeading,
+    externalLeading: word;
     italic,
     underline,
     strikeout: byte;
     weight: word;
     charset: byte;
-    pix_width,
-    pix_height: word;
-    pitch_and_family: byte;
-    avg_width,
-    max_width: word;
-    first_char,
-    last_char,
-    default_char,
-    break_char: byte;
-    bytes_per_row: word;
-    device_offset,
-    face_name_offset,
-    bits_pointer,
-    bits_offset: longword;
+    pixWidth,
+    pixHeight: word;
+    pitchAndFamily: byte;
+    avgWidth,
+    maxWidth: word;
+    firstChar,
+    lastChar,
+    defaultChar,
+    breakChar: byte;
+    bytesPerRow: word;
+    deviceOffset,
+    faceNameOffset,
+    bitsPointer,
+    bitsOffset: longword;
     reserved: byte;
     flags: longword;
-    a_space,
-    b_space,
-    c_space: word;
-    color_table_offset: longword;
+    aSpace,
+    bSpace,
+    cSpace: word;
+    colorTableOffset: longword;
     reserved1: array[0..15] of byte;
   end;
 
@@ -92,7 +92,7 @@ begin
   if (version <> FNT_V1) and (version <> FNT_V2) and (version <> FNT_V3) then
     raise EStreamError.Create('Not a FNT file');
 
-  stream.Seek(SizeOf(TFNTHeader.file_size), soCurrent);
+  stream.Seek(SizeOf(TFNTHeader.fileSize), soCurrent);
 
   SetLength(copyright, MAX_COPYRIGHT_LEN);
   stream.ReadBuffer(copyright[1], MAX_COPYRIGHT_LEN);
@@ -115,14 +115,14 @@ begin
     info.style := GetWeightName(weight);
 
   stream.Seek(
-    start + SizeUInt(@TFNTHeader(NIL^).face_name_offset), soBeginning);
+    start + SizeUInt(@TFNTHeader(NIL^).faceNameOffset), soBeginning);
   stream.Seek(start + stream.ReadDWordLE, soBeginning);
   info.family := ReadPChar(stream);
 
   if (weight = FONT_WEIGHT_REGULAR) and not italic then
-    info.full_name := info.family
+    info.fullName := info.family
   else
-    info.full_name := info.family + ' ' + info.style;
+    info.fullName := info.family + ' ' + info.style;
 
   info.format := 'FNT ' + IntToStr(version shr 8);
 end;
@@ -140,50 +140,50 @@ const
   NAMEINFO_SIZE = 12;
 var
   start: int64;
-  res_table_offset: int64;
-  size_shift: word;
-  type_id,
-  item_count: word;
-  font_count: word = 0;
+  resTableOffset: int64;
+  sizeShift: word;
+  typeId,
+  itemCount: word;
+  fontCount: word = 0;
 begin
   start := stream.Position - SizeOf(word);
 
   stream.Seek(start + RES_TABLE_OFFSET_POS, soBeginning);
-  res_table_offset := start + stream.ReadWordLE;
+  resTableOffset := start + stream.ReadWordLE;
 
-  stream.Seek(res_table_offset, soBeginning);
+  stream.Seek(resTableOffset, soBeginning);
 
-  size_shift := stream.ReadWordLE;
+  sizeShift := stream.ReadWordLE;
 
   while TRUE do
   begin
     // Read TYPEINFO tables
-    type_id := stream.ReadWordLE;
-    if type_id = END_TYPES then
+    typeId := stream.ReadWordLE;
+    if typeId = END_TYPES then
       break;
 
-    item_count := stream.ReadWordLE;
-    if type_id = RT_FONT then
+    itemCount := stream.ReadWordLE;
+    if typeId = RT_FONT then
     begin
-      if item_count = 0 then
+      if itemCount = 0 then
         raise EStreamError.Create('RT_FONT TYPEINFO is empty');
 
-      font_count := item_count;
+      fontCount := itemCount;
       stream.Seek(TYPEINFO_RESERVED_SIZE, soCurrent);
       break;
     end;
 
     stream.Seek(
-      TYPEINFO_RESERVED_SIZE + item_count * NAMEINFO_SIZE, soCurrent);
+      TYPEINFO_RESERVED_SIZE + itemCount * NAMEINFO_SIZE, soCurrent);
   end;
 
-  if font_count = 0 then
+  if fontCount = 0 then
     raise EStreamError.Create('No RT_FONT entries in file');
 
-  stream.Seek(stream.ReadWordLE shl size_shift, soBeginning);
+  stream.Seek(stream.ReadWordLE shl sizeShift, soBeginning);
   GetFNTInfo(stream, info);
 
-  // We don't set font_count as TFontInfo.num_fonts, since multiple
+  // We don't set fontCount as TFontInfo.numFonts, since multiple
   // FNTs in FON are normally different sizes of the same font.
 end;
 
@@ -193,29 +193,29 @@ const
   HEADER_OFFSET_POS = 60;
 var
   magic: word;
-  header_offset: longword;
-  exe_format: word;
+  headerOffset: longword;
+  exeFormat: word;
 begin
   magic := stream.ReadWordLE;
   if magic = MZ_MAGIC then
   begin
     stream.Seek(HEADER_OFFSET_POS - SizeOf(magic), soCurrent);
-    // This field named as e_lfanew in some docs
-    header_offset := stream.ReadWordLE;
+    // This field named as eLfanew in some docs
+    headerOffset := stream.ReadWordLE;
 
-    stream.Seek(header_offset, soBeginning);
-    exe_format := stream.ReadWordLE;
-    if exe_format = NE_MAGIC then
+    stream.Seek(headerOffset, soBeginning);
+    exeFormat := stream.ReadWordLE;
+    if exeFormat = NE_MAGIC then
     begin
       ReadFNTFromNE(stream, info);
       exit;
     end;
 
-    if exe_format = PE_MAGIC then
+    if exeFormat = PE_MAGIC then
       raise EStreamError.Create('PE executables are not supported yet');
 
     raise EStreamError.CreateFmt(
-      'Unsupported executable format 0x%.2x', [exe_format]);
+      'Unsupported executable format 0x%.2x', [exeFormat]);
   end;
 
   if (magic = FNT_V1) or (magic = FNT_V2) or (magic = FNT_V3) then

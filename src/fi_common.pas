@@ -9,21 +9,21 @@ type
   TFontInfo = record
     family,
     style,
-    full_name,
-    ps_name,
+    fullName,
+    psName,
     version,
     copyright,
-    unique_id,
+    uniqueId,
     trademark,
     manufacturer,
     designer,
     description,
-    vendor_url,
-    designer_url,
+    vendorUrl,
+    designerUrl,
     license,
-    license_url,
+    licenseUrl,
     format: string;
-    num_fonts: longint;
+    numFonts: longint;
   end;
 
 
@@ -36,7 +36,7 @@ function GetWeightName(weight: word): string;
   Extract style from FullName using FamilyName.
   On errors, falls back to "Regular" or to weight if it is not empty.
 }
-function ExtractStyle(const full_name, family_name: string;
+function ExtractStyle(const fullName, familyName: string;
                       const weight: string = ''): string;
 
 implementation
@@ -69,39 +69,39 @@ begin
 end;
 
 
-function ExtractStyle(const full_name, family_name: string;
+function ExtractStyle(const fullName, familyName: string;
                       const weight: string = ''): string;
 var
-  style_start,
-  style_len,
-  full_name_len: SizeInt;
+  styleStart,
+  styleLen,
+  fullNameLen: SizeInt;
 begin
   result := 'Regular';
 
-  if full_name = family_name then
+  if fullName = familyName then
     exit;
 
   if weight <> '' then
     result := weight;
 
-  if (full_name = '')
-      or (family_name = '')
-      or not AnsiStartsStr(family_name, full_name) then
+  if (fullName = '')
+      or (familyName = '')
+      or not AnsiStartsStr(familyName, fullName) then
     exit;
 
-  style_start := Length(family_name) + 1;
-  full_name_len := Length(full_name);
-  if style_start = full_name_len then
+  styleStart := Length(familyName) + 1;
+  fullNameLen := Length(fullName);
+  if styleStart = fullNameLen then
     exit;
 
-  if full_name[style_start] in [' ', '-'] then
-    inc(style_start);
+  if fullName[styleStart] in [' ', '-'] then
+    inc(styleStart);
 
-  style_len := full_name_len - style_start + 1;
-  if style_len < 1 then
+  styleLen := fullNameLen - styleStart + 1;
+  if styleLen < 1 then
     exit;
 
-  result := Copy(full_name, style_start, style_len);
+  result := Copy(fullName, styleStart, styleLen);
 end;
 
 end.

@@ -35,41 +35,41 @@ const
 
 
 procedure GetCommonInfo(
-  line_reader: TLineReader; var info: TFontInfo; font_format: TFontFormat);
+  lineReader: TLineReader; var info: TFontInfo; fontFormat: TFontFormat);
 var
   i: longint;
   s: string;
-  s_len: SizeInt;
+  sLen: SizeInt;
   key: string;
   p: SizeInt;
   dst: pstring;
-  num_found: longint;
+  numFound: longint;
 begin
   repeat
-    if not line_reader.ReadLine(s) then
+    if not lineReader.ReadLine(s) then
       raise EStreamError.CreateFmt(
-        '%s is empty', [FONT_IDENT[font_format].name]);
+        '%s is empty', [FONT_IDENT[fontFormat].name]);
 
     s := Trim(s);
   until s <> '';
 
   p := Pos(' ', s);
-  if (p = 0) or (Copy(s, 1, p - 1) <> FONT_IDENT[font_format].sign) then
+  if (p = 0) or (Copy(s, 1, p - 1) <> FONT_IDENT[fontFormat].sign) then
     raise EStreamError.CreateFmt(
-      'Not a %s font', [FONT_IDENT[font_format].name]);
+      'Not a %s font', [FONT_IDENT[fontFormat].name]);
 
   while s[p + 1] = ' ' do
     inc(p);
 
-  info.format := FONT_IDENT[font_format].name +
+  info.format := FONT_IDENT[fontFormat].name +
     Copy(s, p, Length(s) - p + 1);
 
   i := 1;
-  num_found := 0;
+  numFound := 0;
   while
-    (num_found < NUM_FIELDS)
+    (numFound < NUM_FIELDS)
     and (i <= MAX_LINES)
-    and line_reader.ReadLine(s) do
+    and lineReader.ReadLine(s) do
   begin
     s := Trim(s);
     if s = '' then
@@ -81,14 +81,14 @@ begin
 
     inc(i);
 
-    if font_format = SFD then
+    if fontFormat = SFD then
       key := Copy(s, 1, p - 2)  // Skip colon
     else
       key := Copy(s, 1, p - 1);
 
     case key of
-      'FontName': dst := @info.ps_name;
-      'FullName': dst := @info.full_name;
+      'FontName': dst := @info.psName;
+      'FullName': dst := @info.fullName;
       'FamilyName': dst := @info.family;
       'Weight': dst := @info.style;
       'Version': dst := @info.version;
@@ -102,34 +102,34 @@ begin
       inc(p);
     until s[p] <> ' ';
 
-    s_len := Length(s);
+    sLen := Length(s);
     if (dst = @info.copyright)
-      and (font_format = AFM)
+      and (fontFormat = AFM)
       and (s[p] = '(')
-      and (s[s_len] = ')') then
+      and (s[sLen] = ')') then
     begin
       inc(p);
-      dec(s_len);
+      dec(sLen);
     end;
 
-    dst^ := Copy(s, p, s_len - (p - 1));
-    inc(num_found);
+    dst^ := Copy(s, p, sLen - (p - 1));
+    inc(numFound);
   end;
 
-  info.style := ExtractStyle(info.full_name, info.family, info.style);
+  info.style := ExtractStyle(info.fullName, info.family, info.style);
 end;
 
 
 procedure GetCommonInfo(
-  stream: TStream; var info: TFontInfo; font_format: TFontFormat);
+  stream: TStream; var info: TFontInfo; fontFormat: TFontFormat);
 var
-  line_reader: TLineReader;
+  lineReader: TLineReader;
 begin
-  line_reader := TLineReader.Create(stream);
+  lineReader := TLineReader.Create(stream);
   try
-    GetCommonInfo(line_reader, info, font_format);
+    GetCommonInfo(lineReader, info, fontFormat);
   finally
-    line_reader.Free;
+    lineReader.Free;
   end;
 end;
 

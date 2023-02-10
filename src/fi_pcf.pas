@@ -28,21 +28,21 @@ const
 
 
 type
-  TPCF_TOC = packed record
+  TPCFTOC = packed record
     version,
     count: longword;
   end;
 
-  TPCF_TOCRec = packed record
+  TPCFTOCRec = packed record
     type_,
     format,
     size,
     offset: longword;
   end;
 
-  TPCF_PropertyRec = packed record
-    name_offset: longint;
-    is_string: byte;
+  TPCFPropertyRec = packed record
+    nameOffset: longint;
+    isString: byte;
     value: longint;
   end;
 
@@ -50,12 +50,12 @@ type
 procedure ReadProperties(stream: TStream; var info: TFontInfo);
 var
   format,
-  num_properties,
+  numProperties,
   i: longint;
-  big_endian: boolean;
-  read_dw: function: longword of object;
-  properties: array of TPCF_PropertyRec;
-  strings_len: longint;
+  bigEndian: boolean;
+  readDw: function: longword of object;
+  properties: array of TPCFPropertyRec;
+  stringsLen: longint;
   strings: array of AnsiChar;
   dst: pstring;
 begin
@@ -64,67 +64,67 @@ begin
     raise EStreamError.Create(
       'The PCF properties table has a non-default format');
 
-  big_endian := format and PCF_BYTE_MASK = PCF_BYTE_MASK;
-  if big_endian then
-    read_dw := @stream.ReadDWordBE
+  bigEndian := format and PCF_BYTE_MASK = PCF_BYTE_MASK;
+  if bigEndian then
+    readDw := @stream.ReadDWordBE
   else
-    read_dw := @stream.ReadDWordLE;
+    readDw := @stream.ReadDWordLE;
 
-  num_properties := read_dw();
-  if num_properties <= 0 then
+  numProperties := readDw();
+  if numProperties <= 0 then
     raise EStreamError.CreateFmt(
       'The PCF properties table has a wrong number of properties (%d)',
-      [num_properties]);
+      [numProperties]);
 
-  SetLength(properties, num_properties);
-  stream.ReadBuffer(properties[0], num_properties * SizeOf(TPCF_PropertyRec));
+  SetLength(properties, numProperties);
+  stream.ReadBuffer(properties[0], numProperties * SizeOf(TPCFPropertyRec));
 
-  if num_properties and 3 <> 0 then
-    stream.Seek(4 - num_properties and 3, soCurrent);
+  if numProperties and 3 <> 0 then
+    stream.Seek(4 - numProperties and 3, soCurrent);
 
-  strings_len := read_dw();
-  if strings_len <= 0 then
+  stringsLen := readDw();
+  if stringsLen <= 0 then
     raise EStreamError.CreateFmt(
       'The PCF properties table has a wrong size of strings (%d)',
-      [strings_len]);
+      [stringsLen]);
 
-  SetLength(strings, strings_len);
-  stream.ReadBuffer(strings[0], strings_len);
-  strings[strings_len - 1] := #0;
+  SetLength(strings, stringsLen);
+  stream.ReadBuffer(strings[0], stringsLen);
+  strings[stringsLen - 1] := #0;
 
-  for i := 0 to num_properties - 1 do
+  for i := 0 to numProperties - 1 do
   begin
-    if properties[i].is_string = 0 then
+    if properties[i].isString = 0 then
       continue;
 
     {$IFDEF ENDIAN_BIG}
-    if not big_endian then
+    if not bigEndian then
     {$ELSE}
-    if big_endian then
+    if bigEndian then
     {$ENDIF}
       with properties[i] do
       begin
-        name_offset := SwapEndian(name_offset);
+        nameOffset := SwapEndian(nameOffset);
         value := SwapEndian(value);
       end;
 
-    if not InRange(properties[i].name_offset, 0, strings_len) then
+    if not InRange(properties[i].nameOffset, 0, stringsLen) then
       raise EStreamError.CreateFmt(
         'The PCF property %d name offset is out of bounds [0..%d]',
-        [i + 1, strings_len]);
+        [i + 1, stringsLen]);
 
-    if not InRange(properties[i].value, 0, strings_len) then
+    if not InRange(properties[i].value, 0, stringsLen) then
       raise EStreamError.CreateFmt(
         'The PCF property %d ("%s") value offset is out of bounds [0..%d]',
-        [i + 1, PAnsiChar(@strings[properties[i].name_offset]), strings_len]);
+        [i + 1, PAnsiChar(@strings[properties[i].nameOffset]), stringsLen]);
 
-    case String(PAnsiChar(@strings[properties[i].name_offset])) of
+    case String(PAnsiChar(@strings[properties[i].nameOffset])) of
       BDF_COPYRIGHT: dst := @info.copyright;
       BDF_FAMILY_NAME: dst := @info.family;
-      BDF_FONT: dst := @info.ps_name;
+      BDF_FONT: dst := @info.psName;
       BDF_FONT_VERSION: dst := @info.version;
       BDF_FOUNDRY: dst := @info.manufacturer;
-      BDF_FULL_NAME, BDF_FACE_NAME: dst := @info.full_name;
+      BDF_FULL_NAME, BDF_FACE_NAME: dst := @info.fullName;
       BDF_WEIGHT_NAME: dst := @info.style;
     else
       continue;
@@ -137,8 +137,8 @@ end;
 
 procedure GetPCFInfo(stream: TStream; var info: TFontInfo);
 var
-  toc: TPCF_TOC;
-  toc_rec: TPCF_TOCRec;
+  toc: TPCFTOC;
+  tocRec: TPCFTOCRec;
   i: longword;
 begin
   stream.ReadBuffer(toc, SizeOf(toc));
@@ -159,10 +159,10 @@ begin
 
   for i := 0 to toc.count - 1 do
   begin
-    stream.ReadBuffer(toc_rec, SizeOf(toc_rec));
+    stream.ReadBuffer(tocRec, SizeOf(tocRec));
 
     {$IFDEF ENDIAN_BIG}
-    with toc_rec do
+    with tocRec do
     begin
       type_ := SwapEndian(type_);
       format := SwapEndian(format);
@@ -171,13 +171,13 @@ begin
     end;
     {$ENDIF}
 
-    if toc_rec.type_ = PCF_PROPERTIES then
+    if tocRec.type_ = PCF_PROPERTIES then
     begin
-      if toc_rec.format and PCF_FORMAT_MASK <> PCF_DEFAULT_FORMAT then
+      if tocRec.format and PCF_FORMAT_MASK <> PCF_DEFAULT_FORMAT then
         raise EStreamError.Create(
           'The PCF TOC has a non-default format for the properties table');
 
-      stream.Seek(toc_rec.offset, soBeginning);
+      stream.Seek(tocRec.offset, soBeginning);
       ReadProperties(stream, info);
       break;
     end;

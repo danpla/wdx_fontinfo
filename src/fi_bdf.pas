@@ -24,7 +24,7 @@ const
   BDF_WEIGHT_NAME = 'WEIGHT_NAME';
 
 {
-  Fill empty family, style, and full_name with information from existing fields.
+  Fill empty family, style, and fullName with information from existing fields.
 }
 procedure BDF_FillEmpty(var info: TFontInfo);
 
@@ -40,32 +40,32 @@ const
 
 procedure BDF_FillEmpty(var info: TFontInfo);
 begin
-  if (info.family = '') and (info.ps_name <> '') then
-    info.family := info.ps_name;
+  if (info.family = '') and (info.psName <> '') then
+    info.family := info.psName;
 
   if info.style = '' then
     info.style := 'Medium';
 
-  if info.full_name = '' then
+  if info.fullName = '' then
     if info.style = 'Medium' then
-      info.full_name := info.family
+      info.fullName := info.family
     else
-      info.full_name := info.family + ' ' + info.style;
+      info.fullName := info.family + ' ' + info.style;
 end;
 
 
-procedure ReadBDF(line_reader: TLineReader; var info: TFontInfo);
+procedure ReadBDF(lineReader: TLineReader; var info: TFontInfo);
 var
   i: longint;
   s: string;
-  s_len: SizeInt;
+  sLen: SizeInt;
   key: string;
   p: SizeInt;
   dst: pstring;
-  num_found: longint;
+  numFound: longint;
 begin
   repeat
-    if not line_reader.ReadLine(s) then
+    if not lineReader.ReadLine(s) then
       raise EStreamError.Create('BDF is empty');
 
     s := Trim(s);
@@ -81,11 +81,11 @@ begin
   info.format := 'BDF' + Copy(s, p, Length(s) - p + 1);
 
   i := 1;
-  num_found := 0;
+  numFound := 0;
   while
-    (num_found < NUM_FIELDS)
+    (numFound < NUM_FIELDS)
     and (i <= MAX_LINES)
-    and line_reader.ReadLine(s) do
+    and lineReader.ReadLine(s) do
   begin
     s := Trim(s);
 
@@ -112,10 +112,10 @@ begin
     case key of
       BDF_COPYRIGHT: dst := @info.copyright;
       BDF_FAMILY_NAME: dst := @info.family;
-      BDF_FONT: dst := @info.ps_name;
+      BDF_FONT: dst := @info.psName;
       BDF_FONT_VERSION: dst := @info.version;
       BDF_FOUNDRY: dst := @info.manufacturer;
-      BDF_FULL_NAME, BDF_FACE_NAME: dst := @info.full_name;
+      BDF_FULL_NAME, BDF_FACE_NAME: dst := @info.fullName;
       BDF_WEIGHT_NAME: dst := @info.style;
       'CHARS': break;
     else
@@ -126,16 +126,16 @@ begin
       inc(p);
     until s[p] <> ' ';
 
-    s_len := Length(s);
+    sLen := Length(s);
 
-    if (s[p] = '"') and (s[s_len] = '"') then
+    if (s[p] = '"') and (s[sLen] = '"') then
     begin
       inc(p);
-      dec(s_len);
+      dec(sLen);
     end;
 
-    dst^ := Copy(s, p, s_len - (p - 1));
-    inc(num_found);
+    dst^ := Copy(s, p, sLen - (p - 1));
+    inc(numFound);
   end;
 
   BDF_FillEmpty(info);
@@ -144,13 +144,13 @@ end;
 
 procedure GetBDFInfo(stream: TStream; var info: TFontInfo);
 var
-  line_reader: TLineReader;
+  lineReader: TLineReader;
 begin
-  line_reader := TLineReader.Create(stream);
+  lineReader := TLineReader.Create(stream);
   try
-    ReadBDF(line_reader, info);
+    ReadBDF(lineReader, info);
   finally
-    line_reader.Free;
+    lineReader.Free;
   end;
 end;
 

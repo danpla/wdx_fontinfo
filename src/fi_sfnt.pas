@@ -32,7 +32,7 @@ const
 function SFNT_TagToString(tag: longword): string;
 function SFNT_IsLayoutTable(tag: longword): boolean;
 function SFNT_GetFormatSting(
-  sign: longword; has_layout_tables: boolean): string;
+  sign: longword; hasLayoutTables: boolean): string;
 
 type
   TSFNTTableReader = procedure(stream: TStream; var info: TFontInfo);
@@ -53,11 +53,11 @@ procedure SFNT_ReadTable(
 {
   Common parser for TTF, TTC, OTF, OTC, and EOT.
 
-  font_offset is necessary for EOT since its EMBEDDEDFONT structure
+  fontOffset is necessary for EOT since its EMBEDDEDFONT structure
   is not treated as part of the font data.
 }
 procedure SFNT_GetCommonInfo(
-  stream: TStream; var info: TFontInfo; font_offset: longword = 0);
+  stream: TStream; var info: TFontInfo; fontOffset: longword = 0);
 
 implementation
 
@@ -89,11 +89,11 @@ end;
 
 
 function SFNT_GetFormatSting(
-  sign: longword; has_layout_tables: boolean): string;
+  sign: longword; hasLayoutTables: boolean): string;
 begin
   if sign = SFNT_OTF_SIGN then
     result := 'OT PS'
-  else if has_layout_tables then
+  else if hasLayoutTables then
     result := 'OT TT'
   else
     result := 'TT';
@@ -134,14 +134,14 @@ type
   TNamingTable = packed record
     format,
     count,
-    string_offset: word;
+    stringOffset: word;
   end;
 
   TNameRecord = packed record
-    platform_id,
-    encoding_id,
-    language_id,
-    name_id,
+    platformId,
+    encodingId,
+    languageId,
+    nameId,
     length,
     offset: word;
   end;
@@ -149,64 +149,64 @@ type
 procedure ReadNameTable(stream: TStream; var info: TFontInfo);
 var
   start: int64;
-  naming_table: TNamingTable;
-  storage_offset,
+  namingTable: TNamingTable;
+  storageOffset,
   offset: int64;
   i: longint;
-  name_rec: TNameRecord;
+  nameRec: TNameRecord;
   name: UnicodeString;
   dst: pstring;
 begin
   start := stream.Position;
-  stream.ReadBuffer(naming_table, SizeOf(naming_table));
+  stream.ReadBuffer(namingTable, SizeOf(namingTable));
 
   {$IFDEF ENDIAN_LITTLE}
-  with naming_table do
+  with namingTable do
   begin
     format := SwapEndian(format);
     count := SwapEndian(count);
-    string_offset := SwapEndian(string_offset);
+    stringOffset := SwapEndian(stringOffset);
   end;
   {$ENDIF}
 
-  if naming_table.count = 0 then
+  if namingTable.count = 0 then
     raise EStreamError.Create('Naming table has no records');
 
-  storage_offset := start + naming_table.string_offset;
+  storageOffset := start + namingTable.stringOffset;
 
-  for i := 0 to naming_table.count - 1 do
+  for i := 0 to namingTable.count - 1 do
   begin
-    stream.ReadBuffer(name_rec, SizeOf(name_rec));
+    stream.ReadBuffer(nameRec, SizeOf(nameRec));
 
     {$IFDEF ENDIAN_LITTLE}
-    with name_rec do
+    with nameRec do
     begin
-      platform_id := SwapEndian(platform_id);
-      encoding_id := SwapEndian(encoding_id);
-      language_id := SwapEndian(language_id);
-      name_id := SwapEndian(name_id);
+      platformId := SwapEndian(platformId);
+      encodingId := SwapEndian(encodingId);
+      languageId := SwapEndian(languageId);
+      nameId := SwapEndian(nameId);
       length := SwapEndian(length);
       offset := SwapEndian(offset);
     end;
     {$ENDIF}
 
-    if name_rec.length = 0 then
+    if nameRec.length = 0 then
       continue;
 
-    case name_rec.platform_id of
+    case nameRec.platformId of
       PLATFORM_ID_MAC:
-        if (name_rec.encoding_id <> ENCODING_ID_MAC_ROMAN)
-            or (name_rec.language_id <> LANGUAGE_ID_MAC_ENGLISH) then
+        if (nameRec.encodingId <> ENCODING_ID_MAC_ROMAN)
+            or (nameRec.languageId <> LANGUAGE_ID_MAC_ENGLISH) then
           continue;
       PLATFORM_ID_WIN:
         // Entries in the Name Record are sorted by ids so we can
         // stop parsing after we finished reading all needed
         // records.
-        if (name_rec.encoding_id > ENCODING_ID_WIN_UCS2)
-            or (name_rec.language_id > LANGUAGE_ID_WIN_ENGLISH_US) then
+        if (nameRec.encodingId > ENCODING_ID_WIN_UCS2)
+            or (nameRec.languageId > LANGUAGE_ID_WIN_ENGLISH_US) then
           break
-        else if (name_rec.encoding_id <> ENCODING_ID_WIN_UCS2)
-            or (name_rec.language_id <> LANGUAGE_ID_WIN_ENGLISH_US) then
+        else if (nameRec.encodingId <> ENCODING_ID_WIN_UCS2)
+            or (nameRec.languageId <> LANGUAGE_ID_WIN_ENGLISH_US) then
           continue;
       else
         // We don't break in case id > PLATFORM_ID_WIN so that we
@@ -215,22 +215,22 @@ begin
         continue;
     end;
 
-    case name_rec.name_id of
+    case nameRec.nameId of
       0:  dst := @info.copyright;
       1:  dst := @info.family;
       2:  dst := @info.style;
-      3:  dst := @info.unique_id;
-      4:  dst := @info.full_name;
+      3:  dst := @info.uniqueId;
+      4:  dst := @info.fullName;
       5:  dst := @info.version;
-      6:  dst := @info.ps_name;
+      6:  dst := @info.psName;
       7:  dst := @info.trademark;
       8:  dst := @info.manufacturer;
       9:  dst := @info.designer;
       10: dst := @info.description;
-      11: dst := @info.vendor_url;
-      12: dst := @info.designer_url;
+      11: dst := @info.vendorUrl;
+      12: dst := @info.designerUrl;
       13: dst := @info.license;
-      14: dst := @info.license_url;
+      14: dst := @info.licenseUrl;
       15: continue;  // Reserved
       16: dst := @info.family;  // Typographic Family
       17: dst := @info.style;  // Typographic Subfamily
@@ -239,26 +239,26 @@ begin
       // There are fonts (like Trattatello.ttf) where mostly
       // non-standard Macintosh names (name id >= 256) are followed
       // by standard Windows names.
-      if name_rec.platform_id >= PLATFORM_ID_WIN then
+      if nameRec.platformId >= PLATFORM_ID_WIN then
         break
       else
         continue;
     end;
 
     offset := stream.Position;
-    stream.Seek(storage_offset + name_rec.offset, soBeginning);
+    stream.Seek(storageOffset + nameRec.offset, soBeginning);
 
-    case name_rec.platform_id of
+    case nameRec.platformId of
       PLATFORM_ID_MAC:
       begin
-        SetLength(dst^, name_rec.length);
-        stream.ReadBuffer(dst^[1], name_rec.length);
+        SetLength(dst^, nameRec.length);
+        stream.ReadBuffer(dst^[1], nameRec.length);
         dst^ := MacOSRomanToUTF8(dst^);
       end;
       PLATFORM_ID_WIN:
       begin
-        SetLength(name, name_rec.length div SizeOf(WideChar));
-        stream.ReadBuffer(name[1], name_rec.length);
+        SetLength(name, nameRec.length div SizeOf(WideChar));
+        stream.ReadBuffer(name[1], nameRec.length);
         {$IFDEF ENDIAN_LITTLE}
         SwapUnicode(name);
         {$ENDIF}
@@ -297,10 +297,10 @@ end;
 type
   TOffsetTable = packed record
     version: longword;
-    num_tables: word;
-    //search_range,
-    //entry_selector,
-    //range_shift: word;
+    numTables: word;
+    //searchRange,
+    //entrySelector,
+    //rangeShift: word;
   end;
 
   TTableDirEntry = packed record
@@ -311,36 +311,36 @@ type
   end;
 
 procedure SFNT_GetCommonInfo(
-  stream: TStream; var info: TFontInfo; font_offset: longword);
+  stream: TStream; var info: TFontInfo; fontOffset: longword);
 var
-  offset_table: TOffsetTable;
+  offsetTable: TOffsetTable;
   i: longint;
   dir: TTableDirEntry;
-  has_layout_tables: boolean = FALSE;
+  hasLayoutTables: boolean = FALSE;
 begin
-  stream.ReadBuffer(offset_table, SizeOf(offset_table));
+  stream.ReadBuffer(offsetTable, SizeOf(offsetTable));
 
   {$IFDEF ENDIAN_LITTLE}
-  with offset_table do
+  with offsetTable do
   begin
     version := SwapEndian(version);
-    num_tables := SwapEndian(num_tables);
+    numTables := SwapEndian(numTables);
   end;
   {$ENDIF}
 
-  if (offset_table.version <> SFNT_TTF_SIGN1)
-      and (offset_table.version <> SFNT_TTF_SIGN2)
-      and (offset_table.version <> SFNT_TTF_SIGN3)
-      and (offset_table.version <> SFNT_TTF_SIGN4)
-      and (offset_table.version <> SFNT_OTF_SIGN) then
+  if (offsetTable.version <> SFNT_TTF_SIGN1)
+      and (offsetTable.version <> SFNT_TTF_SIGN2)
+      and (offsetTable.version <> SFNT_TTF_SIGN3)
+      and (offsetTable.version <> SFNT_TTF_SIGN4)
+      and (offsetTable.version <> SFNT_OTF_SIGN) then
     raise EStreamError.Create('Not a SFNT-based font');
 
-  if offset_table.num_tables = 0 then
+  if offsetTable.numTables = 0 then
     raise EStreamError.Create('Font has no tables');
 
   stream.Seek(SizeOf(word) * 3, soCurrent);
 
-  for i := 0 to offset_table.num_tables - 1 do
+  for i := 0 to offsetTable.numTables - 1 do
   begin
     stream.ReadBuffer(dir, SizeOf(dir));
 
@@ -358,14 +358,14 @@ begin
       SFNT_FindTableReader(dir.tag),
       stream,
       info,
-      font_offset + dir.offset);
+      fontOffset + dir.offset);
 
-    has_layout_tables := (
-      has_layout_tables or SFNT_IsLayoutTable(dir.tag));
+    hasLayoutTables := (
+      hasLayoutTables or SFNT_IsLayoutTable(dir.tag));
   end;
 
   info.format := SFNT_GetFormatSting(
-    offset_table.version, has_layout_tables);
+    offsetTable.version, hasLayoutTables);
 end;
 
 

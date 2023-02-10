@@ -49,8 +49,8 @@ end;
 function Read255UShort(stream: TStream): word;
 const
   WORD_CODE = 253;
-  ONE_MORE_BYTE_CODE_1 = 254;
-  ONE_MORE_BYTE_CODE_2 = 255;
+  ONE_MORE_BYTE_CODE1 = 254;
+  ONE_MORE_BYTE_CODE2 = 255;
   LOWEST_UCODE = 253;
 var
   code: byte;
@@ -59,9 +59,9 @@ begin
   case code of
     WORD_CODE:
       result := stream.ReadWordLE;
-    ONE_MORE_BYTE_CODE_1:
+    ONE_MORE_BYTE_CODE1:
       result := LOWEST_UCODE + stream.ReadByte;
-    ONE_MORE_BYTE_CODE_2:
+    ONE_MORE_BYTE_CODE2:
       result := LOWEST_UCODE * 2 + stream.ReadByte;
   else
     result := code;
@@ -73,16 +73,16 @@ type
   TWOFF2TableDirEntry = record
     tag,
     offset,
-    original_len,
-    transformed_len: longword;
+    originalLen,
+    transformedLen: longword;
   end;
 
   TWOFF2TableDir = array of TWOFF2TableDirEntry;
 
 
-function WOFF2TagIdxToTag(tag_idx: longword): longword;
+function WOFF2TagIdxToTag(tagIdx: longword): longword;
 begin
-  case tag_idx of
+  case tagIdx of
     5:  result := SFNT_TAG_NAME;
     10: result := SFNT_TAG_GLYF;
     11: result := SFNT_TAG_LOCA;
@@ -98,20 +98,20 @@ end;
 
 
 function ReadWOFF2TableDir(
-  stream: TStream; num_tables: longint): TWOFF2TableDir;
+  stream: TStream; numTables: longint): TWOFF2TableDir;
 var
   i: longint;
   offset: longword;
   flags: byte;
   tag: longword;
-  transform_version: byte;
+  transformVersion: byte;
 begin
-  SetLength(result, num_tables);
-  if num_tables = 0 then
+  SetLength(result, numTables);
+  if numTables = 0 then
     exit(result);
 
   offset := 0;
-  for i := 0 to num_tables - 1 do
+  for i := 0 to numTables - 1 do
   begin
     flags := stream.ReadByte;
     if flags and $3f = $3f then
@@ -121,19 +121,19 @@ begin
 
     result[i].tag := tag;
     result[i].offset := offset;
-    result[i].original_len := ReadUIntBase128(stream);
-    result[i].transformed_len := result[i].original_len;
+    result[i].originalLen := ReadUIntBase128(stream);
+    result[i].transformedLen := result[i].originalLen;
 
-    transform_version := (flags shr 6) and $03;
+    transformVersion := (flags shr 6) and $03;
     if (tag = SFNT_TAG_GLYF) or (tag = SFNT_TAG_LOCA) then
     begin
-      if transform_version = 0 then
-        result[i].transformed_len := ReadUIntBase128(stream);
+      if transformVersion = 0 then
+        result[i].transformedLen := ReadUIntBase128(stream);
     end
-    else if transform_version <> 0 then
-      result[i].transformed_len := ReadUIntBase128(stream);
+    else if transformVersion <> 0 then
+      result[i].transformedLen := ReadUIntBase128(stream);
 
-    inc(offset, result[i].transformed_len);
+    inc(offset, result[i].transformedLen);
   end;
 end;
 
@@ -141,54 +141,54 @@ end;
 type
   TWOFF2ColectionFontEntry = record
     flavor: longword;
-    table_dir_indices: array of word;
+    tableDirIndices: array of word;
   end;
 
 
 function ReadWOFF2CollectionFontEntry(
-  stream: TStream; num_tables: word): TWOFF2ColectionFontEntry;
+  stream: TStream; numTables: word): TWOFF2ColectionFontEntry;
 var
   i: longint;
   index: word;
 begin
-  SetLength(result.table_dir_indices, Read255UShort(stream));
+  SetLength(result.tableDirIndices, Read255UShort(stream));
   result.flavor := stream.ReadDWordLE;
 
-  for i := 0 to High(result.table_dir_indices) do
+  for i := 0 to High(result.tableDirIndices) do
   begin
     index := Read255UShort(stream);
-    if index >= num_tables then
+    if index >= numTables then
       raise EStreamError.CreateFmt(
         'Table directory index %d at offset %d'
         + ' is out of bounds [0, %u)',
-        [i, stream.Position, num_tables]);
+        [i, stream.Position, numTables]);
 
-    result.table_dir_indices[i] := index;
+    result.tableDirIndices[i] := index;
   end;
 end;
 
 
 function DecompressWOFF2Data(
   stream: TStream;
-  compressed_size, decompressed_size: longword): TBytes;
+  compressedSize, decompressedSize: longword): TBytes;
 var
-  compressed_data: TBytes;
-  brotli_decompressed_size: SizeUInt;
-  brotli_decoder_result: TBrotliDecoderResult;
+  compressedData: TBytes;
+  brotliDecompressedSize: SizeUInt;
+  brotliDecoderResult: TBrotliDecoderResult;
 begin
-  SetLength(compressed_data, compressed_size);
-  stream.ReadBuffer(compressed_data[0], compressed_size);
-  SetLength(result, decompressed_size);
+  SetLength(compressedData, compressedSize);
+  stream.ReadBuffer(compressedData[0], compressedSize);
+  SetLength(result, decompressedSize);
 
-  brotli_decompressed_size := decompressed_size;
-  brotli_decoder_result := BrotliDecoderDecompress(
-    compressed_size,
-    Pointer(compressed_data),
-    @brotli_decompressed_size,
+  brotliDecompressedSize := decompressedSize;
+  brotliDecoderResult := BrotliDecoderDecompress(
+    compressedSize,
+    Pointer(compressedData),
+    @brotliDecompressedSize,
     Pointer(result));
 
-  if (brotli_decoder_result <> BROTLI_DECODER_RESULT_SUCCESS)
-      or (brotli_decompressed_size <> decompressed_size) then
+  if (brotliDecoderResult <> BROTLI_DECODER_RESULT_SUCCESS)
+      or (brotliDecompressedSize <> decompressedSize) then
     raise EStreamError.Create('WOFF2 brotli decompression failure');
 end;
 
@@ -201,10 +201,10 @@ type
     signature,
     flavor,
     length: longword;
-    num_tables,
+    numTables,
     reserved: word;
-    total_sfnt_size,
-    total_compressed_size: longword;
+    totalSfntSize,
+    totalCompressedSize: longword;
     // majorVersion,
     // minorVersion: word;
     // metaOffset,
@@ -218,15 +218,15 @@ type
 procedure GetWOFF2Info(stream: TStream; var info: TFontInfo);
 var
   header: TWOFF2Header;
-  table_dir: TWOFF2TableDir;
-  decompressed_size: longword;
+  tableDir: TWOFF2TableDir;
+  decompressedSize: longword;
   i: longint;
-  has_layout_tables: boolean = FALSE;
+  hasLayoutTables: boolean = FALSE;
   version: longword;
-  collection_font_entry: TWOFF2ColectionFontEntry;
-  table_dir_indices: array of word;
-  decompressed_data: TBytes;
-  decompressed_data_stream: TBytesStream;
+  collectionFontEntry: TWOFF2ColectionFontEntry;
+  tableDirIndices: array of word;
+  decompressedData: TBytes;
+  decompressedDataStream: TBytesStream;
 begin
   stream.ReadBuffer(header, SizeOf(header));
 
@@ -236,10 +236,10 @@ begin
     signature := SwapEndian(signature);
     flavor := SwapEndian(flavor);
     length := SwapEndian(length);
-    num_tables := SwapEndian(num_tables);
+    numTables := SwapEndian(numTables);
     reserved := SwapEndian(reserved);
-    total_sfnt_size := SwapEndian(total_sfnt_size);
-    total_compressed_size := SwapEndian(total_compressed_size);
+    totalSfntSize := SwapEndian(totalSfntSize);
+    totalCompressedSize := SwapEndian(totalCompressedSize);
   end;
   {$ENDIF}
 
@@ -251,7 +251,7 @@ begin
       'Size in WOFF2 header (%u) does not match the file size (%d)',
       [header.length, stream.Size]);
 
-  if header.num_tables = 0 then
+  if header.numTables = 0 then
     raise EStreamError.Create('WOFF2 has no tables');
 
   if header.reserved <> 0 then
@@ -261,57 +261,57 @@ begin
 
   stream.Seek(SizeOf(word) * 2 + SizeOf(longword) * 5, soCurrent);
 
-  table_dir := ReadWOFF2TableDir(stream, header.num_tables);
-  with table_dir[header.num_tables - 1] do
-    decompressed_size := offset + transformed_len;
+  tableDir := ReadWOFF2TableDir(stream, header.numTables);
+  with tableDir[header.numTables - 1] do
+    decompressedSize := offset + transformedLen;
 
   if header.flavor = SFNT_COLLECTION_SIGN then
   begin
     stream.Seek(SizeOf(longword), soCurrent);  // TTC version
-    info.num_fonts := Read255UShort(stream);
-    if info.num_fonts = 0 then
+    info.numFonts := Read255UShort(stream);
+    if info.numFonts = 0 then
       raise EStreamError.Create('WOFF2 collection has no fonts');
 
-    collection_font_entry := ReadWOFF2CollectionFontEntry(
-      stream, header.num_tables);
+    collectionFontEntry := ReadWOFF2CollectionFontEntry(
+      stream, header.numTables);
 
-    version := collection_font_entry.flavor;
-    table_dir_indices := collection_font_entry.table_dir_indices;
+    version := collectionFontEntry.flavor;
+    tableDirIndices := collectionFontEntry.tableDirIndices;
 
     // We only need the first font.
-    for i := 1 to info.num_fonts - 1 do
-      ReadWOFF2CollectionFontEntry(stream, header.num_tables);
+    for i := 1 to info.numFonts - 1 do
+      ReadWOFF2CollectionFontEntry(stream, header.numTables);
   end
   else
   begin
     version := header.flavor;
 
-    SetLength(table_dir_indices, Length(table_dir));
-    for i := 0 to High(table_dir_indices) do
-      table_dir_indices[i] := i;
+    SetLength(tableDirIndices, Length(tableDir));
+    for i := 0 to High(tableDirIndices) do
+      tableDirIndices[i] := i;
   end;
 
-  decompressed_data := DecompressWOFF2Data(
-    stream, header.total_compressed_size, decompressed_size);
-  decompressed_data_stream := TBytesStream.Create(decompressed_data);
+  decompressedData := DecompressWOFF2Data(
+    stream, header.totalCompressedSize, decompressedSize);
+  decompressedDataStream := TBytesStream.Create(decompressedData);
 
   try
-    for i := 0 to High(table_dir_indices) do
+    for i := 0 to High(tableDirIndices) do
     begin
       SFNT_ReadTable(
-        SFNT_FindTableReader(table_dir[i].tag),
-        decompressed_data_stream,
+        SFNT_FindTableReader(tableDir[i].tag),
+        decompressedDataStream,
         info,
-        table_dir[i].offset);
+        tableDir[i].offset);
 
-      has_layout_tables := (
-        has_layout_tables or SFNT_IsLayoutTable(table_dir[i].tag));
+      hasLayoutTables := (
+        hasLayoutTables or SFNT_IsLayoutTable(tableDir[i].tag));
     end;
   finally
-    decompressed_data_stream.Free;
+    decompressedDataStream.Free;
   end;
 
-  info.format := SFNT_GetFormatSting(version, has_layout_tables);
+  info.format := SFNT_GetFormatSting(version, hasLayoutTables);
 end;
 
 

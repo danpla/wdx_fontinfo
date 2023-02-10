@@ -24,44 +24,44 @@ const
 
 type
   TEOTHeader = packed record
-    eot_size,
-    font_data_size,
+    eotSize,
+    fontDataSize,
     version,
     flags: longword;
     panose: array [0..9] of byte;
     charset,
     italic: byte;
     weight: longword;
-    fs_type,
+    fsType,
     magic: word;
-    unicode_range1,
-    unicode_range2,
-    unicode_range3,
-    unicode_range4,
-    code_page_range1,
-    code_page_range2,
-    checksum_adjustment,
+    unicodeRange1,
+    unicodeRange2,
+    unicodeRange3,
+    unicodeRange4,
+    codePageRange1,
+    codePageRange2,
+    checksumAdjustment,
     reserved1,
     reserved2,
     reserved3,
     reserved4: longword;
   end;
 
-function ReadField(stream: TStream; const field_name: string): string;
+function ReadField(stream: TStream; const fieldName: string): string;
 var
   padding: word;
   s: UnicodeString;
-  s_len: word;
+  sLen: word;
 begin
   padding := stream.ReadWordLE;
   if padding <> 0 then
     raise EStreamError.CreateFmt(
       'Non-zero (%u) padding for "%s" EOT field',
-      [padding, field_name]);
+      [padding, fieldName]);
 
-  s_len := stream.ReadWordLE;
-  SetLength(s, s_len div SizeOf(WideChar));
-  stream.ReadBuffer(s[1], s_len);
+  sLen := stream.ReadWordLE;
+  SetLength(s, sLen div SizeOf(WideChar));
+  stream.ReadBuffer(s[1], sLen);
   {$IFDEF ENDIAN_BIG}
   SwapUnicode(s);
   {$ENDIF}
@@ -71,23 +71,23 @@ end;
 
 procedure GetEOTInfo(stream: TStream; var info: TFontInfo);
 var
-  eot_size,
-  font_data_size,
+  eotSize,
+  fontDataSize,
   flags,
   magic,
-  font_offset: longword;
+  fontOffset: longword;
 begin
-  eot_size := stream.ReadDWordLE;
-  if eot_size <> stream.Size then
+  eotSize := stream.ReadDWordLE;
+  if eotSize <> stream.Size then
     raise EStreamError.CreateFmt(
       'Size in EOT header (%u) does not match the file size (%d)',
-      [eot_size, stream.Size]);
+      [eotSize, stream.Size]);
 
-  font_data_size := stream.ReadDWordLE;
-  if font_data_size >= eot_size - SizeOf(TEOTHeader) then
+  fontDataSize := stream.ReadDWordLE;
+  if fontDataSize >= eotSize - SizeOf(TEOTHeader) then
     raise EStreamError.CreateFmt(
       'Data size in EOT header (%u) is too big for the actual file size (%u)',
-      [font_data_size, eot_size]);
+      [fontDataSize, eotSize]);
 
   stream.Seek(SizeOf(TEOTHeader.version), soCurrent);
 
@@ -98,7 +98,7 @@ begin
     + SizeOf(TEOTHeader.charset)
     + SizeOf(TEOTHeader.italic)
     + SizeOf(TEOTHeader.weight)
-    + SizeOf(TEOTHeader.fs_type),
+    + SizeOf(TEOTHeader.fsType),
     soCurrent);
 
   magic := stream.ReadWordLE;
@@ -108,21 +108,21 @@ begin
   if (flags and TTEMBED_TTCOMPRESSED = 0)
     and (flags and TTEMBED_XORENCRYPTDATA = 0) then
   begin
-    font_offset := eot_size - font_data_size;
-    stream.Seek(font_offset, soBeginning);
+    fontOffset := eotSize - fontDataSize;
+    stream.Seek(fontOffset, soBeginning);
 
-    SFNT_GetCommonInfo(stream, info, font_offset);
+    SFNT_GetCommonInfo(stream, info, fontOffset);
     exit;
   end;
 
   stream.Seek(
-    SizeOf(TEOTHeader.unicode_range1)
-    + SizeOf(TEOTHeader.unicode_range2)
-    + SizeOf(TEOTHeader.unicode_range3)
-    + SizeOf(TEOTHeader.unicode_range4)
-    + SizeOf(TEOTHeader.code_page_range1)
-    + SizeOf(TEOTHeader.code_page_range2)
-    + SizeOf(TEOTHeader.checksum_adjustment)
+    SizeOf(TEOTHeader.unicodeRange1)
+    + SizeOf(TEOTHeader.unicodeRange2)
+    + SizeOf(TEOTHeader.unicodeRange3)
+    + SizeOf(TEOTHeader.unicodeRange4)
+    + SizeOf(TEOTHeader.codePageRange1)
+    + SizeOf(TEOTHeader.codePageRange2)
+    + SizeOf(TEOTHeader.checksumAdjustment)
     + SizeOf(TEOTHeader.reserved1)
     + SizeOf(TEOTHeader.reserved2)
     + SizeOf(TEOTHeader.reserved3)
@@ -132,7 +132,7 @@ begin
   info.family := ReadField(stream, 'FamilyName');
   info.style := ReadField(stream, 'StyleName');
   info.version := ReadField(stream, 'VersionName');
-  info.full_name := ReadField(stream, 'FullName');
+  info.fullName := ReadField(stream, 'FullName');
 
   // Currently we can't decompress EOT to determine SFNT format.
   info.format := 'EOT';

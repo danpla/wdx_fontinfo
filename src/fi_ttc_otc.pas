@@ -16,8 +16,8 @@ type
   TCOllectionHeader = packed record
     signature,
     version,
-    num_fonts,
-    first_font_offset: longword;
+    numFonts,
+    firstFontOffset: longword;
   end;
 
 procedure GetCollectionInfo(stream: TStream; var info: TFontInfo);
@@ -31,21 +31,21 @@ begin
   begin
     signature := SwapEndian(signature);
     version := SwapEndian(version);
-    num_fonts := SwapEndian(num_fonts);
-    first_font_offset := SwapEndian(first_font_offset);
+    numFonts := SwapEndian(numFonts);
+    firstFontOffset := SwapEndian(firstFontOffset);
   end;
   {$ENDIF}
 
   if header.signature <> SFNT_COLLECTION_SIGN then
     raise EStreamError.Create('Not a font collection');
 
-  if header.num_fonts = 0 then
+  if header.numFonts = 0 then
     raise EStreamError.Create('Collection has no fonts');
 
-  stream.Seek(header.first_font_offset, soBeginning);
+  stream.Seek(header.firstFontOffset, soBeginning);
   SFNT_GetCommonInfo(stream, info);
 
-  info.num_fonts := header.num_fonts;
+  info.numFonts := header.numFonts;
 end;
 
 

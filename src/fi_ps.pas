@@ -30,7 +30,7 @@ const
 type
   TBinHeader = packed record
     magic: word;
-    ascii_length: longword;
+    asciiLen: longword;
   end;
 
 
@@ -51,7 +51,7 @@ const
 var
   src: PChar;
   dst: PChar;
-  oct_len,
+  octLen,
   decimal: longword;
 begin
   if s = '' then
@@ -85,13 +85,13 @@ begin
     if src^ in OCTAL_DIGITS then
     begin
       decimal := 0;
-      oct_len := 0;
+      octLen := 0;
 
       repeat
         decimal := (decimal shl 3) or (byte(src^) - byte('0'));
         inc(src);
-        inc(oct_len);
-      until (oct_len = MAX_OCTAL_DIGITS) or not (src^ in OCTAL_DIGITS);
+        inc(octLen);
+      until (octLen = MAX_OCTAL_DIGITS) or not (src^ in OCTAL_DIGITS);
 
       if decimal in PRINTABLE_ASCII then
       begin
@@ -131,16 +131,16 @@ begin
 end;
 
 
-procedure ReadPS(line_reader: TLineReader; var info: TFontInfo);
+procedure ReadPS(lineReader: TLineReader; var info: TFontInfo);
 var
   p: SizeInt;
   s,
   key: string;
   dst: pstring;
-  num_found: longint = 0;
+  numFound: longint = 0;
 begin
   repeat
-    if not line_reader.ReadLine(s) then
+    if not lineReader.ReadLine(s) then
       raise EStreamError.Create('PS font is empty');
 
     s := TrimLeft(s);
@@ -153,7 +153,7 @@ begin
       or AnsiStartsStr(PS_MAGIC4, s)) then
     raise EStreamError.Create('Not a PostScript font');
 
-  while (num_found < NUM_FIELDS) and line_reader.ReadLine(s) do
+  while (numFound < NUM_FIELDS) and lineReader.ReadLine(s) do
   begin
     s := Trim(s);
 
@@ -173,11 +173,11 @@ begin
     key := Copy(s, 2, p - 2);
     case key of
       'FontType': dst := @info.format;
-      'FontName': dst := @info.ps_name;
+      'FontName': dst := @info.psName;
       'version': dst := @info.version;
       // CFF format allows "Copyright" in addition to "Notice".
       'Notice', 'Copyright': dst := @info.copyright;
-      'FullName': dst := @info.full_name;
+      'FullName': dst := @info.fullName;
       'FamilyName': dst := @info.family;
       'Weight': dst := @info.style;
     else
@@ -201,31 +201,31 @@ begin
       dst^ := Copy(s, p, PosEx(' ', s, p) - p);
     end;
 
-    inc(num_found);
+    inc(numFound);
   end;
 
   if info.format <> '' then
     info.format := 'PS ' + info.format;
 
-  info.style := ExtractStyle(info.full_name, info.family, info.style);
+  info.style := ExtractStyle(info.fullName, info.family, info.style);
 end;
 
 
 procedure GetPSInfo(stream: TStream; var info: TFontInfo);
 var
-  line_reader: TLineReader;
+  lineReader: TLineReader;
 begin
   // Skip header of .pfb file, if any.
   if stream.ReadWordLE = BIN_MAGIC then
-    stream.Seek(SizeOf(TBinHeader.ascii_length), soCurrent)
+    stream.Seek(SizeOf(TBinHeader.asciiLen), soCurrent)
   else
     stream.Seek(0, soBeginning);
 
-  line_reader := TLineReader.Create(stream);
+  lineReader := TLineReader.Create(stream);
   try
-    ReadPS(line_reader, info);
+    ReadPS(lineReader, info);
   finally
-    line_reader.Free;
+    lineReader.Free;
   end;
 end;
 

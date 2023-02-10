@@ -17,21 +17,21 @@ const
   MAX_LINES = 10;
 
 
-procedure ReadINF(line_reader: TLineReader; var info: TFontInfo);
+procedure ReadINF(lineReader: TLineReader; var info: TFontInfo);
 var
   i,
-  num_found: longint;
+  numFound: longint;
   s: string;
   p: SizeInt;
   key: string;
   dst: pstring;
 begin
   i := 1;
-  num_found := 0;
+  numFound := 0;
   while
-    (num_found < NUM_FIELDS)
+    (numFound < NUM_FIELDS)
     and (i <= MAX_LINES)
-    and line_reader.ReadLine(s) do
+    and lineReader.ReadLine(s) do
   begin
     s := Trim(s);
     if s = '' then
@@ -46,8 +46,8 @@ begin
 
     key := Copy(s, 1, p - 1);
     case key of
-      'FontName': dst := @info.ps_name;
-      'FullName': dst := @info.full_name;
+      'FontName': dst := @info.psName;
+      'FullName': dst := @info.fullName;
       'FamilyName': dst := @info.family;
       'Version': dst := @info.version;
     else
@@ -59,28 +59,28 @@ begin
     until s[p] <> ' ';
 
     dst^ := Copy(s, p + 1, Length(s) - p - 1);  // Skipping brackets
-    inc(num_found);
+    inc(numFound);
   end;
 
-  if num_found = 0 then
+  if numFound = 0 then
     raise EStreamError.Create(
       'INF file does not have any known fields; ' +
       'probably not a font-related INF');
 
-  info.style := ExtractStyle(info.full_name, info.family);
+  info.style := ExtractStyle(info.fullName, info.family);
   info.format := 'INF';
 end;
 
 
 procedure GetINFInfo(stream: TStream; var info: TFontInfo);
 var
-  line_reader: TLineReader;
+  lineReader: TLineReader;
 begin
-  line_reader := TLineReader.Create(stream);
+  lineReader := TLineReader.Create(stream);
   try
-    ReadINF(line_reader, info);
+    ReadINF(lineReader, info);
   finally
-    line_reader.Free;
+    lineReader.Free;
   end;
 end;
 
