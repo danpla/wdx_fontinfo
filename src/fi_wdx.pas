@@ -285,8 +285,12 @@ begin
         stream.Free;
       end;
     except
-      on EStreamError do
-      begin
+      on E: EStreamError do
+       begin
+        {$IFDEF DEBUG}
+        WriteLn(StdErr, 'fontinfo "', FileName_str, '": ', E.Message);
+        {$ENDIF}
+
         // info_cache is currently either clear or partially filled,
         // and thus no longer relevant for the last_file_name file.
         last_file_name := '';
