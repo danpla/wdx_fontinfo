@@ -27,7 +27,7 @@ function GetSupportedExtensions: TExtensions;
 
 {
   Return info reader for the given extension.
-  Extension must be in lower case and contain a leading period.
+  The extension must be in lower case and contain a leading period.
   If there is no reader for the extension, NIL is returned.
 }
 function FindReader(const extension: string): TInfoReader;
@@ -46,7 +46,7 @@ type
 var
   readers: array of TReaderRec;
 
-{$IFOPT C+}
+{$IFDEF DEBUG}
 function IsValidExtension(const extension: string): boolean;
 var
   c: char;
@@ -73,7 +73,7 @@ begin
   Assert(reader <> NIL, 'Reader is NIL');
   Assert(Length(extensions) > 0, 'Extension list is empty');
 
-  {$IFOPT C+}
+  {$IFDEF DEBUG}
   for i := 0 to High(readers) do
     if reader = readers[i].reader then
       Assert(FALSE, 'Reader is already registered');
@@ -85,7 +85,7 @@ begin
   SetLength(readers[i].extensions, Length(extensions));
   for j := 0 to High(extensions) do
   begin
-    {$IFOPT C+}
+    {$IFDEF DEBUG}
     Assert(
       IsValidExtension(extensions[j]), 'Invalid extension ' + extensions[j]);
     {$ENDIF}
@@ -117,7 +117,7 @@ function FindReader(const extension: string): TInfoReader;
 var
   i, j: SizeInt;
 begin
-  {$IFOPT C+}
+  {$IFDEF DEBUG}
   Assert(IsValidExtension(extension), 'Invalid extension ' + extension);
   {$ENDIF}
 
