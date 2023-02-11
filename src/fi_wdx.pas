@@ -253,6 +253,9 @@ begin
     end;
   end;
 
+  Assert(
+    info.format <> '', 'Font format was not set for ' + fileName);
+
   if AnsiStartsText(VERSION_PREFIX, info.version) then
     info.version := Copy(
       info.version,
