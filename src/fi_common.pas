@@ -33,7 +33,7 @@ const
 function GetWeightName(weight: word): string;
 
 {
-  Extract style from FullName using FamilyName.
+  Extract style from fullName using familyName.
   On errors, falls back to "Regular" or to weight if it is not empty.
 }
 function ExtractStyle(const fullName, familyName: string;
