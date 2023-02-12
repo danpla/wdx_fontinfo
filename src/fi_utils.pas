@@ -9,12 +9,18 @@ generic procedure SortArray<T>(var a: array of T);
 
 function ReadPChar(stream: TStream): string;
 
+function TagToString(tag: longword): string;
+
 procedure SwapUnicode(var s: UnicodeString);
 
 function MacOSRomanToUTF8(const s: string): string;
 
 
 implementation
+
+
+uses
+  sysutils;
 
 
 generic procedure SortArray<T>(var a: array of T);
@@ -58,6 +64,17 @@ begin
 
     result := result + char(b);
   end;
+end;
+
+
+function TagToString(tag: longword): string;
+begin
+  SetLength(result, SizeOf(tag));
+  {$IFDEF ENDIAN_LITTLE}
+  tag := SwapEndian(tag);
+  {$ENDIF}
+  Move(tag, result[1], SizeOf(tag));
+  result := TrimRight(result);
 end;
 
 

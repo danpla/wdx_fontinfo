@@ -31,7 +31,6 @@ const
 
   SFNT_COLLECTION_SIGN = $74746366; // 'ttcf'
 
-function SFNT_TagToString(tag: longword): string;
 function SFNT_IsLayoutTable(tag: longword): boolean;
 function SFNT_GetFormatSting(
   sign: longword; hasLayoutTables: boolean): string;
@@ -62,17 +61,6 @@ procedure SFNT_GetCommonInfo(
   stream: TStream; var info: TFontInfo; fontOffset: longword = 0);
 
 implementation
-
-
-function SFNT_TagToString(tag: longword): string;
-begin
-  SetLength(result, SizeOf(tag));
-  {$IFDEF ENDIAN_LITTLE}
-  tag := SwapEndian(tag);
-  {$ENDIF}
-  Move(tag, result[1], SizeOf(tag));
-  result := TrimRight(result);
-end;
 
 
 function SFNT_IsLayoutTable(tag: longword): boolean;

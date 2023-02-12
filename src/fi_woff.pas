@@ -8,6 +8,7 @@ uses
   fi_common,
   fi_info_reader,
   fi_sfnt,
+  fi_utils,
   classes,
   sysutils,
   zstream;
@@ -62,7 +63,7 @@ begin
     raise EStreamError.CreateFmt(
       'Compressed size (%u) of the "%s" WOFF table is greater than '
       + 'decompressed size (%u)',
-      [dir.compLength, SFNT_TagToString(dir.tag), dir.origLength]);
+      [dir.compLength, TagToString(dir.tag), dir.origLength]);
 
   if dir.compLength = dir.origLength then
   begin

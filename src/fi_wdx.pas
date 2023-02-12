@@ -34,9 +34,9 @@ uses
   fi_pcf,
   fi_pfm,
   fi_ps,
-  fi_sfnt,
   fi_ttc_otc,
   fi_ttf_otf,
+  fi_utils,
   fi_winfnt,
   fi_woff,
   {$IFDEF ENABLE_WOFF2}
@@ -159,7 +159,7 @@ begin
     if result <> '' then
       result := result + ',';
 
-    result := result + SFNT_TagToString(tag);
+    result := result + TagToString(tag);
   end;
 end;
 
