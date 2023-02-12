@@ -4,6 +4,8 @@ unit fi_afm_sfd;
 
 interface
 
+implementation
+
 uses
   fi_common,
   fi_info_reader,
@@ -11,8 +13,6 @@ uses
   classes,
   sysutils;
 
-
-implementation
 
 type
   TFontFormat = (
@@ -149,5 +149,6 @@ end;
 initialization
   RegisterReader(@GetAFMInfo, ['.afm']);
   RegisterReader(@GetSFDInfo, ['.sfd']);
+
 
 end.

@@ -4,6 +4,8 @@ unit fi_ps;
 
 interface
 
+implementation
+
 uses
   fi_common,
   fi_info_reader,
@@ -13,8 +15,6 @@ uses
   streamex,
   sysutils;
 
-
-implementation
 
 const
   BIN_MAGIC = $0180;
@@ -27,6 +27,7 @@ const
   // Number of fields we need to find.
   NUM_FIELDS = 7;
 
+
 type
   TBinHeader = packed record
     magic: word;
@@ -34,9 +35,6 @@ type
   end;
 
 
-{
-  Unescape PostScript string
-}
 function UnEscape(s: string): string;
 const
   OCTAL_DIGITS = ['0'..'7'];

@@ -4,6 +4,8 @@ unit fi_woff2;
 
 interface
 
+implementation
+
 uses
   brotli,
   fi_common,
@@ -12,9 +14,6 @@ uses
   classes,
   streamex,
   sysutils;
-
-
-implementation
 
 
 function ReadUIntBase128(stream: TStream): longword;
@@ -197,6 +196,7 @@ end;
 const
   WOFF2_SIGN = $774F4632; // 'wOF2'
 
+
 type
   TWOFF2Header = packed record
     signature,
@@ -299,6 +299,9 @@ begin
   try
     for i := 0 to High(tableDirIndices) do
     begin
+      if tableDir[i].tag = 0 then
+        continue;
+
       SFNT_ReadTable(
         SFNT_FindTableReader(tableDir[i].tag),
         decompressedDataStream,

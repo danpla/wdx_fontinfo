@@ -3,8 +3,8 @@ unit line_reader;
 interface
 
 uses
-  classes,
-  sysutils;
+  classes;
+
 
 type
   TLineReader = class
@@ -20,6 +20,9 @@ type
 
 
 implementation
+
+uses
+  sysutils;
 
 
 constructor TLineReader.Create(Stream: TStream);

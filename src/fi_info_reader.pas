@@ -46,6 +46,7 @@ type
 var
   readers: array of TReaderRec;
 
+
 function IsValidExtension(const extension: string): boolean;
 var
   c: char;
@@ -62,6 +63,7 @@ begin
 
   result := TRUE;
 end;
+
 
 procedure RegisterReader(
   reader: TInfoReader; const extensions: array of string);

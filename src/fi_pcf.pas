@@ -4,6 +4,8 @@ unit fi_pcf;
 
 interface
 
+implementation
+
 uses
   fi_common,
   fi_info_reader,
@@ -13,8 +15,6 @@ uses
   streamex,
   sysutils;
 
-
-implementation
 
 const
   PCF_FILE_VERSION = $70636601; // '\1pcf'

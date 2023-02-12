@@ -48,6 +48,7 @@ uses
   sysutils,
   zstream;
 
+
 procedure ContentGetDetectString(
   DetectString: PAnsiChar; MaxLen: Integer); dcpcall;
 var
@@ -88,6 +89,7 @@ type
     name: string;
     fieldType: Integer;
   end;
+
 
 const
   FieldInfo: array [TFieldIndex] of TFieldInfo = (
@@ -331,5 +333,6 @@ exports
   ContentGetDetectString,
   ContentGetSupportedField,
   ContentGetValue;
+
 
 end.

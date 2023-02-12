@@ -4,6 +4,8 @@ unit fi_winfnt;
 
 interface
 
+implementation
+
 uses
   fi_common,
   fi_info_reader,
@@ -11,9 +13,6 @@ uses
   classes,
   streamex,
   sysutils;
-
-
-implementation
 
 
 const

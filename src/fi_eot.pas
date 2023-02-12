@@ -4,6 +4,8 @@ unit fi_eot;
 
 interface
 
+implementation
+
 uses
   fi_common,
   fi_info_reader,
@@ -12,15 +14,13 @@ uses
   streamex;
 
 
-implementation
-
-
 const
   EOT_MAGIC = $504c;
 
   // EOT flags
   TTEMBED_TTCOMPRESSED = $00000004;
   TTEMBED_XORENCRYPTDATA = $10000000;
+
 
 type
   TEOTHeader = packed record
@@ -47,6 +47,7 @@ type
     reserved4: longword;
   end;
 
+
 function ReadField(stream: TStream; const fieldName: string): string;
 var
   padding: word;
@@ -68,6 +69,7 @@ begin
 
   result := UTF8Encode(s);
 end;
+
 
 procedure GetEOTInfo(stream: TStream; var info: TFontInfo);
 var

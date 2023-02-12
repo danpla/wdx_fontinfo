@@ -4,6 +4,8 @@ unit fi_pfm;
 
 interface
 
+implementation
+
 uses
   fi_common,
   fi_info_reader,
@@ -13,8 +15,6 @@ uses
   streamex,
   sysutils;
 
-
-implementation
 
 const
   PFM_VERSION = 256;

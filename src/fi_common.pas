@@ -2,9 +2,6 @@ unit fi_common;
 
 interface
 
-uses
-  strutils;
-
 type
   TFontInfo = record
     family,
@@ -33,13 +30,14 @@ const
 
 function GetWeightName(weight: word): string;
 
-{
-  Extract style from fullName using familyName.
-}
+// Extract style from fullName using familyName.
 function ExtractStyle(const fullName, familyName: string;
                       const fallback: string = 'Regular'): string;
 
 implementation
+
+uses
+  strutils;
 
 
 function GetWeightName(weight: word): string;
@@ -100,5 +98,6 @@ begin
 
   result := Copy(fullName, styleStart, styleLen);
 end;
+
 
 end.

@@ -6,11 +6,7 @@ interface
 
 uses
   fi_common,
-  fi_info_reader,
-  fi_utils,
-  classes,
-  streamex,
-  sysutils;
+  classes;
 
 const
   SFNT_TAG_BASE = $42415345;
@@ -22,12 +18,6 @@ const
   SFNT_TAG_JSTF = $4a535446;
   SFNT_TAG_LOCA = $6c6f6361;
   SFNT_TAG_NAME = $6e616d65;
-
-  SFNT_TTF_SIGN1 = $00010000;
-  SFNT_TTF_SIGN2 = $00020000;
-  SFNT_TTF_SIGN3 = $74727565; // 'true'
-  SFNT_TTF_SIGN4 = $74797031; // 'typ1'
-  SFNT_OTF_SIGN = $4f54544f; // 'OTTO'
 
   SFNT_COLLECTION_SIGN = $74746366; // 'ttcf'
 
@@ -61,6 +51,20 @@ procedure SFNT_GetCommonInfo(
   stream: TStream; var info: TFontInfo; fontOffset: longword = 0);
 
 implementation
+
+uses
+  fi_info_reader,
+  fi_utils,
+  streamex,
+  sysutils;
+
+
+const
+  SFNT_TTF_SIGN1 = $00010000;
+  SFNT_TTF_SIGN2 = $00020000;
+  SFNT_TTF_SIGN3 = $74727565; // 'true'
+  SFNT_TTF_SIGN4 = $74797031; // 'typ1'
+  SFNT_OTF_SIGN = $4f54544f; // 'OTTO'
 
 
 function SFNT_IsLayoutTable(tag: longword): boolean;
@@ -108,8 +112,7 @@ begin
 end;
 
 
-// "name" table
-
+procedure ReadNameTable(stream: TStream; var info: TFontInfo);
 const
   PLATFORM_ID_MAC = 1;
   PLATFORM_ID_WIN = 3;
@@ -136,7 +139,6 @@ type
     offset: word;
   end;
 
-procedure ReadNameTable(stream: TStream; var info: TFontInfo);
 var
   start: int64;
   namingTable: TNamingTable;
@@ -342,8 +344,8 @@ begin
 end;
 
 
-// Format-specific stuff
-
+procedure SFNT_GetCommonInfo(
+  stream: TStream; var info: TFontInfo; fontOffset: longword);
 type
   TOffsetTable = packed record
     version: longword;
@@ -360,8 +362,6 @@ type
     length: longword;
   end;
 
-procedure SFNT_GetCommonInfo(
-  stream: TStream; var info: TFontInfo; fontOffset: longword);
 var
   offsetTable: TOffsetTable;
   i: longint;

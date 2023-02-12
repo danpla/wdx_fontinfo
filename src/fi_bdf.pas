@@ -5,12 +5,7 @@ unit fi_bdf;
 interface
 
 uses
-  fi_common,
-  fi_info_reader,
-  line_reader,
-  classes,
-  strutils,
-  sysutils;
+  fi_common;
 
 
 const
@@ -30,6 +25,14 @@ procedure BDF_FillEmpty(var info: TFontInfo);
 
 
 implementation
+
+uses
+  fi_info_reader,
+  line_reader,
+  classes,
+  strutils,
+  sysutils;
+
 
 const
   BDF_SIGN = 'STARTFONT';

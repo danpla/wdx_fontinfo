@@ -2,6 +2,8 @@ unit fi_inf;
 
 interface
 
+implementation
+
 uses
   fi_common,
   fi_info_reader,
@@ -9,8 +11,6 @@ uses
   classes,
   sysutils;
 
-
-implementation
 
 const
   NUM_FIELDS = 4;

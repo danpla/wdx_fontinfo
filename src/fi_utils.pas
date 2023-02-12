@@ -18,7 +18,6 @@ function MacOSRomanToUTF8(const s: string): string;
 
 implementation
 
-
 uses
   sysutils;
 

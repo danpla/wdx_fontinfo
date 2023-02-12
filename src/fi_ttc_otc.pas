@@ -2,14 +2,13 @@ unit fi_ttc_otc;
 
 interface
 
+implementation
+
 uses
   fi_common,
   fi_info_reader,
   fi_sfnt,
   classes;
-
-
-implementation
 
 
 type
@@ -19,6 +18,7 @@ type
     numFonts,
     firstFontOffset: longword;
   end;
+
 
 procedure GetCollectionInfo(stream: TStream; var info: TFontInfo);
 var

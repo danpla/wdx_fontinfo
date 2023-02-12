@@ -4,6 +4,8 @@ unit fi_woff;
 
 interface
 
+implementation
+
 uses
   fi_common,
   fi_info_reader,
@@ -14,11 +16,9 @@ uses
   zstream;
 
 
-implementation
-
-
 const
   WOFF_SIGN = $774f4646; // 'wOFF'
+
 
 type
   TWOFFHeader = packed record
