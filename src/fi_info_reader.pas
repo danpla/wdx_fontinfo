@@ -20,7 +20,7 @@ procedure RegisterReader(
   reader: TInfoReader; const extensions: array of string);
 
 {
-  Return list of all supported extensions.
+  Return sorted list of all supported extensions.
   These are all extensions that were passed to RegisterReader.
 }
 function GetSupportedExtensions: TExtensions;
@@ -34,6 +34,9 @@ function FindReader(const extension: string): TInfoReader;
 
 
 implementation
+
+uses
+  fi_utils;
 
 
 type
@@ -107,6 +110,8 @@ begin
     for k := 0 to High(readers[i].extensions) do
       result[j + k] := readers[i].extensions[k];
   end;
+
+  specialize SortArray<string>(result);
 end;
 
 

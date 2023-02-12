@@ -5,6 +5,7 @@
 * Added reading version from BDF and PCF
 * Fixed WOFF2 reading issue that could lead to missing information for
   some rare files
+* File extensions in the plugin detection string are now sorted
 
 
 1.1.3 (2021-09-19)

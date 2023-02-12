@@ -56,7 +56,7 @@ var
   ext: string;
 begin
   s := 'EXT="GZ"';
-  for ext in GetSupportedExtensions() do
+  for ext in GetSupportedExtensions do
     s := s + '|EXT="' + UpperCase(Copy(ext, 2, Length(ext) - 1)) + '"';
 
   StrPLCopy(DetectString, s, MaxLen);
