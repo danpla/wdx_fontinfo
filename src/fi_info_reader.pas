@@ -46,7 +46,6 @@ type
 var
   readers: array of TReaderRec;
 
-{$IFDEF DEBUG}
 function IsValidExtension(const extension: string): boolean;
 var
   c: char;
@@ -63,7 +62,6 @@ begin
 
   result := TRUE;
 end;
-{$ENDIF}
 
 procedure RegisterReader(
   reader: TInfoReader; const extensions: array of string);
@@ -73,11 +71,9 @@ begin
   Assert(reader <> NIL, 'Reader is NIL');
   Assert(Length(extensions) > 0, 'Extension list is empty');
 
-  {$IFDEF DEBUG}
   for i := 0 to High(readers) do
     if reader = readers[i].reader then
       Assert(FALSE, 'Reader is already registered');
-  {$ENDIF}
 
   i := Length(readers);
   SetLength(readers, i + 1);
@@ -85,10 +81,9 @@ begin
   SetLength(readers[i].extensions, Length(extensions));
   for j := 0 to High(extensions) do
   begin
-    {$IFDEF DEBUG}
     Assert(
-      IsValidExtension(extensions[j]), 'Invalid extension ' + extensions[j]);
-    {$ENDIF}
+      IsValidExtension(extensions[j]),
+      'Invalid extension ' + extensions[j]);
     readers[i].extensions[j] := extensions[j];
   end;
 
@@ -117,9 +112,7 @@ function FindReader(const extension: string): TInfoReader;
 var
   i, j: SizeInt;
 begin
-  {$IFDEF DEBUG}
   Assert(IsValidExtension(extension), 'Invalid extension ' + extension);
-  {$ENDIF}
 
   for i := 0 to High(readers) do
     for j := 0 to High(readers[i].extensions) do
