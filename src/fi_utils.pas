@@ -11,7 +11,7 @@ function ReadPChar(stream: TStream): string;
 
 function TagToString(tag: longword): string;
 
-procedure SwapUnicode(var s: UnicodeString);
+procedure SwapUnicodeEndian(var s: UnicodeString);
 
 function MacOSRomanToUTF8(const s: string): string;
 
@@ -78,7 +78,7 @@ begin
 end;
 
 
-procedure SwapUnicode(var s: UnicodeString);
+procedure SwapUnicodeEndian(var s: UnicodeString);
 var
   i: SizeInt;
 begin

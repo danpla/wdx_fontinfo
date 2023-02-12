@@ -250,7 +250,7 @@ begin
         SetLength(name, nameRec.length div SizeOf(WideChar));
         stream.ReadBuffer(name[1], nameRec.length);
         {$IFDEF ENDIAN_LITTLE}
-        SwapUnicode(name);
+        SwapUnicodeEndian(name);
         {$ENDIF}
         dst^ := UTF8Encode(name);
       end;

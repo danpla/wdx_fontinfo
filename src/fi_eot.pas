@@ -63,7 +63,7 @@ begin
   SetLength(s, sLen div SizeOf(WideChar));
   stream.ReadBuffer(s[1], sLen);
   {$IFDEF ENDIAN_BIG}
-  SwapUnicode(s);
+  SwapUnicodeEndian(s);
   {$ENDIF}
 
   result := UTF8Encode(s);
