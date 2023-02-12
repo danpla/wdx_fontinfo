@@ -5,6 +5,8 @@ interface
 uses
   classes;
 
+generic procedure SortArray<T>(var a: array of T);
+
 function ReadPChar(stream: TStream): string;
 
 procedure SwapUnicode(var s: UnicodeString);
@@ -13,6 +15,33 @@ function MacOSRomanToUTF8(const s: string): string;
 
 
 implementation
+
+
+generic procedure SortArray<T>(var a: array of T);
+const
+  TOKUDA_SEQUENCE: array [0..10] of SizeInt = (
+    5985, 2660, 1182, 525, 233, 103, 46, 20, 9, 4, 1);
+var
+  gap,
+  i,
+  j: SizeInt;
+  tmp: T;
+begin
+  for gap in TOKUDA_SEQUENCE do
+    for i := gap to High(a) do
+    begin
+      tmp := a[i];
+
+      j := i;
+      while (j >= gap) and (a[j - gap] > tmp) do
+      begin
+        a[j] := a[j - gap];
+        dec(j, gap);
+      end;
+
+      a[j] := tmp;
+    end;
+end;
 
 
 function ReadPChar(stream: TStream): string;

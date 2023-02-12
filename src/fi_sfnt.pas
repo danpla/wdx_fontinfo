@@ -9,17 +9,19 @@ uses
   fi_info_reader,
   fi_utils,
   classes,
+  streamex,
   sysutils;
 
 const
   SFNT_TAG_BASE = $42415345;
+  SFNT_TAG_FVAR = $66766172;
   SFNT_TAG_GDEF = $47444546;
+  SFNT_TAG_GLYF = $676c7966;
   SFNT_TAG_GPOS = $47504f53;
   SFNT_TAG_GSUB = $47535542;
   SFNT_TAG_JSTF = $4a535446;
-  SFNT_TAG_NAME = $6e616d65;
-  SFNT_TAG_GLYF = $676c7966;
   SFNT_TAG_LOCA = $6c6f6361;
+  SFNT_TAG_NAME = $6e616d65;
 
   SFNT_TTF_SIGN1 = $00010000;
   SFNT_TTF_SIGN2 = $00020000;
@@ -271,11 +273,71 @@ begin
 end;
 
 
+procedure ReadFvarTable(stream: TStream; var info: TFontInfo);
 const
-  TABLE_READERS: array [0..0] of record
+  HIDDEN_AXIS = $0001;
+var
+  start: int64;
+  axesArrayOffset,
+  axisCount,
+  axisSize: word;
+  i,
+  newAxisIdx: longint;
+  axisTag: longword;
+  axisFlags: word;
+begin
+  start := stream.Position;
+
+  // Skip majorVersion and minorVersion.
+  stream.Seek(SizeOf(word) * 2 , soCurrent);
+
+  axesArrayOffset := stream.ReadWordBE;
+
+  // Skip reserved.
+  stream.Seek(SizeOf(word) , soCurrent);
+
+  axisCount := stream.ReadWordBE;
+
+  // Specs say that the font must be treated as non-variable if
+  // axisCount is zero.
+  if axisCount = 0 then
+    exit;
+
+  axisSize := stream.ReadWordBE;
+
+  SetLength(info.variationAxisTags, axisCount);
+
+  newAxisIdx := 0;
+  for i := 0 to axisCount - 1 do
+  begin
+    stream.Seek(start + axesArrayOffset + axisSize * i, soBeginning);
+
+    axisTag := stream.ReadDWordBE;
+
+    // Skip minValue, defaultValue, maxValue.
+    stream.Seek(SizeOf(longword) * 3 , soCurrent);
+
+    axisFlags := stream.ReadWordBE;
+    if axisFlags and HIDDEN_AXIS <> 0 then
+      continue;
+
+    info.variationAxisTags[newAxisIdx] := axisTag;
+    inc(newAxisIdx);
+  end;
+
+  SetLength(info.variationAxisTags, newAxisIdx);
+
+  // Variation axis records are not required to be sorted.
+  specialize SortArray<longword>(info.variationAxisTags);
+end;
+
+
+const
+  TABLE_READERS: array [0..1] of record
     tag: longword;
     reader: TSFNTTableReader;
   end = (
+    (tag: SFNT_TAG_FVAR; reader: @ReadFvarTable),
     (tag: SFNT_TAG_NAME; reader: @ReadNameTable)
   );
 

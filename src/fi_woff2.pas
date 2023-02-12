@@ -91,6 +91,7 @@ begin
     27: result := SFNT_TAG_GPOS;
     28: result := SFNT_TAG_GSUB;
     30: result := SFNT_TAG_JSTF;
+    47: result := SFNT_TAG_FVAR;
   else
     result := 0;
   end;

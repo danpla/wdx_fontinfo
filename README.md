@@ -2,7 +2,7 @@
 
 Font info WDX plugin for [Total Commander] and [Double Commander].
 
-Binaries for Windows, Linux, and macOS are available on the
+Downloads are available on the
 [Releases](https://github.com/danpla/wdx_fontinfo/releases/latest)
 page.
 
@@ -53,6 +53,13 @@ page.
     * "PCF"
     * "FNT {version}" (both for FNT and FON)
     * "SFD {version}"
+* Variation axes — a comma-separated list of 4-character tags
+  identifying variation exes in a variable font. Common tags include:
+    * `ital` — italic
+    * `opsz` — optical size
+    * `slnt` — slant
+    * `wdht` — width
+    * `wght` — weight
 * Number of Fonts — number of fonts in TTC, OTC, or WOFF2. Always 1
   for other formats.
 

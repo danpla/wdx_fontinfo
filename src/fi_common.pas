@@ -23,6 +23,7 @@ type
     license,
     licenseUrl,
     format: string;
+    variationAxisTags: array of longword;
     numFonts: longint;
   end;
 

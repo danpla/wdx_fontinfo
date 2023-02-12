@@ -34,6 +34,7 @@ uses
   fi_pcf,
   fi_pfm,
   fi_ps,
+  fi_sfnt,
   fi_ttc_otc,
   fi_ttf_otf,
   fi_winfnt,
@@ -79,6 +80,7 @@ type
     IDX_LICENSE,
     IDX_LICENSE_URL,
     IDX_FORMAT,
+    IDX_VARIATION_AXES,
     IDX_NUM_FONTS
   );
 
@@ -105,6 +107,7 @@ const
     (name: 'License';         fieldType: FT_STRING),
     (name: 'License URL';     fieldType: FT_STRING),
     (name: 'Format';          fieldType: FT_STRING),
+    (name: 'Variation Axes';  fieldType: FT_STRING),
     (name: 'Number of Fonts'; fieldType: FT_NUMERIC_32)
   );
 
@@ -142,6 +145,22 @@ begin
   StrPLCopy(PAnsiChar(FieldValue), str, MaxLen);
   result := FT_STRING;
   {$ENDIF}
+end;
+
+
+function TagsToString(const tags: array of longword): string;
+var
+  tag: longint;
+begin
+  result := '';
+
+  for tag in tags do
+  begin
+    if result <> '' then
+      result := result + ',';
+
+    result := result + SFNT_TagToString(tag);
+  end;
 end;
 
 
@@ -191,6 +210,9 @@ begin
       result := Put(info.licenseUrl, FieldValue, MaxLen);
     IDX_FORMAT:
       result := Put(info.format, FieldValue, MaxLen);
+    IDX_VARIATION_AXES:
+      result := Put(
+        TagsToString(info.variationAxisTags), FieldValue, MaxLen);
     IDX_NUM_FONTS:
       result := Put(info.numFonts, FieldValue);
   else
