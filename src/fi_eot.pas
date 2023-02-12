@@ -71,7 +71,7 @@ begin
 end;
 
 
-procedure GetEOTInfo(stream: TStream; var info: TFontInfo);
+procedure ReadEOTInfo(stream: TStream; var info: TFontInfo);
 var
   eotSize,
   fontDataSize,
@@ -113,7 +113,7 @@ begin
     fontOffset := eotSize - fontDataSize;
     stream.Seek(fontOffset, soBeginning);
 
-    SFNT_GetCommonInfo(stream, info, fontOffset);
+    SFNT_ReadCommonInfo(stream, info, fontOffset);
     exit;
   end;
 
@@ -142,7 +142,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetEOTInfo, ['.eot']);
+  RegisterReader(@ReadEOTInfo, ['.eot']);
 
 
 end.

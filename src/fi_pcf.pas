@@ -135,7 +135,7 @@ begin
 end;
 
 
-procedure GetPCFInfo(stream: TStream; var info: TFontInfo);
+procedure ReadPCFInfo(stream: TStream; var info: TFontInfo);
 var
   toc: TPCFTOC;
   tocRec: TPCFTOCRec;
@@ -190,7 +190,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetPCFInfo, ['.pcf']);
+  RegisterReader(@ReadPCFInfo, ['.pcf']);
 
 
 end.

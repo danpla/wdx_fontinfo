@@ -72,7 +72,7 @@ begin
 end;
 
 
-procedure GetINFInfo(stream: TStream; var info: TFontInfo);
+procedure ReadINFInfo(stream: TStream; var info: TFontInfo);
 var
   lineReader: TLineReader;
 begin
@@ -86,7 +86,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetINFInfo, ['.inf']);
+  RegisterReader(@ReadINFInfo, ['.inf']);
 
 
 end.

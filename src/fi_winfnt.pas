@@ -77,7 +77,7 @@ type
 {$ENDIF}
 
 
-procedure GetFNTInfo(stream: TStream; var info: TFontInfo);
+procedure ReadFNTInfo(stream: TStream; var info: TFontInfo);
 var
   start: int64;
   version: word;
@@ -180,14 +180,14 @@ begin
     raise EStreamError.Create('No RT_FONT entries in file');
 
   stream.Seek(stream.ReadWordLE shl sizeShift, soBeginning);
-  GetFNTInfo(stream, info);
+  ReadFNTInfo(stream, info);
 
   // We don't set fontCount as TFontInfo.numFonts, since multiple
   // FNTs in FON are normally different sizes of the same font.
 end;
 
 
-procedure GetWinFNTInfo(stream: TStream; var info: TFontInfo);
+procedure ReadWinFNTInfo(stream: TStream; var info: TFontInfo);
 const
   HEADER_OFFSET_POS = 60;
 var
@@ -220,7 +220,7 @@ begin
   if (magic = FNT_V1) or (magic = FNT_V2) or (magic = FNT_V3) then
   begin
     stream.Seek(-SizeOf(magic), soCurrent);
-    GetFNTInfo(stream, info);
+    ReadFNTInfo(stream, info);
     exit;
   end;
 
@@ -229,7 +229,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetWinFNTInfo, ['.fon', '.fnt']);
+  RegisterReader(@ReadWinFNTInfo, ['.fon', '.fnt']);
 
 
 end.

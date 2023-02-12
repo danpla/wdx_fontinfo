@@ -209,7 +209,7 @@ begin
 end;
 
 
-procedure GetPSInfo(stream: TStream; var info: TFontInfo);
+procedure ReadPSInfo(stream: TStream; var info: TFontInfo);
 var
   lineReader: TLineReader;
 begin
@@ -230,7 +230,7 @@ end;
 
 initialization
   RegisterReader(
-    @GetPSInfo, ['.ps','.pfa','.pfb','.pt3','.t11','.t42']);
+    @ReadPSInfo, ['.ps','.pfa','.pfb','.pt3','.t11','.t42']);
 
 
 end.

@@ -216,7 +216,7 @@ type
   end;
 
 
-procedure GetWOFF2Info(stream: TStream; var info: TFontInfo);
+procedure ReadWOFF2Info(stream: TStream; var info: TFontInfo);
 var
   header: TWOFF2Header;
   tableDir: TWOFF2TableDir;
@@ -320,7 +320,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetWOFF2Info, ['.woff2']);
+  RegisterReader(@ReadWOFF2Info, ['.woff2']);
 
 
 end.

@@ -47,7 +47,7 @@ procedure SFNT_ReadTable(
   fontOffset is necessary for EOT since its EMBEDDEDFONT structure
   is not treated as part of the font data.
 }
-procedure SFNT_GetCommonInfo(
+procedure SFNT_ReadCommonInfo(
   stream: TStream; var info: TFontInfo; fontOffset: longword = 0);
 
 implementation
@@ -344,7 +344,7 @@ begin
 end;
 
 
-procedure SFNT_GetCommonInfo(
+procedure SFNT_ReadCommonInfo(
   stream: TStream; var info: TFontInfo; fontOffset: longword);
 type
   TOffsetTable = packed record

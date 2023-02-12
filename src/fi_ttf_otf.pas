@@ -11,14 +11,14 @@ uses
   classes;
 
 
-procedure GetOTFInfo(stream: TStream; var info: TFontInfo);
+procedure ReadOTFInfo(stream: TStream; var info: TFontInfo);
 begin
-  SFNT_GetCommonInfo(stream, info);
+  SFNT_ReadCommonInfo(stream, info);
 end;
 
 
 initialization
-  RegisterReader(@GetOTFInfo, ['.ttf', '.otf', '.otb']);
+  RegisterReader(@ReadOTFInfo, ['.ttf', '.otf', '.otb']);
 
 
 end.

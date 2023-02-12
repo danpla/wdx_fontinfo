@@ -145,7 +145,7 @@ begin
 end;
 
 
-procedure GetBDFInfo(stream: TStream; var info: TFontInfo);
+procedure ReadBDFInfo(stream: TStream; var info: TFontInfo);
 var
   lineReader: TLineReader;
 begin
@@ -159,7 +159,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetBDFInfo, ['.bdf']);
+  RegisterReader(@ReadBDFInfo, ['.bdf']);
 
 
 end.

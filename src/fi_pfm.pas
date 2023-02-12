@@ -32,7 +32,7 @@ type
   end;
 
 
-procedure GetPFMInfo(stream: TStream; var info: TFontInfo);
+procedure ReadPFMInfo(stream: TStream; var info: TFontInfo);
 var
   header: TPFMHeader;
   copyright: string;
@@ -81,7 +81,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetPFMInfo, ['.pfm']);
+  RegisterReader(@ReadPFMInfo, ['.pfm']);
 
 
 end.

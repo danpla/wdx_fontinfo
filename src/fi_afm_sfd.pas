@@ -34,7 +34,7 @@ const
   MAX_LINES = 30;
 
 
-procedure GetCommonInfo(
+procedure ReadCommonInfo(
   lineReader: TLineReader; var info: TFontInfo; fontFormat: TFontFormat);
 var
   i: longint;
@@ -120,35 +120,35 @@ begin
 end;
 
 
-procedure GetCommonInfo(
+procedure ReadCommonInfo(
   stream: TStream; var info: TFontInfo; fontFormat: TFontFormat);
 var
   lineReader: TLineReader;
 begin
   lineReader := TLineReader.Create(stream);
   try
-    GetCommonInfo(lineReader, info, fontFormat);
+    ReadCommonInfo(lineReader, info, fontFormat);
   finally
     lineReader.Free;
   end;
 end;
 
 
-procedure GetAFMInfo(stream: TStream; var info: TFontInfo);
+procedure ReadAFMInfo(stream: TStream; var info: TFontInfo);
 begin
-  GetCommonInfo(stream, info, AFM);
+  ReadCommonInfo(stream, info, AFM);
 end;
 
 
-procedure GetSFDInfo(stream: TStream; var info: TFontInfo);
+procedure ReadSFDInfo(stream: TStream; var info: TFontInfo);
 begin
-  GetCommonInfo(stream, info, SFD);
+  ReadCommonInfo(stream, info, SFD);
 end;
 
 
 initialization
-  RegisterReader(@GetAFMInfo, ['.afm']);
-  RegisterReader(@GetSFDInfo, ['.sfd']);
+  RegisterReader(@ReadAFMInfo, ['.afm']);
+  RegisterReader(@ReadSFDInfo, ['.sfd']);
 
 
 end.

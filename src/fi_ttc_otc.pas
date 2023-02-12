@@ -20,7 +20,7 @@ type
   end;
 
 
-procedure GetCollectionInfo(stream: TStream; var info: TFontInfo);
+procedure ReadCollectionInfo(stream: TStream; var info: TFontInfo);
 var
   header: TCOllectionHeader;
 begin
@@ -43,14 +43,14 @@ begin
     raise EStreamError.Create('Collection has no fonts');
 
   stream.Seek(header.firstFontOffset, soBeginning);
-  SFNT_GetCommonInfo(stream, info);
+  SFNT_ReadCommonInfo(stream, info);
 
   info.numFonts := header.numFonts;
 end;
 
 
 initialization
-  RegisterReader(@GetCollectionInfo, ['.ttc', '.otc']);
+  RegisterReader(@ReadCollectionInfo, ['.ttc', '.otc']);
 
 
 end.

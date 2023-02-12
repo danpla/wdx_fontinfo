@@ -93,7 +93,7 @@ begin
 end;
 
 
-procedure GetWOFFInfo(stream: TStream; var info: TFontInfo);
+procedure ReadWOFFInfo(stream: TStream; var info: TFontInfo);
 var
   header: TWOFFHeader;
   i: longint;
@@ -158,7 +158,7 @@ end;
 
 
 initialization
-  RegisterReader(@GetWOFFInfo, ['.woff']);
+  RegisterReader(@ReadWOFFInfo, ['.woff']);
 
 
 end.
