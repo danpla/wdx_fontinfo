@@ -35,10 +35,9 @@ function GetWeightName(weight: word): string;
 
 {
   Extract style from fullName using familyName.
-  On errors, falls back to "Regular" or to weight if it is not empty.
 }
 function ExtractStyle(const fullName, familyName: string;
-                      const weight: string = ''): string;
+                      const fallback: string = 'Regular'): string;
 
 implementation
 
@@ -71,19 +70,16 @@ end;
 
 
 function ExtractStyle(const fullName, familyName: string;
-                      const weight: string = ''): string;
+                      const fallback: string): string;
 var
   styleStart,
   styleLen,
   fullNameLen: SizeInt;
 begin
-  result := 'Regular';
+  result := fallback;
 
   if fullName = familyName then
     exit;
-
-  if weight <> '' then
-    result := weight;
 
   if (fullName = '')
       or (familyName = '')
