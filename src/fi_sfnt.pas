@@ -132,7 +132,7 @@ const
 
 type
   TNamingTable = packed record
-    format,
+    version,
     count,
     stringOffset: word;
   end;
@@ -163,7 +163,7 @@ begin
   {$IFDEF ENDIAN_LITTLE}
   with namingTable do
   begin
-    format := SwapEndian(format);
+    version := SwapEndian(version);
     count := SwapEndian(count);
     stringOffset := SwapEndian(stringOffset);
   end;
