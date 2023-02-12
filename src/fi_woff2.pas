@@ -58,7 +58,7 @@ begin
   code := stream.ReadByte;
   case code of
     WORD_CODE:
-      result := stream.ReadWordLE;
+      result := stream.ReadWordBE;
     ONE_MORE_BYTE_CODE1:
       result := LOWEST_UCODE + stream.ReadByte;
     ONE_MORE_BYTE_CODE2:
@@ -115,7 +115,7 @@ begin
   begin
     flags := stream.ReadByte;
     if flags and $3f = $3f then
-      tag := stream.ReadDWordLE
+      tag := stream.ReadDWordBE
     else
       tag := WOFF2TagIdxToTag(flags and $3f);
 
@@ -152,7 +152,7 @@ var
   index: word;
 begin
   SetLength(result.tableDirIndices, Read255UShort(stream));
-  result.flavor := stream.ReadDWordLE;
+  result.flavor := stream.ReadDWordBE;
 
   for i := 0 to High(result.tableDirIndices) do
   begin
