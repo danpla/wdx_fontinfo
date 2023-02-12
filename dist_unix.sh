@@ -14,8 +14,8 @@ esac
 
 zip \
     "wdx_fontinfo_${VERSION}_${SYS}.zip" \
-    CHANGES \
-    LICENSE \
+    CHANGES.txt \
+    LICENSE.txt \
     README.md \
     fontinfo.wdx \
     fontinfo.wdx64 \
