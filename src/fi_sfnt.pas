@@ -305,7 +305,7 @@ begin
     axisTag := stream.ReadDWordBE;
 
     // Skip minValue, defaultValue, maxValue.
-    stream.Seek(SizeOf(longword) * 3 , soCurrent);
+    stream.Seek(SizeOf(longint) * 3 , soCurrent);
 
     axisFlags := stream.ReadWordBE;
     if axisFlags and HIDDEN_AXIS <> 0 then
