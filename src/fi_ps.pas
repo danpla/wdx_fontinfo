@@ -17,8 +17,6 @@ uses
 
 
 const
-  BIN_MAGIC = $0180;
-
   PS_MAGIC1 = '%!PS-AdobeFont';
   PS_MAGIC2 = '%!FontType';
   PS_MAGIC3 = '%!PS-TrueTypeFont';
@@ -28,14 +26,7 @@ const
   NUM_FIELDS = 7;
 
 
-type
-  TBinHeader = packed record
-    magic: word;
-    asciiLen: longword;
-  end;
-
-
-function UnEscape(s: string): string;
+function UnEscape(s: String): String;
 const
   OCTAL_DIGITS = ['0'..'7'];
   MAX_OCTAL_DIGITS = 3;
@@ -44,13 +35,13 @@ const
   PRINTABLE_ASCII = [32..126];
 
   COPYRIGHT = $a9;
-  COPYRIGHT_UTF8: array [0..1] of byte = ($c2, $a9);
-  REPLACEMENT_UTF8: array [0..2] of byte = ($ef, $bf, $bd);
+  COPYRIGHT_UTF8: array [0..1] of Byte = ($c2, $a9);
+  REPLACEMENT_UTF8: array [0..2] of Byte = ($ef, $bf, $bd);
 var
   src: PChar;
   dst: PChar;
   octLen,
-  decimal: longword;
+  decimal: LongWord;
 begin
   if s = '' then
     exit(s);
@@ -61,24 +52,24 @@ begin
   dst := PChar(result);
   while src^ <> #0 do
   begin
-    // We skip non-printable characters; non-ASCII values are not allowed
+    // We skip non-printable Characters; non-ASCII values are not allowed
     // by the specification (they should always be escaped).
-    if not (byte(src^) in PRINTABLE_ASCII) then
+    if not (Byte(src^) in PRINTABLE_ASCII) then
     begin
-      inc(src);
+      Inc(src);
       continue;
     end;
 
     if src^ <> '\' then
     begin
       dst^ := src^;
-      inc(src);
-      inc(dst);
+      Inc(src);
+      Inc(dst);
       continue;
     end;
 
     // A backslash is always ignored
-    inc(src);
+    Inc(src);
 
     if src^ in OCTAL_DIGITS then
     begin
@@ -86,23 +77,23 @@ begin
       octLen := 0;
 
       repeat
-        decimal := (decimal shl 3) or (byte(src^) - byte('0'));
-        inc(src);
-        inc(octLen);
+        decimal := (decimal shl 3) or (Byte(src^) - Byte('0'));
+        Inc(src);
+        Inc(octLen);
       until (octLen = MAX_OCTAL_DIGITS) or not (src^ in OCTAL_DIGITS);
 
       if decimal in PRINTABLE_ASCII then
       begin
-        dst^ := char(decimal);
-        inc(dst);
+        dst^ := Char(decimal);
+        Inc(dst);
       end
       // If decimal value is >= 64, we guaranteed to have 4 free
-      // bytes in dst (skipped backslash + 3 octal digits) to insert
-      // a UTF-8 encoded character.
+      // Bytes in dst (skipped backslash + 3 octal digits) to insert
+      // a UTF-8 encoded Character.
       else if decimal = COPYRIGHT then
       begin
         Move(COPYRIGHT_UTF8, dst^, SizeOf(COPYRIGHT_UTF8));
-        inc(dst, SizeOf(COPYRIGHT_UTF8));
+        Inc(dst, SizeOf(COPYRIGHT_UTF8));
       end
       // We don't handle any non-ASCII symbols except a copyright sign,
       // because they can be in any possible code page (although most
@@ -110,18 +101,18 @@ begin
       else if decimal > MAX_ASCII then
       begin
         Move(REPLACEMENT_UTF8, dst^, SizeOf(REPLACEMENT_UTF8));
-        inc(dst, SizeOf(REPLACEMENT_UTF8));
+        Inc(dst, SizeOf(REPLACEMENT_UTF8));
       end;
     end
-    else if byte(src^) in PRINTABLE_ASCII then
+    else if Byte(src^) in PRINTABLE_ASCII then
     begin
       if src^ = 't' then
         dst^ := ' '
       else if not (src^ in ['b', 'f', 'n', 'r']) then
         dst^ := src^;
 
-      inc(src);
-      inc(dst);
+      Inc(src);
+      Inc(dst);
     end;
   end;
 
@@ -133,9 +124,9 @@ procedure ReadPS(lineReader: TLineReader; var info: TFontInfo);
 var
   p: SizeInt;
   s,
-  key: string;
-  dst: pstring;
-  numFound: longint = 0;
+  key: String;
+  dst: PString;
+  numFound: LongInt = 0;
 begin
   repeat
     if not lineReader.ReadLine(s) then
@@ -183,23 +174,23 @@ begin
     end;
 
     while s[p] = ' ' do
-      inc(p);
+      Inc(p);
 
     if s[p] = '(' then
     // String
     begin
-      inc(p);
+      Inc(p);
       dst^ := UnEscape(Copy(s, p, RPos(')', s) - p));
     end
     else
     // Literal name, number, etc.
     begin
       if s[p] = '/' then
-        inc(p);
+        Inc(p);
       dst^ := Copy(s, p, PosEx(' ', s, p) - p);
     end;
 
-    inc(numFound);
+    Inc(numFound);
   end;
 
   if info.format <> '' then
@@ -210,12 +201,15 @@ end;
 
 
 procedure ReadPSInfo(stream: TStream; var info: TFontInfo);
+const
+  BIN_MAGIC = $0180;
 var
   lineReader: TLineReader;
 begin
   // Skip header of .pfb file, if any.
   if stream.ReadWordLE = BIN_MAGIC then
-    stream.Seek(SizeOf(TBinHeader.asciiLen), soCurrent)
+    // Skip ASCII length
+    stream.Seek(SizeOf(LongWord), soCurrent)
   else
     stream.Seek(0, soBeginning);
 

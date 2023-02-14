@@ -20,11 +20,11 @@ const
 procedure ReadINF(lineReader: TLineReader; var info: TFontInfo);
 var
   i,
-  numFound: longint;
-  s: string;
+  numFound: LongInt;
+  s: String;
   p: SizeInt;
-  key: string;
-  dst: pstring;
+  key: String;
+  dst: PString;
 begin
   i := 1;
   numFound := 0;
@@ -42,7 +42,7 @@ begin
       raise EStreamError.CreateFmt(
         'INF has no space in line "%s"', [s]);
 
-    inc(i);
+    Inc(i);
 
     key := Copy(s, 1, p - 1);
     case key of
@@ -55,11 +55,11 @@ begin
     end;
 
     repeat
-      inc(p);
+      Inc(p);
     until s[p] <> ' ';
 
     dst^ := Copy(s, p + 1, Length(s) - p - 1);  // Skipping brackets
-    inc(numFound);
+    Inc(numFound);
   end;
 
   if numFound = 0 then

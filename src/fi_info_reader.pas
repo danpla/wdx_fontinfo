@@ -9,7 +9,7 @@ uses
 
 type
   TInfoReader = procedure(stream: TStream; var info: TFontInfo);
-  TExtensions = array of string;
+  TExtensions = array of String;
 
 
 {
@@ -17,7 +17,7 @@ type
   All extensions must be in lower case and contain leading periods.
 }
 procedure RegisterReader(
-  reader: TInfoReader; const extensions: array of string);
+  reader: TInfoReader; const extensions: array of String);
 
 {
   Return sorted list of all supported extensions.
@@ -30,7 +30,7 @@ function GetSupportedExtensions: TExtensions;
   The extension must be in lower case and contain a leading period.
   If there is no reader for the extension, NIL is returned.
 }
-function FindReader(const extension: string): TInfoReader;
+function FindReader(const extension: String): TInfoReader;
 
 
 implementation
@@ -50,9 +50,9 @@ var
   readers: array of TReaderRec;
 
 
-function IsValidExtension(const extension: string): boolean;
+function IsValidExtension(const extension: String): Boolean;
 var
-  c: char;
+  c: Char;
 begin
   if Length(extension) = 0 then
     exit(FALSE);
@@ -69,7 +69,7 @@ end;
 
 
 procedure RegisterReader(
-  reader: TInfoReader; const extensions: array of string);
+  reader: TInfoReader; const extensions: array of String);
 var
   i, j: SizeInt;
 begin
@@ -111,11 +111,11 @@ begin
       result[j + k] := readers[i].extensions[k];
   end;
 
-  specialize SortArray<string>(result);
+  specialize SortArray<String>(result);
 end;
 
 
-function FindReader(const extension: string): TInfoReader;
+function FindReader(const extension: String): TInfoReader;
 var
   i, j: SizeInt;
 begin

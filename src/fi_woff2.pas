@@ -16,10 +16,10 @@ uses
   sysutils;
 
 
-function ReadUIntBase128(stream: TStream): longword;
+function ReadUIntBase128(stream: TStream): LongWord;
 var
-  i: longint;
-  b: byte;
+  i: LongInt;
+  b: Byte;
 begin
   result := 0;
   for i := 0 to 4 do
@@ -36,23 +36,23 @@ begin
 
     result := (result shl 7) or (b and $7F);
 
-    // Spin until the most significant bit of data byte is false.
+    // Spin until the most significant bit of data Byte is false.
     if b and $80 = 0 then
       exit(result);
   end;
 
-  raise EStreamError.Create('Base128 exceeds 5 bytes');
+  raise EStreamError.Create('Base128 exceeds 5 Bytes');
 end;
 
 
-function Read255UShort(stream: TStream): word;
+function Read255UShort(stream: TStream): Word;
 const
   WORD_CODE = 253;
   ONE_MORE_BYTE_CODE1 = 254;
   ONE_MORE_BYTE_CODE2 = 255;
   LOWEST_UCODE = 253;
 var
-  code: byte;
+  code: Byte;
 begin
   code := stream.ReadByte;
   case code of
@@ -73,13 +73,13 @@ type
     tag,
     offset,
     originalLen,
-    transformedLen: longword;
+    transformedLen: LongWord;
   end;
 
   TWOFF2TableDir = array of TWOFF2TableDirEntry;
 
 
-function WOFF2TagIdxToTag(tagIdx: longword): longword;
+function WOFF2TagIdxToTag(tagIdx: LongWord): LongWord;
 begin
   case tagIdx of
     5:  result := SFNT_TAG_NAME;
@@ -98,13 +98,13 @@ end;
 
 
 function ReadWOFF2TableDir(
-  stream: TStream; numTables: longint): TWOFF2TableDir;
+  stream: TStream; numTables: LongInt): TWOFF2TableDir;
 var
-  i: longint;
-  offset: longword;
-  flags: byte;
-  tag: longword;
-  transformVersion: byte;
+  i: LongInt;
+  offset: LongWord;
+  flags: Byte;
+  tag: LongWord;
+  transformVersion: Byte;
 begin
   SetLength(result, numTables);
   if numTables = 0 then
@@ -133,23 +133,23 @@ begin
     else if transformVersion <> 0 then
       result[i].transformedLen := ReadUIntBase128(stream);
 
-    inc(offset, result[i].transformedLen);
+    Inc(offset, result[i].transformedLen);
   end;
 end;
 
 
 type
   TWOFF2ColectionFontEntry = record
-    flavor: longword;
-    tableDirIndices: array of word;
+    flavor: LongWord;
+    tableDirIndices: array of Word;
   end;
 
 
 function ReadWOFF2CollectionFontEntry(
-  stream: TStream; numTables: word): TWOFF2ColectionFontEntry;
+  stream: TStream; numTables: Word): TWOFF2ColectionFontEntry;
 var
-  i: longint;
-  index: word;
+  i: LongInt;
+  index: Word;
 begin
   SetLength(result.tableDirIndices, Read255UShort(stream));
   result.flavor := stream.ReadDWordBE;
@@ -170,7 +170,7 @@ end;
 
 function DecompressWOFF2Data(
   stream: TStream;
-  compressedSize, decompressedSize: longword): TBytes;
+  compressedSize, decompressedSize: LongWord): TBytes;
 var
   compressedData: TBytes;
   brotliDecompressedSize: SizeUInt;
@@ -201,18 +201,18 @@ type
   TWOFF2Header = packed record
     signature,
     flavor,
-    length: longword;
+    length: LongWord;
     numTables,
-    reserved: word;
+    reserved: Word;
     totalSfntSize,
-    totalCompressedSize: longword;
+    totalCompressedSize: LongWord;
     // majorVersion,
-    // minorVersion: word;
+    // minorVersion: Word;
     // metaOffset,
     // metaLength,
     // metaOrigLength,
     // privOffset,
-    // privLength: longword;
+    // privLength: LongWord;
   end;
 
 
@@ -220,12 +220,12 @@ procedure ReadWOFF2Info(stream: TStream; var info: TFontInfo);
 var
   header: TWOFF2Header;
   tableDir: TWOFF2TableDir;
-  decompressedSize: longword;
-  i: longint;
-  hasLayoutTables: boolean = FALSE;
-  version: longword;
+  decompressedSize: LongWord;
+  i: LongInt;
+  hasLayoutTables: Boolean = FALSE;
+  version: LongWord;
   collectionFontEntry: TWOFF2ColectionFontEntry;
-  tableDirIndices: array of word;
+  tableDirIndices: array of Word;
   decompressedData: TBytes;
   decompressedDataStream: TBytesStream;
 begin
@@ -260,7 +260,7 @@ begin
       'Reserved field in WOFF2 header is not 0 (%u)',
       [header.reserved]);
 
-  stream.Seek(SizeOf(word) * 2 + SizeOf(longword) * 5, soCurrent);
+  stream.Seek(SizeOf(Word) * 2 + SizeOf(LongWord) * 5, soCurrent);
 
   tableDir := ReadWOFF2TableDir(stream, header.numTables);
   with tableDir[header.numTables - 1] do
@@ -268,7 +268,7 @@ begin
 
   if header.flavor = SFNT_COLLECTION_SIGN then
   begin
-    stream.Seek(SizeOf(longword), soCurrent);  // TTC version
+    stream.Seek(SizeOf(LongWord), soCurrent);  // TTC version
     info.numFonts := Read255UShort(stream);
     if info.numFonts = 0 then
       raise EStreamError.Create('WOFF2 collection has no fonts');

@@ -34,42 +34,42 @@ const
 
 type
   TFNTHeader = packed record
-    version: word;
-    fileSize: longword;
-    copyright: array [0..MAX_COPYRIGHT_LEN - 1] of char;
+    version: Word;
+    fileSize: LongWord;
+    copyright: array [0..MAX_COPYRIGHT_LEN - 1] of Char;
     fontType,
     pointSize,
     vres,
     hres,
     ascent,
     internalLeading,
-    externalLeading: word;
+    externalLeading: Word;
     italic,
     underline,
-    strikeout: byte;
-    weight: word;
-    charset: byte;
+    strikeout: Byte;
+    weight: Word;
+    Charset: Byte;
     pixWidth,
-    pixHeight: word;
-    pitchAndFamily: byte;
+    pixHeight: Word;
+    pitchAndFamily: Byte;
     avgWidth,
-    maxWidth: word;
+    maxWidth: Word;
     firstChar,
     lastChar,
     defaultChar,
-    breakChar: byte;
-    bytesPerRow: word;
+    breakChar: Byte;
+    BytesPerRow: Word;
     deviceOffset,
     faceNameOffset,
     bitsPointer,
-    bitsOffset: longword;
-    reserved: byte;
-    flags: longword;
+    bitsOffset: LongWord;
+    reserved: Byte;
+    flags: LongWord;
     aSpace,
     bSpace,
-    cSpace: word;
-    colorTableOffset: longword;
-    reserved1: array[0..15] of byte;
+    cSpace: Word;
+    colorTableOffset: LongWord;
+    reserved1: array[0..15] of Byte;
   end;
 
 {$IF SIZEOF(TFNTHeader) <> 148}
@@ -79,11 +79,11 @@ type
 
 procedure ReadFNTInfo(stream: TStream; var info: TFontInfo);
 var
-  start: int64;
-  version: word;
-  copyright: string;
-  italic: boolean;
-  weight: word;
+  start: Int64;
+  version: Word;
+  copyright: String;
+  italic: Boolean;
+  weight: Word;
 begin
   start := stream.Position;
 
@@ -133,19 +133,19 @@ const
   RES_TABLE_OFFSET_POS = 36;
   END_TYPES = 0;
   // Size if the Reserved field in the TYPEINFO structure
-  TYPEINFO_RESERVED_SIZE = SizeOf(longword);
+  TYPEINFO_RESERVED_SIZE = SizeOf(LongWord);
   RT_FONT = $8008;
   // Total size of the NAMEINFO structure
   NAMEINFO_SIZE = 12;
 var
-  start: int64;
-  resTableOffset: int64;
-  sizeShift: word;
+  start: Int64;
+  resTableOffset: Int64;
+  sizeShift: Word;
   typeId,
-  itemCount: word;
-  fontCount: word = 0;
+  itemCount: Word;
+  fontCount: Word = 0;
 begin
-  start := stream.Position - SizeOf(word);
+  start := stream.Position - SizeOf(Word);
 
   stream.Seek(start + RES_TABLE_OFFSET_POS, soBeginning);
   resTableOffset := start + stream.ReadWordLE;
@@ -191,9 +191,9 @@ procedure ReadWinFNTInfo(stream: TStream; var info: TFontInfo);
 const
   HEADER_OFFSET_POS = 60;
 var
-  magic: word;
-  headerOffset: longword;
-  exeFormat: word;
+  magic: Word;
+  headerOffset: LongWord;
+  exeFormat: Word;
 begin
   magic := stream.ReadWordLE;
   if magic = MZ_MAGIC then

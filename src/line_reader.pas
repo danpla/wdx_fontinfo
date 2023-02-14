@@ -10,12 +10,12 @@ type
   TLineReader = class
   private
     FStream: TStream;
-    FBuf: string;
+    FBuf: String;
     FBufFill,
     FBufPos: SizeInt;
   public
     constructor Create(Stream: TStream);
-    function ReadLine(out s: string): boolean;
+    function ReadLine(out s: String): Boolean;
   end;
 
 
@@ -39,12 +39,12 @@ begin
 end;
 
 
-function TLineReader.ReadLine(out s: string): boolean;
+function TLineReader.ReadLine(out s: String): Boolean;
 const
   CR = #13;
   LF = #10;
 var
-  WasCr: boolean;
+  WasCr: Boolean;
   i,
   PartEnd: SizeInt;
 begin
@@ -68,7 +68,7 @@ begin
       WasCr := FALSE;
       if FBuf[FBufPos] = LF then
       begin
-        inc(FBufPos);
+        Inc(FBufPos);
         continue;
       end;
     end;
@@ -86,7 +86,7 @@ begin
 
     if FBufPos < FBufFill + 1 then
     begin
-      inc(FBufPos);
+      Inc(FBufPos);
       break;
     end;
   end;

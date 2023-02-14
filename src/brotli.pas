@@ -16,9 +16,9 @@ type
 
 function BrotliDecoderDecompress(
   encodedSize: SizeUInt;
-  const encodedBuffer: pointer;
+  const encodedBuffer: Pointer;
   decodedSize: PSizeUint;
-  decodedBuffer: pointer): TBrotliDecoderResult; cdecl; external;
+  decodedBuffer: Pointer): TBrotliDecoderResult; cdecl; external;
 
 implementation
 

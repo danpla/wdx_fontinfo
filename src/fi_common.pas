@@ -19,20 +19,20 @@ type
     designerUrl,
     license,
     licenseUrl,
-    format: string;
-    variationAxisTags: array of longword;
-    numFonts: longint;
+    format: String;
+    variationAxisTags: array of LongWord;
+    numFonts: LongInt;
   end;
 
 
 const
   FONT_WEIGHT_REGULAR = 400;
 
-function GetWeightName(weight: word): string;
+function GetWeightName(weight: Word): String;
 
 // Extract style from fullName using familyName.
-function ExtractStyle(const fullName, familyName: string;
-                      const fallback: string = 'Regular'): string;
+function ExtractStyle(const fullName, familyName: String;
+                      const fallback: String = 'Regular'): String;
 
 implementation
 
@@ -40,8 +40,8 @@ uses
   strutils;
 
 
-function GetWeightName(weight: word): string;
-const NAMES: array [0..9] of string = (
+function GetWeightName(weight: Word): String;
+const NAMES: array [0..9] of String = (
   'Thin',
   'ExtraLight',
   'Light',
@@ -60,15 +60,15 @@ begin
       // Map to Regular
       weight := FONT_WEIGHT_REGULAR - 1
     else
-      dec(weight);
+      Dec(weight);
   end;
 
   result := NAMES[weight div 100];
 end;
 
 
-function ExtractStyle(const fullName, familyName: string;
-                      const fallback: string): string;
+function ExtractStyle(const fullName, familyName: String;
+                      const fallback: String): String;
 var
   styleStart,
   styleLen,
@@ -90,7 +90,7 @@ begin
     exit;
 
   if fullName[styleStart] in [' ', '-'] then
-    inc(styleStart);
+    Inc(styleStart);
 
   styleLen := fullNameLen - styleStart + 1;
   if styleLen < 1 then

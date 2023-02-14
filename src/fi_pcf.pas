@@ -30,20 +30,20 @@ const
 type
   TPCFTOC = packed record
     version,
-    count: longword;
+    count: LongWord;
   end;
 
   TPCFTOCRec = packed record
     type_,
     format,
     size,
-    offset: longword;
+    offset: LongWord;
   end;
 
   TPCFPropertyRec = packed record
-    nameOffset: longint;
-    isString: byte;
-    value: longint;
+    nameOffset: LongInt;
+    isString: Byte;
+    value: LongInt;
   end;
 
 
@@ -51,13 +51,13 @@ procedure ReadProperties(stream: TStream; var info: TFontInfo);
 var
   format,
   numProperties,
-  i: longint;
-  bigEndian: boolean;
-  readDw: function: longword of object;
+  i: LongInt;
+  bigEndian: Boolean;
+  readDw: function: LongWord of object;
   properties: array of TPCFPropertyRec;
-  stringsLen: longint;
+  stringsLen: LongInt;
   strings: array of AnsiChar;
-  dst: pstring;
+  dst: PString;
 begin
   format := stream.ReadDWordLE;
   if format and PCF_FORMAT_MASK <> PCF_DEFAULT_FORMAT then
@@ -139,7 +139,7 @@ procedure ReadPCFInfo(stream: TStream; var info: TFontInfo);
 var
   toc: TPCFTOC;
   tocRec: TPCFTOCRec;
-  i: longword;
+  i: LongWord;
 begin
   stream.ReadBuffer(toc, SizeOf(toc));
 

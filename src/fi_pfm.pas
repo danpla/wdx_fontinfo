@@ -27,15 +27,15 @@ const
 
 type
   TPFMHeader = packed record
-    version: word;
-    size: longword;
+    version: Word;
+    size: LongWord;
   end;
 
 
 procedure ReadPFMInfo(stream: TStream; var info: TFontInfo);
 var
   header: TPFMHeader;
-  copyright: string;
+  copyright: String;
   p: SizeInt;
 begin
   stream.ReadBuffer(header, SizeOf(header));

@@ -59,13 +59,13 @@ end;
 
 procedure ReadBDF(lineReader: TLineReader; var info: TFontInfo);
 var
-  i: longint;
-  s: string;
+  i: LongInt;
+  s: String;
   sLen: SizeInt;
-  key: string;
+  key: String;
   p: SizeInt;
-  dst: pstring;
-  numFound: longint;
+  dst: PString;
+  numFound: LongInt;
 begin
   repeat
     if not lineReader.ReadLine(s) then
@@ -79,7 +79,7 @@ begin
     raise EStreamError.Create('Not a BDF font');
 
   while s[p + 1] = ' ' do
-    inc(p);
+    Inc(p);
 
   info.format := 'BDF' + Copy(s, p, Length(s) - p + 1);
 
@@ -109,7 +109,7 @@ begin
       }
       raise EStreamError.CreateFmt('BDF has no space in line "%s"', [s]);
 
-    inc(i);
+    Inc(i);
 
     key := Copy(s, 1, p - 1);
     case key of
@@ -126,19 +126,19 @@ begin
     end;
 
     repeat
-      inc(p);
+      Inc(p);
     until s[p] <> ' ';
 
     sLen := Length(s);
 
     if (s[p] = '"') and (s[sLen] = '"') then
     begin
-      inc(p);
-      dec(sLen);
+      Inc(p);
+      Dec(sLen);
     end;
 
     dst^ := Copy(s, p, sLen - (p - 1));
-    inc(numFound);
+    Inc(numFound);
   end;
 
   BDF_FillEmpty(info);

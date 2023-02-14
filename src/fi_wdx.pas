@@ -49,17 +49,18 @@ uses
   zstream;
 
 
-procedure ContentGetDetectString(
-  DetectString: PAnsiChar; MaxLen: Integer); dcpcall;
+procedure ContentGetdetectString(
+  detectString: PAnsiChar; maxLen: Integer); dcpcall;
 var
   s,
-  ext: string;
+  ext: String;
 begin
   s := 'EXT="GZ"';
+
   for ext in GetSupportedExtensions do
     s := s + '|EXT="' + UpperCase(Copy(ext, 2, Length(ext) - 1)) + '"';
 
-  StrPLCopy(DetectString, s, MaxLen);
+  StrPLCopy(detectString, s, maxLen);
 end;
 
 
@@ -86,7 +87,7 @@ type
   );
 
   TFieldInfo = record
-    name: string;
+    name: String;
     fieldType: Integer;
   end;
 
@@ -115,44 +116,44 @@ const
 
 
 function ContentGetSupportedField(
-  FieldIndex: Integer;
-  FieldName: PAnsiChar;
-  Units: PAnsiChar;
-  MaxLen: Integer): Integer; dcpcall;
+  fieldIndex: Integer;
+  fieldName: PAnsiChar;
+  units: PAnsiChar;
+  maxLen: Integer): Integer; dcpcall;
 begin
-  StrPCopy(Units, EmptyStr);
+  StrPCopy(units, EmptyStr);
 
-  if FieldIndex > Ord(High(TFieldIndex)) then
+  if fieldIndex > Ord(High(TfieldIndex)) then
     exit(FT_NOMOREFIELDS);
 
   StrPLCopy(
-    FieldName, FieldInfo[TFieldIndex(FieldIndex)].name, MaxLen);
-  result := FieldInfo[TFieldIndex(FieldIndex)].fieldType;
+    fieldName, FieldInfo[TfieldIndex(fieldIndex)].name, maxLen);
+  result := FieldInfo[TfieldIndex(fieldIndex)].fieldType;
 end;
 
 
 function Put(
-  const str: string; FieldValue: PByte; MaxLen: Integer): Integer;
+  const str: String; fieldValue: PByte; maxLen: Integer): Integer;
 begin
   if str = '' then
     exit(FT_FIELDEMPTY);
 
   {$IFDEF WINDOWS}
   StrPLCopy(
-    PWideChar(FieldValue),
+    PWideChar(fieldValue),
     UTF8Decode(str),
-    MaxLen div SizeOf(WideChar));
+    maxLen div SizeOf(WideChar));
   result := FT_STRINGW;
   {$ELSE}
-  StrPLCopy(PAnsiChar(FieldValue), str, MaxLen);
+  StrPLCopy(PAnsiChar(fieldValue), str, maxLen);
   result := FT_STRING;
   {$ENDIF}
 end;
 
 
-function TagsToString(const tags: array of longword): string;
+function TagsToString(const tags: array of LongWord): String;
 var
-  tag: longword;
+  tag: LongWord;
 begin
   result := '';
 
@@ -166,9 +167,9 @@ begin
 end;
 
 
-function Put(int: longint; FieldValue: PByte): Integer;
+function Put(int: LongInt; fieldValue: PByte): Integer;
 begin
-  PLongint(FieldValue)^ := int;
+  PLongint(fieldValue)^ := int;
   result := FT_NUMERIC_32;
 end;
 
@@ -176,47 +177,47 @@ end;
 function Put(
   constref info: TFontInfo;
   fieldIndex: TFieldIndex;
-  FieldValue: PByte;
-  MaxLen: Integer): Integer;
+  fieldValue: PByte;
+  maxLen: Integer): Integer;
 begin
   case fieldIndex of
     IDX_FAMILY:
-      result := Put(info.family, FieldValue, MaxLen);
+      result := Put(info.family, fieldValue, maxLen);
     IDX_STYLE:
-      result := Put(info.style, FieldValue, MaxLen);
+      result := Put(info.style, fieldValue, maxLen);
     IDX_FULL_NAME:
-      result := Put(info.fullName, FieldValue, MaxLen);
+      result := Put(info.fullName, fieldValue, maxLen);
     IDX_PS_NAME:
-      result := Put(info.psName, FieldValue, MaxLen);
+      result := Put(info.psName, fieldValue, maxLen);
     IDX_VERSION:
-      result := Put(info.version, FieldValue, MaxLen);
+      result := Put(info.version, fieldValue, maxLen);
     IDX_COPYRIGHT:
-      result := Put(info.copyright, FieldValue, MaxLen);
+      result := Put(info.copyright, fieldValue, maxLen);
     IDX_UNIQUE_ID:
-      result := Put(info.uniqueId, FieldValue, MaxLen);
+      result := Put(info.uniqueId, fieldValue, maxLen);
     IDX_TRADEMARK:
-      result := Put(info.trademark, FieldValue, MaxLen);
+      result := Put(info.trademark, fieldValue, maxLen);
     IDX_MANUFACTURER:
-      result := Put(info.manufacturer, FieldValue, MaxLen);
+      result := Put(info.manufacturer, fieldValue, maxLen);
     IDX_DESIGNER:
-      result := Put(info.designer, FieldValue, MaxLen);
+      result := Put(info.designer, fieldValue, maxLen);
     IDX_DESCRIPTION:
-      result := Put(info.description, FieldValue, MaxLen);
+      result := Put(info.description, fieldValue, maxLen);
     IDX_VENDOR_URL:
-      result := Put(info.vendorUrl, FieldValue, MaxLen);
+      result := Put(info.vendorUrl, fieldValue, maxLen);
     IDX_DESIGNER_URL:
-      result := Put(info.designerUrl, FieldValue, MaxLen);
+      result := Put(info.designerUrl, fieldValue, maxLen);
     IDX_LICENSE:
-      result := Put(info.license, FieldValue, MaxLen);
+      result := Put(info.license, fieldValue, maxLen);
     IDX_LICENSE_URL:
-      result := Put(info.licenseUrl, FieldValue, MaxLen);
+      result := Put(info.licenseUrl, fieldValue, maxLen);
     IDX_FORMAT:
-      result := Put(info.format, FieldValue, MaxLen);
+      result := Put(info.format, fieldValue, maxLen);
     IDX_VARIATION_AXIS_TAGS:
       result := Put(
-        TagsToString(info.variationAxisTags), FieldValue, MaxLen);
+        TagsToString(info.variationAxisTags), fieldValue, maxLen);
     IDX_NUM_FONTS:
-      result := Put(info.numFonts, FieldValue);
+      result := Put(info.numFonts, fieldValue);
   else
     result := FT_NOSUCHFIELD;
   end;
@@ -230,12 +231,12 @@ begin
 end;
 
 
-function ReadFontInfo(const fileName: string; var info: TFontInfo): boolean;
+function ReadFontInfo(const fileName: String; var info: TFontInfo): Boolean;
 const
   VERSION_PREFIX = 'Version ';
 var
-  ext: string;
-  gzipped: boolean = FALSE;
+  ext: String;
+  gzipped: Boolean = FALSE;
   stream: TStream;
   reader: TInfoReader;
 begin
@@ -291,41 +292,41 @@ end;
 
 
 var
-  lastFileName: string;
+  lastFileName: String;
   infoCache: TFontInfo;
   // infoCacheValid is TRUE if TFontInfo was loaded without errors
-  infoCacheValid: boolean;
+  infoCacheValid: Boolean;
 
 
 function ContentGetValue(
-  FileName: PAnsiChar;
-  FieldIndex,
-  UnitIndex: Integer;
-  FieldValue: PByte;
-  MaxLen,
-  Flags: Integer): Integer; dcpcall;
+  fileName: PAnsiChar;
+  fieldIndex,
+  unitIndex: Integer;
+  fieldValue: PByte;
+  maxLen,
+  flags: Integer): Integer; dcpcall;
 var
-  FileNameStr: string;
+  fileNameStr: String;
 begin
-  if FieldIndex > Ord(High(TFieldIndex)) then
+  if fieldIndex > Ord(High(TFieldIndex)) then
     exit(FT_NOSUCHFIELD);
 
-  FileNameStr := string(FileName);
+  fileNameStr := String(fileName);
 
-  if lastFileName <> FileNameStr then
+  if lastFileName <> fileNameStr then
   begin
-    if Flags and CONTENT_DELAYIFSLOW <> 0 then
+    if flags and CONTENT_DELAYIFSLOW <> 0 then
       exit(FT_DELAYED);
 
-    infoCacheValid := ReadFontInfo(FileNameStr, infoCache);
-    lastFileName := FileNameStr;
+    infoCacheValid := ReadFontInfo(fileNameStr, infoCache);
+    lastFileName := fileNameStr;
   end;
 
   if not infoCacheValid then
     exit(FT_FILEERROR);
 
   result := Put(
-    infoCache, TFieldIndex(FieldIndex), FieldValue, MaxLen);
+    infoCache, TFieldIndex(fieldIndex), fieldValue, maxLen);
 end;
 
 

@@ -21,14 +21,14 @@ const
 
   SFNT_COLLECTION_SIGN = $74746366; // 'ttcf'
 
-function SFNT_IsLayoutTable(tag: longword): boolean;
+function SFNT_IsLayoutTable(tag: LongWord): Boolean;
 function SFNT_GetFormatSting(
-  sign: longword; hasLayoutTables: boolean): string;
+  sign: LongWord; hasLayoutTables: Boolean): String;
 
 type
   TSFNTTableReader = procedure(stream: TStream; var info: TFontInfo);
 
-function SFNT_FindTableReader(tag: longword): TSFNTTableReader;
+function SFNT_FindTableReader(tag: LongWord): TSFNTTableReader;
 
 {
   Helper for TSFNTTableReader that restores the initial stream
@@ -39,7 +39,7 @@ procedure SFNT_ReadTable(
   reader: TSFNTTableReader;
   stream: TStream;
   var info: TFontInfo;
-  offset: longword);
+  offset: LongWord);
 
 {
   Common parser for TTF, TTC, OTF, OTC, and EOT.
@@ -48,7 +48,7 @@ procedure SFNT_ReadTable(
   is not treated as part of the font data.
 }
 procedure SFNT_ReadCommonInfo(
-  stream: TStream; var info: TFontInfo; fontOffset: longword = 0);
+  stream: TStream; var info: TFontInfo; fontOffset: LongWord = 0);
 
 implementation
 
@@ -67,7 +67,7 @@ const
   SFNT_OTF_SIGN = $4f54544f; // 'OTTO'
 
 
-function SFNT_IsLayoutTable(tag: longword): boolean;
+function SFNT_IsLayoutTable(tag: LongWord): Boolean;
 begin
   case tag of
     SFNT_TAG_BASE,
@@ -83,7 +83,7 @@ end;
 
 
 function SFNT_GetFormatSting(
-  sign: longword; hasLayoutTables: boolean): string;
+  sign: LongWord; hasLayoutTables: Boolean): String;
 begin
   if sign = SFNT_OTF_SIGN then
     result := 'OT PS'
@@ -98,9 +98,9 @@ procedure SFNT_ReadTable(
   reader: TSFNTTableReader;
   stream: TStream;
   var info: TFontInfo;
-  offset: longword);
+  offset: LongWord);
 var
-  start: int64;
+  start: Int64;
 begin
   if reader = NIL then
     exit;
@@ -127,7 +127,7 @@ type
   TNamingTable = packed record
     version,
     count,
-    stringOffset: word;
+    StringOffset: Word;
   end;
 
   TNameRecord = packed record
@@ -136,18 +136,18 @@ type
     languageId,
     nameId,
     length,
-    offset: word;
+    offset: Word;
   end;
 
 var
-  start: int64;
+  start: Int64;
   namingTable: TNamingTable;
   storageOffset,
-  offset: int64;
-  i: longint;
+  offset: Int64;
+  i: LongInt;
   nameRec: TNameRecord;
   name: UnicodeString;
-  dst: pstring;
+  dst: PString;
 begin
   start := stream.Position;
   stream.ReadBuffer(namingTable, SizeOf(namingTable));
@@ -157,7 +157,7 @@ begin
   begin
     version := SwapEndian(version);
     count := SwapEndian(count);
-    stringOffset := SwapEndian(stringOffset);
+    StringOffset := SwapEndian(stringOffset);
   end;
   {$ENDIF}
 
@@ -265,21 +265,21 @@ end;
 
 procedure ReadFvarTable(stream: TStream; var info: TFontInfo);
 var
-  start: int64;
+  start: Int64;
   axesArrayOffset,
   axisCount,
-  axisSize: word;
-  i: longint;
+  axisSize: Word;
+  i: LongInt;
 begin
   start := stream.Position;
 
   // Skip majorVersion and minorVersion.
-  stream.Seek(SizeOf(word) * 2 , soCurrent);
+  stream.Seek(SizeOf(Word) * 2 , soCurrent);
 
   axesArrayOffset := stream.ReadWordBE;
 
   // Skip reserved.
-  stream.Seek(SizeOf(word) , soCurrent);
+  stream.Seek(SizeOf(Word) , soCurrent);
 
   axisCount := stream.ReadWordBE;
 
@@ -304,13 +304,13 @@ begin
   end;
 
   // Variation axis records are not required to be sorted.
-  specialize SortArray<longword>(info.variationAxisTags);
+  specialize SortArray<LongWord>(info.variationAxisTags);
 end;
 
 
 const
   TABLE_READERS: array [0..1] of record
-    tag: longword;
+    tag: LongWord;
     reader: TSFNTTableReader;
   end = (
     (tag: SFNT_TAG_FVAR; reader: @ReadFvarTable),
@@ -318,7 +318,7 @@ const
   );
 
 
-function SFNT_FindTableReader(tag: longword): TSFNTTableReader;
+function SFNT_FindTableReader(tag: LongWord): TSFNTTableReader;
 var
   i: SizeInt;
 begin
@@ -331,28 +331,28 @@ end;
 
 
 procedure SFNT_ReadCommonInfo(
-  stream: TStream; var info: TFontInfo; fontOffset: longword);
+  stream: TStream; var info: TFontInfo; fontOffset: LongWord);
 type
   TOffsetTable = packed record
-    version: longword;
-    numTables: word;
+    version: LongWord;
+    numTables: Word;
     //searchRange,
     //entrySelector,
-    //rangeShift: word;
+    //rangeShift: Word;
   end;
 
   TTableDirEntry = packed record
     tag,
     checksumm,
     offset,
-    length: longword;
+    length: LongWord;
   end;
 
 var
   offsetTable: TOffsetTable;
-  i: longint;
+  i: LongInt;
   dir: TTableDirEntry;
-  hasLayoutTables: boolean = FALSE;
+  hasLayoutTables: Boolean = FALSE;
 begin
   stream.ReadBuffer(offsetTable, SizeOf(offsetTable));
 
@@ -374,7 +374,7 @@ begin
   if offsetTable.numTables = 0 then
     raise EStreamError.Create('Font has no tables');
 
-  stream.Seek(SizeOf(word) * 3, soCurrent);
+  stream.Seek(SizeOf(Word) * 3, soCurrent);
 
   for i := 0 to offsetTable.numTables - 1 do
   begin

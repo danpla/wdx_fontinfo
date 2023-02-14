@@ -27,13 +27,13 @@ type
     eotSize,
     fontDataSize,
     version,
-    flags: longword;
-    panose: array [0..9] of byte;
-    charset,
-    italic: byte;
-    weight: longword;
+    flags: LongWord;
+    panose: array [0..9] of Byte;
+    Charset,
+    italic: Byte;
+    weight: LongWord;
     fsType,
-    magic: word;
+    magic: Word;
     unicodeRange1,
     unicodeRange2,
     unicodeRange3,
@@ -44,15 +44,15 @@ type
     reserved1,
     reserved2,
     reserved3,
-    reserved4: longword;
+    reserved4: LongWord;
   end;
 
 
-function ReadField(stream: TStream; const fieldName: string): string;
+function ReadField(stream: TStream; const fieldName: String): String;
 var
-  padding: word;
+  padding: Word;
   s: UnicodeString;
-  sLen: word;
+  sByteLen: Word;
 begin
   padding := stream.ReadWordLE;
   if padding <> 0 then
@@ -60,9 +60,9 @@ begin
       'Non-zero (%u) padding for "%s" EOT field',
       [padding, fieldName]);
 
-  sLen := stream.ReadWordLE;
-  SetLength(s, sLen div SizeOf(WideChar));
-  stream.ReadBuffer(s[1], sLen);
+  sByteLen := stream.ReadWordLE;
+  SetLength(s, sByteLen div SizeOf(WideChar));
+  stream.ReadBuffer(s[1], sByteLen);
   {$IFDEF ENDIAN_BIG}
   SwapUnicodeEndian(s);
   {$ENDIF}
@@ -77,7 +77,7 @@ var
   fontDataSize,
   flags,
   magic,
-  fontOffset: longword;
+  fontOffset: LongWord;
 begin
   eotSize := stream.ReadDWordLE;
   if eotSize <> stream.Size then

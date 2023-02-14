@@ -16,7 +16,7 @@ type
     signature,
     version,
     numFonts,
-    firstFontOffset: longword;
+    firstFontOffset: LongWord;
   end;
 
 

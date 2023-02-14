@@ -7,13 +7,13 @@ uses
 
 generic procedure SortArray<T>(var a: array of T);
 
-function ReadPChar(stream: TStream): string;
+function ReadPChar(stream: TStream): String;
 
-function TagToString(tag: longword): string;
+function TagToString(tag: LongWord): String;
 
 procedure SwapUnicodeEndian(var s: UnicodeString);
 
-function MacOSRomanToUTF8(const s: string): string;
+function MacOSRomanToUTF8(const s: String): String;
 
 
 implementation
@@ -41,7 +41,7 @@ begin
       while (j >= gap) and (a[j - gap] > tmp) do
       begin
         a[j] := a[j - gap];
-        dec(j, gap);
+        Dec(j, gap);
       end;
 
       a[j] := tmp;
@@ -49,9 +49,9 @@ begin
 end;
 
 
-function ReadPChar(stream: TStream): string;
+function ReadPChar(stream: TStream): String;
 var
-  b: byte;
+  b: Byte;
 begin
   result := '';
 
@@ -61,12 +61,12 @@ begin
     if b = 0 then
       break;
 
-    result := result + char(b);
+    result := result + Char(b);
   end;
 end;
 
 
-function TagToString(tag: longword): string;
+function TagToString(tag: LongWord): String;
 begin
   SetLength(result, SizeOf(tag));
   {$IFDEF ENDIAN_LITTLE}
@@ -90,7 +90,7 @@ const
   MAX_ASCII = 127;
 
   // https://www.unicode.org/Public/MAPPINGS/VENDORS/APPLE/ROMAN.TXT
-  MAC_OS_ROMAN_TO_UTF8: array [0..255 - (MAX_ASCII + 1)] of string = (
+  MAC_OS_ROMAN_TO_UTF8: array [0..255 - (MAX_ASCII + 1)] of String = (
     #195#132,
     #195#133,
     #195#135,
@@ -222,16 +222,16 @@ const
   );
 
 
-function MacOSRomanToUTF8(const s: string): string;
+function MacOSRomanToUTF8(const s: String): String;
 var
-  c: char;
-  b: byte;
+  c: Char;
+  b: Byte;
 begin
   result := '';
 
   for c in s do
   begin
-    b := byte(c);
+    b := Byte(c);
     if b <= MAX_ASCII then
       result := result + c
     else

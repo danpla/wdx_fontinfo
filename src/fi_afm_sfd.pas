@@ -23,7 +23,7 @@ type
 const
   FONT_IDENT: array [TFontFormat] of record
     name,
-    sign: string;
+    sign: String;
   end = (
     (name: 'AFM';
      sign: 'StartFontMetrics'),
@@ -37,13 +37,13 @@ const
 procedure ReadCommonInfo(
   lineReader: TLineReader; var info: TFontInfo; fontFormat: TFontFormat);
 var
-  i: longint;
-  s: string;
+  i: LongInt;
+  s: String;
   sLen: SizeInt;
-  key: string;
+  key: String;
   p: SizeInt;
-  dst: pstring;
-  numFound: longint;
+  dst: PString;
+  numFound: LongInt;
 begin
   repeat
     if not lineReader.ReadLine(s) then
@@ -59,7 +59,7 @@ begin
       'Not a %s font', [FONT_IDENT[fontFormat].name]);
 
   while s[p + 1] = ' ' do
-    inc(p);
+    Inc(p);
 
   info.format := FONT_IDENT[fontFormat].name +
     Copy(s, p, Length(s) - p + 1);
@@ -79,7 +79,7 @@ begin
     if p = 0 then
       continue;
 
-    inc(i);
+    Inc(i);
 
     if fontFormat = SFD then
       key := Copy(s, 1, p - 2)  // Skip colon
@@ -99,7 +99,7 @@ begin
     end;
 
     repeat
-      inc(p);
+      Inc(p);
     until s[p] <> ' ';
 
     sLen := Length(s);
@@ -108,12 +108,12 @@ begin
       and (s[p] = '(')
       and (s[sLen] = ')') then
     begin
-      inc(p);
-      dec(sLen);
+      Inc(p);
+      Dec(sLen);
     end;
 
     dst^ := Copy(s, p, sLen - (p - 1));
-    inc(numFound);
+    Inc(numFound);
   end;
 
   info.style := ExtractStyle(info.fullName, info.family, info.style);

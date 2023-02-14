@@ -24,25 +24,25 @@ type
   TWOFFHeader = packed record
     signature,
     flavor,
-    length: longword;
+    length: LongWord;
     numTables,
-    reserved: word;
-    // totalSfntSize: longword;
+    reserved: Word;
+    // totalSfntSize: LongWord;
     // majorVersion,
-    // minorVersion: word;
+    // minorVersion: Word;
     // metaOffset,
     // metaLength,
     // metaOrigLength,
     // privOffset,
-    // privLength: longword;
+    // privLength: LongWord;
   end;
 
   TWOFFTableDirEntry = packed record
     tag,
     offset,
     compLength,
-    origLength: longword;
-    // origChecksum: longword;
+    origLength: LongWord;
+    // origChecksum: LongWord;
   end;
 
 
@@ -50,7 +50,7 @@ procedure ReadWOFFTable(
   stream: TStream; var info: TFontInfo; dir: TWOFFTableDirEntry);
 var
   reader: TSFNTTableReader;
-  start: int64;
+  start: Int64;
   zs: TDecompressionStream;
   decompressedData: TBytes;
   decompressedDataStream: TBytesStream;
@@ -99,9 +99,9 @@ end;
 procedure ReadWOFFInfo(stream: TStream; var info: TFontInfo);
 var
   header: TWOFFHeader;
-  i: longint;
+  i: LongInt;
   dir: TWOFFTableDirEntry;
-  hasLayoutTables: boolean = FALSE;
+  hasLayoutTables: Boolean = FALSE;
 begin
   stream.ReadBuffer(header, SizeOf(header));
 
@@ -132,13 +132,13 @@ begin
       'Reserved field in WOFF header is not 0 (%u)',
       [header.reserved]);
 
-  stream.Seek(SizeOf(word) * 2 + SizeOf(longword) * 6, soCurrent);
+  stream.Seek(SizeOf(Word) * 2 + SizeOf(LongWord) * 6, soCurrent);
 
   for i := 0 to header.numTables - 1 do
   begin
     stream.ReadBuffer(dir, SizeOf(dir));
     // Skip origChecksum.
-    stream.Seek(SizeOf(longword), soCurrent);
+    stream.Seek(SizeOf(LongWord), soCurrent);
 
     {$IFDEF ENDIAN_LITTLE}
     with dir do
