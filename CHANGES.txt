@@ -1,7 +1,7 @@
 1.1.4 (2023-??-??)
 ==================
 
-* Added "Variation Axes" field
+* Added "Variation Axis Tags" field
 * Added reading version from BDF and PCF
 * Fixed WOFF2 reading issue that could lead to missing information for
   some rare files
