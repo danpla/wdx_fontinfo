@@ -74,6 +74,9 @@ begin
   start := stream.Position;
   stream.Seek(dir.offset, soBeginning);
 
+  // We don't pass TDecompressionStream directly to the reader, since
+  // TDecompressionStream will have to re-decode the data from the
+  // beginning each time the reader seeks backward.
   zs := TDecompressionStream.Create(stream);
   try
     SetLength(decompressedData, dir.origLength);
