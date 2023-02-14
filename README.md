@@ -15,11 +15,14 @@ page.
 * TrueType, OpenType, and their collections
 * Web Open Font Format 1 & 2 (WOFF, WOFF2)
 * Embedded OpenType (EOT)
-* PostScript Type 0, 1, 3, 11, etc., possibly with AFM, PFM, and INF
+* PostScript Type 0, 1, 3, 11, etc., with AFM, PFM, and INF
 * Bitmap Distribution Format (BDF)
-* Portable Compiled Format (PCF), possibly gzip-compressed (.pcf.gz)
+* Portable Compiled Format (PCF)
 * Windows’ FNT/FON
 * FontForge’s Spline Font Database (SFD)
+
+The plugin can read gzip-compressed BDF and PCF if the file extensions
+are ".bdf.gz" and ".pcf.gz", respectively.
 
 
 ## Available fields
@@ -40,12 +43,12 @@ page.
 * License
 * License URL
 * Format
-    * "TT" — "plain" TrueType
-    * "OT PS" — PostSript flavored OpenType
-    * "OT TT" — TrueType flavored OpenType
-    * "EOT" — compressed Embedded OpenType (the plugin can't
-      decompress EOT)
-    * "PS {type}" — PostScript Type {type}
+    * "TT" - "plain" TrueType
+    * "OT PS" - PostSript flavored OpenType
+    * "OT TT" - TrueType flavored OpenType
+    * "EOT" - compressed Embedded OpenType (the plugin can't
+      decompress EOT to detect its TrueType/OpenType format)
+    * "PS {type}" - PostScript Type {type}
     * "AFM {version}"
     * "PFM"
     * "INF"
@@ -53,14 +56,14 @@ page.
     * "PCF"
     * "FNT {version}" (both for FNT and FON)
     * "SFD {version}"
-* Variation axes — a comma-separated list of 4-character tags
+* Variation Axes - a comma-separated list of 4-character tags
   identifying variation exes in a variable font. Common tags include:
-    * `ital` — italic
-    * `opsz` — optical size
-    * `slnt` — slant
-    * `wdht` — width
-    * `wght` — weight
-* Number of Fonts — number of fonts in TTC, OTC, or WOFF2. Always 1
+    * `ital` - italic
+    * `opsz` - optical size
+    * `slnt` - slant
+    * `wdht` - width
+    * `wght` - weight
+* Number of Fonts - number of fonts in TTC, OTC, or WOFF2. Always 1
   for other formats.
 
 
@@ -74,14 +77,14 @@ To build 64-bit version on Windows, add `-Px86_64` or invoke
 
 ### Building with WOFF2 support
 
-  * Download the latest stable source of the brotli library and
+*   Download the latest stable source of the brotli library and
     follow its building instructions.
 
-  * Put `libbrotlicommon-static` and `libbrotlidec-static` in a
+*   Put `libbrotlicommon-static` and `libbrotlidec-static` in a
     separate directory, for example `libs32` or `libs64`, depending on
     the target.
 
-  * Compile in the usual way, but append `-dENABLE_WOFF2` and `-Fl`
+*   Compile in the usual way, but append `-dENABLE_WOFF2` and `-Fl`
     followed by the directory with libraries (`-Fllibs32` or
     `-Fllibs64`). For example:
 
