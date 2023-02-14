@@ -152,7 +152,7 @@ end;
 
 function TagsToString(const tags: array of longword): string;
 var
-  tag: longint;
+  tag: longword;
 begin
   result := '';
 
