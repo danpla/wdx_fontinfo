@@ -264,17 +264,12 @@ end;
 
 
 procedure ReadFvarTable(stream: TStream; var info: TFontInfo);
-const
-  HIDDEN_AXIS = $0001;
 var
   start: int64;
   axesArrayOffset,
   axisCount,
   axisSize: word;
-  i,
-  newAxisIdx: longint;
-  axisTag: longword;
-  axisFlags: word;
+  i: longint;
 begin
   start := stream.Position;
 
@@ -297,25 +292,16 @@ begin
 
   SetLength(info.variationAxisTags, axisCount);
 
-  newAxisIdx := 0;
   for i := 0 to axisCount - 1 do
   begin
     stream.Seek(start + axesArrayOffset + axisSize * i, soBeginning);
 
-    axisTag := stream.ReadDWordBE;
+    // Note that we don't check the variation axis record flags, since
+    // we want to include even those axes that were marked as hidden
+    // by the font designer.
 
-    // Skip minValue, defaultValue, maxValue.
-    stream.Seek(SizeOf(longint) * 3 , soCurrent);
-
-    axisFlags := stream.ReadWordBE;
-    if axisFlags and HIDDEN_AXIS <> 0 then
-      continue;
-
-    info.variationAxisTags[newAxisIdx] := axisTag;
-    inc(newAxisIdx);
+    info.variationAxisTags[i] := stream.ReadDWordBE;
   end;
-
-  SetLength(info.variationAxisTags, newAxisIdx);
 
   // Variation axis records are not required to be sorted.
   specialize SortArray<longword>(info.variationAxisTags);
