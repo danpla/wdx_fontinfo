@@ -72,20 +72,19 @@ are ".bdf.gz" and ".pcf.gz", respectively.
 Get [FPC](https://www.freepascal.org/) version 3.1.1 or newer and run
 `fpc src/fi_wdx.pas @compile.cfg`.
 
-To build 64-bit version on Windows, add `-Px86_64` or invoke
-`ppcrossx64` instead of `fpc`.
+To build a 64-bit version of the plugin on Windows, add `-Px86_64`.
 
 ### Building with WOFF2 support
 
 *   Download the latest stable source of the brotli library and
     follow its building instructions.
 
-*   Put `libbrotlicommon-static` and `libbrotlidec-static` in a
-    separate directory, for example `libs32` or `libs64`, depending on
-    the target.
+*   Put `libbrotlicommon-static` and `libbrotlidec-static` libraries
+    in a separate directory, for example `libs32` or `libs64`,
+    depending on the target.
 
-*   Compile in the usual way, but append `-dENABLE_WOFF2` and `-Fl`
-    followed by the directory with libraries (`-Fllibs32` or
-    `-Fllibs64`). For example:
+*   Add `-dENABLE_WOFF2` and `-Fl` followed by the directory with
+    the libraries (`-Fllibs32` or `-Fllibs64`) to the build command.
+    For example:
 
         fpc src/fi_wdx.pas @compile.cfg -dENABLE_WOFF2 -Fllibs64
