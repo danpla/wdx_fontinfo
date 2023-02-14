@@ -81,7 +81,7 @@ type
     IDX_LICENSE,
     IDX_LICENSE_URL,
     IDX_FORMAT,
-    IDX_VARIATION_AXES,
+    IDX_VARIATION_AXIS_TAGS,
     IDX_NUM_FONTS
   );
 
@@ -93,24 +93,24 @@ type
 
 const
   FieldInfo: array [TFieldIndex] of TFieldInfo = (
-    (name: 'Family';          fieldType: FT_STRING),
-    (name: 'Style';           fieldType: FT_STRING),
-    (name: 'Full Name';       fieldType: FT_STRING),
-    (name: 'PostScript Name'; fieldType: FT_STRING),
-    (name: 'Version';         fieldType: FT_STRING),
-    (name: 'Copyright';       fieldType: FT_STRING),
-    (name: 'Unique ID';       fieldType: FT_STRING),
-    (name: 'Trademark';       fieldType: FT_STRING),
-    (name: 'Manufacturer';    fieldType: FT_STRING),
-    (name: 'Designer';        fieldType: FT_STRING),
-    (name: 'Description';     fieldType: FT_STRING),
-    (name: 'Vendor URL';      fieldType: FT_STRING),
-    (name: 'Designer URL';    fieldType: FT_STRING),
-    (name: 'License';         fieldType: FT_STRING),
-    (name: 'License URL';     fieldType: FT_STRING),
-    (name: 'Format';          fieldType: FT_STRING),
-    (name: 'Variation Axes';  fieldType: FT_STRING),
-    (name: 'Number of Fonts'; fieldType: FT_NUMERIC_32)
+    (name: 'Family';              fieldType: FT_STRING),
+    (name: 'Style';               fieldType: FT_STRING),
+    (name: 'Full Name';           fieldType: FT_STRING),
+    (name: 'PostScript Name';     fieldType: FT_STRING),
+    (name: 'Version';             fieldType: FT_STRING),
+    (name: 'Copyright';           fieldType: FT_STRING),
+    (name: 'Unique ID';           fieldType: FT_STRING),
+    (name: 'Trademark';           fieldType: FT_STRING),
+    (name: 'Manufacturer';        fieldType: FT_STRING),
+    (name: 'Designer';            fieldType: FT_STRING),
+    (name: 'Description';         fieldType: FT_STRING),
+    (name: 'Vendor URL';          fieldType: FT_STRING),
+    (name: 'Designer URL';        fieldType: FT_STRING),
+    (name: 'License';             fieldType: FT_STRING),
+    (name: 'License URL';         fieldType: FT_STRING),
+    (name: 'Format';              fieldType: FT_STRING),
+    (name: 'Variation Axis Tags'; fieldType: FT_STRING),
+    (name: 'Number of Fonts';     fieldType: FT_NUMERIC_32)
   );
 
 
@@ -212,7 +212,7 @@ begin
       result := Put(info.licenseUrl, FieldValue, MaxLen);
     IDX_FORMAT:
       result := Put(info.format, FieldValue, MaxLen);
-    IDX_VARIATION_AXES:
+    IDX_VARIATION_AXIS_TAGS:
       result := Put(
         TagsToString(info.variationAxisTags), FieldValue, MaxLen);
     IDX_NUM_FONTS:

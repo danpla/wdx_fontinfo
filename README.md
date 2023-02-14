@@ -56,7 +56,7 @@ are ".bdf.gz" and ".pcf.gz", respectively.
     * "PCF"
     * "FNT {version}" (both for FNT and FON)
     * "SFD {version}"
-* Variation Axes - a comma-separated list of 4-character tags
+* Variation Axis Tags - a comma-separated list of 4-character tags
   identifying variation exes in a variable font. Common tags include:
     * `ital` - italic
     * `opsz` - optical size
