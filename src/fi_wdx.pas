@@ -49,7 +49,7 @@ uses
   zstream;
 
 
-procedure ContentGetdetectString(
+procedure ContentGetDetectString(
   detectString: PAnsiChar; maxLen: Integer); dcpcall;
 var
   s,
