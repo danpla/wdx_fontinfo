@@ -60,7 +60,7 @@ begin
   for ext in GetSupportedExtensions do
     s := s + '|EXT="' + UpperCase(Copy(ext, 2, Length(ext) - 1)) + '"';
 
-  StrPLCopy(detectString, s, maxLen);
+  StrPLCopy(detectString, s, maxLen - 1);
 end;
 
 
@@ -127,7 +127,7 @@ begin
     exit(FT_NOMOREFIELDS);
 
   StrPLCopy(
-    fieldName, FieldInfo[TfieldIndex(fieldIndex)].name, maxLen);
+    fieldName, FieldInfo[TfieldIndex(fieldIndex)].name, maxLen - 1);
   result := FieldInfo[TfieldIndex(fieldIndex)].fieldType;
 end;
 
@@ -142,10 +142,10 @@ begin
   StrPLCopy(
     PWideChar(fieldValue),
     UTF8Decode(str),
-    maxLen div SizeOf(WideChar));
+    (maxLen - 1) div SizeOf(WideChar));
   result := FT_STRINGW;
   {$ELSE}
-  StrPLCopy(PAnsiChar(fieldValue), str, maxLen);
+  StrPLCopy(PAnsiChar(fieldValue), str, maxLen - 1);
   result := FT_STRING;
   {$ENDIF}
 end;
