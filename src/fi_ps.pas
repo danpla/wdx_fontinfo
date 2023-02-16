@@ -136,10 +136,10 @@ begin
   until s <> '';
 
   if not (
-      AnsiStartsStr(PS_MAGIC1, s)
-      or AnsiStartsStr(PS_MAGIC2, s)
-      or AnsiStartsStr(PS_MAGIC3, s)
-      or AnsiStartsStr(PS_MAGIC4, s)) then
+      StartsStr(PS_MAGIC1, s)
+      or StartsStr(PS_MAGIC2, s)
+      or StartsStr(PS_MAGIC3, s)
+      or StartsStr(PS_MAGIC4, s)) then
     raise EStreamError.Create('Not a PostScript font');
 
   while (numFound < NUM_FIELDS) and lineReader.ReadLine(s) do

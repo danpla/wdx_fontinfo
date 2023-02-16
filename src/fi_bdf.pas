@@ -97,7 +97,7 @@ begin
       'ENDPROPERTIES': break;
     end;
 
-    if AnsiStartsStr('COMMENT', s) then
+    if StartsStr('COMMENT', s) then
       continue;
 
     p := Pos(' ', s);

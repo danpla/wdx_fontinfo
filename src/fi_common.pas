@@ -81,7 +81,7 @@ begin
 
   if (fullName = '')
       or (familyName = '')
-      or not AnsiStartsStr(familyName, fullName) then
+      or not StartsStr(familyName, fullName) then
     exit;
 
   styleStart := Length(familyName) + 1;
