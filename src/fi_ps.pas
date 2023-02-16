@@ -193,7 +193,9 @@ begin
     Inc(numFound);
   end;
 
-  if info.format <> '' then
+  if info.format = '' then
+    info.format := 'PS'
+  else
     info.format := 'PS ' + info.format;
 
   info.style := ExtractStyle(info.fullName, info.family, info.style);
