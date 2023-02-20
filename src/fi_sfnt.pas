@@ -127,7 +127,7 @@ type
   TNamingTable = packed record
     version,
     count,
-    StringOffset: Word;
+    storageOffset: Word;
   end;
 
   TNameRecord = packed record
@@ -136,13 +136,13 @@ type
     languageId,
     nameId,
     length,
-    offset: Word;
+    stringOffset: Word;
   end;
 
 var
   start: Int64;
   namingTable: TNamingTable;
-  storageOffset,
+  storagePos,
   offset: Int64;
   i: LongInt;
   nameRec: TNameRecord;
@@ -157,14 +157,14 @@ begin
   begin
     version := SwapEndian(version);
     count := SwapEndian(count);
-    StringOffset := SwapEndian(stringOffset);
+    storageOffset := SwapEndian(storageOffset);
   end;
   {$ENDIF}
 
   if namingTable.count = 0 then
     raise EStreamError.Create('Naming table has no records');
 
-  storageOffset := start + namingTable.stringOffset;
+  storagePos := start + namingTable.storageOffset;
 
   for i := 0 to namingTable.count - 1 do
   begin
@@ -178,7 +178,7 @@ begin
       languageId := SwapEndian(languageId);
       nameId := SwapEndian(nameId);
       length := SwapEndian(length);
-      offset := SwapEndian(offset);
+      stringOffset := SwapEndian(stringOffset);
     end;
     {$ENDIF}
 
@@ -238,7 +238,7 @@ begin
     end;
 
     offset := stream.Position;
-    stream.Seek(storageOffset + nameRec.offset, soBeginning);
+    stream.Seek(storagePos + nameRec.stringOffset, soBeginning);
 
     case nameRec.platformId of
       PLATFORM_ID_MAC:
