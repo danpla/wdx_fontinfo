@@ -63,7 +63,7 @@ begin
 
   stream.Seek(FACE_OFFSET_POS, soBeginning);
   stream.Seek(stream.ReadDWordLE, soBeginning);
-  info.fullName := ReadPChar(stream);
+  info.fullName := ReadCStr(stream);
 
   // Strip style if font uses PS name as a Full Name.
   p := RPos('-', info.fullName);
@@ -74,7 +74,7 @@ begin
 
   stream.Seek(DRIVER_INFO_OFFSET_POS, soBeginning);
   stream.Seek(stream.ReadDWordLE, soBeginning);
-  info.psName := ReadPChar(stream);
+  info.psName := ReadCStr(stream);
 
   info.format := 'PFM';
 end;

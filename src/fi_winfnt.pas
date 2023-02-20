@@ -116,7 +116,7 @@ begin
   stream.Seek(
     start + SizeUInt(@TFNTHeader(NIL^).faceNameOffset), soBeginning);
   stream.Seek(start + stream.ReadDWordLE, soBeginning);
-  info.family := ReadPChar(stream);
+  info.family := ReadCStr(stream);
 
   if (weight = FONT_WEIGHT_REGULAR) and not italic then
     info.fullName := info.family

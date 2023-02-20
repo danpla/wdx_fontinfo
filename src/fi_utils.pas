@@ -7,7 +7,7 @@ uses
 
 generic procedure SortArray<T>(var a: array of T);
 
-function ReadPChar(stream: TStream): String;
+function ReadCStr(stream: TStream): String;
 
 function TagToString(tag: LongWord): String;
 
@@ -49,7 +49,7 @@ begin
 end;
 
 
-function ReadPChar(stream: TStream): String;
+function ReadCStr(stream: TStream): String;
 var
   b: Byte;
 begin
