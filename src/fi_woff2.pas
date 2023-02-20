@@ -173,22 +173,13 @@ function DecompressWOFF2Data(
   compressedSize, decompressedSize: LongWord): TBytes;
 var
   compressedData: TBytes;
-  brotliDecompressedSize: SizeUInt;
-  brotliDecoderResult: TBrotliDecoderResult;
 begin
   SetLength(compressedData, compressedSize);
   stream.ReadBuffer(compressedData[0], compressedSize);
   SetLength(result, decompressedSize);
 
-  brotliDecompressedSize := decompressedSize;
-  brotliDecoderResult := BrotliDecoderDecompress(
-    compressedSize,
-    Pointer(compressedData),
-    @brotliDecompressedSize,
-    Pointer(result));
-
-  if (brotliDecoderResult <> BROTLI_DECODER_RESULT_SUCCESS)
-      or (brotliDecompressedSize <> decompressedSize) then
+  if not BrotliDecompress(
+      compressedData, decompressedSize, result) then
     raise EStreamError.Create('WOFF2 brotli decompression failure');
 end;
 
