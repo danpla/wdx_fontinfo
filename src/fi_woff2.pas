@@ -246,15 +246,14 @@ begin
   if header.numTables = 0 then
     raise EStreamError.Create('WOFF2 has no tables');
 
-  if header.reserved <> 0 then
-    raise EStreamError.CreateFmt(
-      'Reserved field in WOFF2 header is not 0 (%u)',
-      [header.reserved]);
+  // The spec say that a non-zero reserved field is not an error.
 
   stream.Seek(SizeOf(Word) * 2 + SizeOf(LongWord) * 5, soCurrent);
 
   tableDir := ReadWOFF2TableDir(stream, header.numTables);
   with tableDir[header.numTables - 1] do
+    // The spec says that totalSfntSize from the header is for
+    // reference purposes only and should not be relied upon.
     decompressedSize := offset + transformedLen;
 
   if header.flavor = SFNT_COLLECTION_SIGN then
