@@ -246,7 +246,7 @@ begin
   if header.numTables = 0 then
     raise EStreamError.Create('WOFF2 has no tables');
 
-  // The spec say that a non-zero reserved field is not an error.
+  // The spec says that a non-zero reserved field is not an error.
 
   stream.Seek(SizeOf(Word) * 2 + SizeOf(LongWord) * 5, soCurrent);
 
