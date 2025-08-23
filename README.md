@@ -57,7 +57,7 @@ are ".bdf.gz" and ".pcf.gz", respectively.
     * "FNT {version}" (both for FNT and FON)
     * "SFD {version}"
 * Variation Axis Tags - a comma-separated list of 4-character tags
-  identifying variation exes in a variable font. Common tags include:
+  identifying variation axes in a variable font. Common tags include:
     * `ital` - italic
     * `opsz` - optical size
     * `slnt` - slant
@@ -76,14 +76,14 @@ To build a 64-bit version of the plugin on Windows, add `-Px86_64`.
 
 ### Building with WOFF2 support
 
-*   Download the latest stable source of the brotli library and
+1.  Download the latest stable source of the brotli library and
     follow its building instructions.
 
-*   Put `libbrotlicommon-static` and `libbrotlidec-static` libraries
+2.   Put `libbrotlicommon-static` and `libbrotlidec-static` libraries
     in a separate directory, for example `libs32` or `libs64`,
     depending on the target.
 
-*   Add `-dENABLE_WOFF2` and `-Fl` followed by the directory with
+3.  Add `-dENABLE_WOFF2` and `-Fl` followed by the directory with
     the libraries (`-Fllibs32` or `-Fllibs64`) to the build command.
     For example:
 
